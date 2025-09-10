@@ -27,14 +27,10 @@ public class MechOps {
         if (robot.launcher.getVelocity() >= robot.LAUNCHER_MIN_VELOCITY) {
             robot.leftFeeder.setPower(robot.FULL_SPEED);
             robot.rightFeeder.setPower(robot.FULL_SPEED);
-
         }
     }
     public void stopLaunch() {
-        if (robot.feederTimer.seconds() > robot.FEED_TIME_SECONDS) {
-            robot.leftFeeder.setPower(robot.STOP_SPEED);
-            robot.rightFeeder.setPower(robot.STOP_SPEED);
-        }
+        robot.leftFeeder.setPower(robot.STOP_SPEED);
+        robot.rightFeeder.setPower(robot.STOP_SPEED);
     }
-
 }
