@@ -50,9 +50,10 @@ public class Sauron extends LinearOpMode {
         telemetry.addLine("Robot Ready.");
         telemetry.update();
 
-        double storedHeading = targeting.readFromFile("HeadingFile");
+        //double storedHeading = targeting.readFromFile("HeadingFile");
+        double storedHeading = 0.0;
         double botHeading = 0.0;
-        telemetry.addData("Stored Heading from File", storedHeading);
+        //telemetry.addData("Stored Heading from File", storedHeading);
         telemetry.addData("Current Bot Heading", botHeading);
         telemetry.update();
 
@@ -68,21 +69,26 @@ public class Sauron extends LinearOpMode {
         ElapsedTime totalRuntime = new ElapsedTime();
         ElapsedTime targetingDelayRuntime = new ElapsedTime();
         ElapsedTime targetingRefreshRuntime = new ElapsedTime();
+        ElapsedTime velocityAdjustmentRuntime = new ElapsedTime();
 
         totalRuntime.reset();
         targetingDelayRuntime.reset();
         targetingRefreshRuntime.reset();
+        velocityAdjustmentRuntime.reset();
         pdTimer.reset();
 
+        double velocity = robot.LAUNCHER_TARGET_VELOCITY;
+
         // booleans for keeping track of toggles
-        boolean isTargeting = true;
+        boolean isTargeting = false;
+        boolean spinning = false;
 
         double y = 0;
         double x = 0;
         double rx = 0;
 
-        gamepad1.setLedColor(1, 0, 0, 100000000);
-        gamepad1.rumbleBlips(2);
+        gamepad1.setLedColor(0, 1, 0, 100000000);
+        gamepad1.rumbleBlips(3);
 
 //        requestOpModeStop();
 
@@ -112,7 +118,7 @@ public class Sauron extends LinearOpMode {
 
             if (isTargeting)
             {
-                rx = targeting.getTargetingRotationPowerPD(pos, robot.goalPositionBlue, 1, pdTimer);
+                rx = targeting.getTargetingRotationPowerPD(pos, robot.goalPositionBlue, 1, pdTimer, true);
             }
             else
             {
@@ -137,21 +143,45 @@ public class Sauron extends LinearOpMode {
                 targetingDelayRuntime.reset();
             }
 
-            if (gamepad1.y) {
-                robot.launcher.setVelocity(robot.LAUNCHER_TARGET_VELOCITY);
-            } else if (gamepad1.b) { // stop flywheel
+            if (gamepad1.y)
+            {
+                robot.launcher.setVelocity(velocity);
+                spinning = true;
+            }
+            else if (gamepad1.b)
+            { // stop flywheel
                 robot.launcher.setVelocity(robot.STOP_SPEED);
+                spinning = false;
             }
 
-            if (gamepad1.right_trigger > 0.5) {
+            if (gamepad1.right_trigger > 0.5)
+            {
                 // robot will not launch an artifact until the launching motor's velocity
                 // meets or exceeds HWProfile.LAUNCHER_MINIMUM_VELOCITY
-                ops.launch();
+                robot.leftFeeder.setPower(robot.FULL_SPEED);
                 robot.feederTimer.reset();
             }
 
-            if (robot.feederTimer.seconds() > robot.FEED_TIME_SECONDS) {
-                ops.stopLaunch();
+            if (robot.feederTimer.seconds() > robot.FEED_TIME_SECONDS)
+            {
+                robot.leftFeeder.setPower(0);
+            }
+
+            if (gamepad1.dpad_down && velocityAdjustmentRuntime.seconds() > 0.4)
+            {
+                velocity -= 50;
+                velocityAdjustmentRuntime.reset();
+                if (spinning) {
+                    robot.launcher.setVelocity(velocity);
+                }
+            }
+            else if (gamepad1.dpad_up && velocityAdjustmentRuntime.seconds() > 0.4)
+            {
+                velocity += 50;
+                velocityAdjustmentRuntime.reset();
+                if (spinning) {
+                    robot.launcher.setVelocity(velocity);
+                }
             }
 
 
@@ -171,11 +201,12 @@ public class Sauron extends LinearOpMode {
             robot.rightBackDrive.setPower(backRightPower);
 
             telemetry.addData("gamepad1.a: ", gamepad1.a);
+            telemetry.addData("Velocity: ", robot.launcher.getVelocity());
             telemetry.addData("Targeting: ", isTargeting);
             telemetry.addData("Targeting Runtime Time: ", targetingDelayRuntime.time());
             telemetry.addData("rx: ", rx);
             telemetry.addData("Target Heading: ", targeting.getTargetDegree(pos, robot.goalPositionBlue, false));
-            telemetry.addData("Degrees to Target: ", targeting.getDegreesToTarget(pos, robot.goalPositionBlue, false));
+            telemetry.addData("Degrees to Target: ", targeting.getDegreesToTarget(pos, robot.goalPositionBlue, false, true));
             telemetry.addLine("----------------------------------------");
             telemetry.addData("Time Total", totalRuntime.time());
             telemetry.update();

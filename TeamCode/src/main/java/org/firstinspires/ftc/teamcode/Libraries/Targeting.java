@@ -53,12 +53,9 @@ public class Targeting {
      *
      * This function calculates the angle to a target relative to where the robot is currently facing.
      *
-     * Imagine slope as m
-     *
-     *
      * @return
      */
-    public double getDegreesToTarget(Pose2D currentLocation, Pose2D targetLocation, boolean convertToRadians)
+    public double getDegreesToTarget(Pose2D currentLocation, Pose2D targetLocation, boolean convertToRadians, boolean reversePolarity)
     {
         // Grabs change in Y and change in X to calculate slope to target
         double deltaY = (targetLocation.getY(DistanceUnit.MM) - currentLocation.getY(DistanceUnit.MM));
@@ -68,7 +65,23 @@ public class Targeting {
         double targetRadians = Math.atan2(deltaY, deltaX);
         double targetDegrees = Math.toDegrees(targetRadians);
 
-        double currentDegrees = currentLocation.getHeading(AngleUnit.DEGREES);
+
+        double currentDegrees;
+        if (reversePolarity)
+        {
+            if (currentLocation.getHeading(AngleUnit.DEGREES) > 0)
+            {
+                currentDegrees = currentLocation.getHeading(AngleUnit.DEGREES) - 180;
+            }
+            else
+            {
+                currentDegrees = currentLocation.getHeading(AngleUnit.DEGREES) + 180;
+            }
+        }
+        else
+        {
+            currentDegrees = currentLocation.getHeading(AngleUnit.DEGREES);
+        }
 
         // this value indicates where the target is relative to the robot's heading
         // if the value is negative, the target is to the left
@@ -99,8 +112,8 @@ public class Targeting {
 
     // A PD-controller for generating a value to turn to a target.
     // in use, the value this function generates replaces the gamepad1.right_stick_x (or turn) value
-    public double getTargetingRotationPowerPD(Pose2D currentLocation, Pose2D targetLocation, double tolerance, ElapsedTime pdTimer) {
-        double currentDegreesToTarget = getDegreesToTarget(currentLocation, targetLocation, false);
+    public double getTargetingRotationPowerPD(Pose2D currentLocation, Pose2D targetLocation, double tolerance, ElapsedTime pdTimer, boolean reversePolarity) {
+        double currentDegreesToTarget = getDegreesToTarget(currentLocation, targetLocation, false, reversePolarity);
 
         if (Math.abs(currentDegreesToTarget) <= tolerance)
         {
@@ -121,12 +134,12 @@ public class Targeting {
         // Proportional value
         // When tuning, start with this value and start small, e.g., 0.01 to 0.05,
         // then double until you see oscillation (back and forth movement).
-        double Kp = 0.04;
+        double Kp = 0.01;
         double proportionalPower = Kp * currentDegreesToTarget;
 
         // Derivative value
         // Tune this after Kp. start small, (e.g., 0.001 to 0.05) then increase until oscillations stop
-        double Kd = 0.005;
+        double Kd = 0.01;
         double errorRateOfChange = (currentDegreesToTarget - previousDegreesToTarget) / dt;
         double derivativePower = Kd * errorRateOfChange;
 
