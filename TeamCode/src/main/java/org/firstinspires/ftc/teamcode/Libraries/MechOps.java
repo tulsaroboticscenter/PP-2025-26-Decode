@@ -24,13 +24,11 @@ public class MechOps {
     }
 
     public void launch() {
-        if (robot.launcher.getVelocity() >= robot.LAUNCHER_MIN_VELOCITY) {
+        //if (robot.launcher.getVelocity() >= robot.LAUNCHER_MIN_VELOCITY) {
             robot.leftFeeder.setPower(robot.FULL_SPEED);
-            robot.rightFeeder.setPower(robot.FULL_SPEED);
-        }
+        //}
     }
     public void stopLaunch() {
         robot.leftFeeder.setPower(robot.STOP_SPEED);
-        robot.rightFeeder.setPower(robot.STOP_SPEED);
     }
 }
