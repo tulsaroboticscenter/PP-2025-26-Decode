@@ -22,8 +22,7 @@ public class Sauron extends LinearOpMode {
 
 
     private final static HWProfile robot = new HWProfile();
-    private final LinearOpMode opMode = this;
-    private final Targeting targeting = new Targeting(robot,opMode);
+    private final Targeting targeting = new Targeting(robot, this);
 
     private final MechOps ops = new MechOps();
 
@@ -50,11 +49,21 @@ public class Sauron extends LinearOpMode {
         telemetry.addLine("Robot Ready.");
         telemetry.update();
 
-        //double storedHeading = targeting.readFromFile("HeadingFile");
         double storedHeading = 0.0;
         double botHeading = 0.0;
-        //telemetry.addData("Stored Heading from File", storedHeading);
-        telemetry.addData("Current Bot Heading", botHeading);
+        Pose2D storedLocation;
+
+        try {
+            storedLocation = ops.readPose("PoseFile");
+            storedHeading = storedLocation.getHeading(AngleUnit.DEGREES);
+            robot.pinpoint.setPosition(storedLocation);
+        } catch (Exception e) {
+            telemetry.addData("Error reading PoseFile", e.getMessage());
+        }
+
+
+        telemetry.addData("Stored Heading from File (if any): ", storedHeading);
+        telemetry.addData("Current Bot Heading: ", botHeading);
         telemetry.update();
 
         PIDFCoefficients pidfNew = new PIDFCoefficients(NEW_P, NEW_I, NEW_D, NEW_F);
@@ -200,13 +209,10 @@ public class Sauron extends LinearOpMode {
             robot.rightFrontDrive.setPower(frontRightPower);
             robot.rightBackDrive.setPower(backRightPower);
 
-            telemetry.addData("gamepad1.a: ", gamepad1.a);
             telemetry.addData("Velocity: ", robot.launcher.getVelocity());
             telemetry.addData("Targeting: ", isTargeting);
-            telemetry.addData("Targeting Runtime Time: ", targetingDelayRuntime.time());
-            telemetry.addData("rx: ", rx);
-            telemetry.addData("Target Heading: ", targeting.getTargetDegree(pos, robot.goalPositionBlue, false));
-            telemetry.addData("Degrees to Target: ", targeting.getDegreesToTarget(pos, robot.goalPositionBlue, false, true));
+            telemetry.addData("Distance to Target (mm): ", targeting.getDistanceToTarget(pos, robot.goalPositionBlue));
+            telemetry.addData("Distance to Target (in): ", (targeting.getDistanceToTarget(pos, robot.goalPositionBlue) / 25.4));
             telemetry.addLine("----------------------------------------");
             telemetry.addData("Time Total", totalRuntime.time());
             telemetry.update();
