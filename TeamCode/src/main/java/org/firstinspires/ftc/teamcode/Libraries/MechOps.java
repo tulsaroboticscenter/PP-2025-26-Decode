@@ -27,6 +27,13 @@ public class MechOps {
         robot.leftFeeder.setPower(robot.STOP_SPEED);
     }
 
+    public void setAllMotors(double power) {
+        robot.leftFrontDrive.setPower(power);
+        robot.leftBackDrive.setPower(power);
+        robot.rightFrontDrive.setPower(power);
+        robot.rightBackDrive.setPower(power);
+    }
+
     public void allStop() {
 
         robot.leftFrontDrive.setPower(0);

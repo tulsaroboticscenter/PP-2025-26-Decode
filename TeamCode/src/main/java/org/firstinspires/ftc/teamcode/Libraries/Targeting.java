@@ -19,11 +19,42 @@ public class Targeting {
     public HWProfile robot;
     public LinearOpMode opMode;
 
+    // if the shooter is on the back of the robot instead of the front, set this to true.
+    // if the shooter is on the front of the robot, set this to false.
+    boolean reversePolarity = true;
+
 
     public Targeting(HWProfile myRobot, LinearOpMode myOpMode)
     {
         robot = myRobot;
         opMode = myOpMode;
+    }
+
+    public void rotateToTarget(Pose2D targetLocation, double tolerance) {
+
+        ElapsedTime correctionTimer = new ElapsedTime();
+        double correctionCheckDurationSeconds = 0.5;
+
+        while (opMode.opModeIsActive()) {
+
+            double turn = getTargetingRotationPowerPD(robot.pinpoint.getPosition(), targetLocation, tolerance, robot.pdTimer, true);
+
+            robot.leftFrontDrive.setPower(turn);
+            robot.leftBackDrive.setPower(turn);
+            robot.rightFrontDrive.setPower(-turn);
+            robot.rightBackDrive.setPower(-turn);
+            if (getDegreesToTarget(robot.pinpoint.getPosition(), targetLocation, false) > tolerance) {
+                // If the robot is in tolerance, check if it has been in tolerance for correctionCheckDurationSeconds
+                if (correctionTimer.seconds() > correctionCheckDurationSeconds) {
+                    // if it is, then break out of the while loop.
+                    break;
+                }
+            } else {
+                // if the robot is not in tolerance, reset the correction timer.
+                correctionTimer.reset();
+            }
+        }
+
     }
 
     public double getTargetDegree(Pose2D currentLocation, Pose2D targetLocation, boolean convertToRadians)
@@ -43,19 +74,7 @@ public class Targeting {
         }
     }
 
-    // getDegreesToTarget()
-
-    /**
-     *
-     * @param currentLocation
-     * @param targetLocation
-     * @param convertToRadians
-     *
-     * This function calculates the angle to a target relative to where the robot is currently facing.
-     *
-     * @return
-     */
-    public double getDegreesToTarget(Pose2D currentLocation, Pose2D targetLocation, boolean convertToRadians, boolean reversePolarity)
+    public double getDegreesToTarget(Pose2D currentLocation, Pose2D targetLocation, boolean convertToRadians)
     {
         // Grabs change in Y and change in X to calculate slope to target
         double deltaY = (targetLocation.getY(DistanceUnit.MM) - currentLocation.getY(DistanceUnit.MM));
@@ -113,7 +132,7 @@ public class Targeting {
     // A PD-controller for generating a value to turn to a target.
     // in use, the value this function generates replaces the gamepad1.right_stick_x (or turn) value
     public double getTargetingRotationPowerPD(Pose2D currentLocation, Pose2D targetLocation, double tolerance, ElapsedTime pdTimer, boolean reversePolarity) {
-        double currentDegreesToTarget = getDegreesToTarget(currentLocation, targetLocation, false, reversePolarity);
+        double currentDegreesToTarget = getDegreesToTarget(currentLocation, targetLocation, false);
 
         if (Math.abs(currentDegreesToTarget) <= tolerance)
         {

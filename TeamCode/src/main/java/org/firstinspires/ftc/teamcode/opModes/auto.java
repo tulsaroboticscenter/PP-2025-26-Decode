@@ -22,7 +22,20 @@ public class auto extends LinearOpMode {
 
         if (opModeIsActive()) {
 
-
+            ops.setAllMotors(0.5);
+            sleep(1000);
+            ops.allStop();
+            sleep(200);
+            target.rotateToTarget(robot.goalPositionBlue, 2);
+            sleep(200);
+            robot.launcher.setVelocity(robot.LAUNCHER_TARGET_VELOCITY);
+            while (robot.launcher.getVelocity() < robot.LAUNCHER_TARGET_VELOCITY - 100) {
+                sleep(10);
+            }
+            robot.leftFeeder.setPower(robot.FULL_SPEED);
+            sleep(6000);
+            robot.leftFeeder.setPower(0);
+            robot.launcher.setVelocity(0);
 
             ops.allStop();
             ops.writePose(robot.pinpoint.getPosition(), "PoseFile");

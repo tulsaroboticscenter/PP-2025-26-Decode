@@ -47,6 +47,7 @@ public class HWProfile {
 
 
     public ElapsedTime feederTimer = new ElapsedTime();
+    public ElapsedTime pdTimer = new ElapsedTime();
 
 
     HardwareMap hwMap =  null;
