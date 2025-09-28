@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.Libraries;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ReadWriteFile;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.CRServo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -13,10 +16,16 @@ import java.io.File;
 
 public class MechOps {
 
-    HWProfile robot = new HWProfile();
+    private HWProfile robot;
+    private LinearOpMode opMode;
     private double leftPower;
     private double rightPower;
     private double strafePower;
+
+    public MechOps(HWProfile myRobot, LinearOpMode myOpMode) {
+        robot = myRobot;
+        opMode = myOpMode;
+    }
 
     public void launch() {
         //if (robot.launcher.getVelocity() >= robot.LAUNCHER_MIN_VELOCITY) {
@@ -45,30 +54,34 @@ public class MechOps {
 
     public void writePose (Pose2D Pose, String fileName) {
 
-        File PoseFile = AppUtil.getInstance().getSettingsFile(fileName);
-        String poseData = Pose.getX(DistanceUnit.MM) + "," + Pose.getY(DistanceUnit.MM) + "," + Pose.getHeading(AngleUnit.DEGREES);
-        ReadWriteFile.writeFile(PoseFile, poseData);
+        File x = AppUtil.getInstance().getSettingsFile(fileName + "X");
+        File y = AppUtil.getInstance().getSettingsFile(fileName + "Y");
+        File heading = AppUtil.getInstance().getSettingsFile(fileName + "Heading");
+
+        ReadWriteFile.writeFile(x, Double.toString(Pose.getX(DistanceUnit.MM)));
+        ReadWriteFile.writeFile(y, Double.toString(Pose.getY(DistanceUnit.MM)));
+        ReadWriteFile.writeFile(heading, Double.toString(Pose.getHeading(AngleUnit.DEGREES)));
 
     }
 
     public Pose2D readPose (String fromFileName) {
 
-        File poseFile = AppUtil.getInstance().getSettingsFile(fromFileName);
-        String data = ReadWriteFile.readFile(poseFile).trim();
-        String[] parts = data.split(",");
-        if (parts.length == 3) {
-            try {
-                double x = Double.parseDouble(parts[0]);
-                double y = Double.parseDouble(parts[1]);
-                double heading = Math.toRadians(Double.parseDouble(parts[2])); // Convert back to radians
-                return new Pose2D(DistanceUnit.MM, x, y, AngleUnit.DEGREES, heading);
-            } catch (NumberFormatException e) {
-                telemetry.addData("Error parsing Pose2D data from file: ", e.getMessage());
-                return new Pose2D(DistanceUnit.MM, 0, 0, AngleUnit.DEGREES, 0); // Default pose on error
-            }
-        } else {
-            telemetry.addLine("Incorrect data format in Pose2D file.");
-            return new Pose2D(DistanceUnit.MM, 0, 0, AngleUnit.DEGREES, 0); // Default pose on error
-        }
-    }  // end of method readFromFile()
+        File xFile = AppUtil.getInstance().getSettingsFile(fromFileName + "X");
+        File yFile = AppUtil.getInstance().getSettingsFile(fromFileName + "Y");
+        File headingFile = AppUtil.getInstance().getSettingsFile(fromFileName + "Heading");
+        opMode.telemetry.addLine("readPose - File Found");
+
+        String xData = ReadWriteFile.readFile(xFile).trim();
+        String yData = ReadWriteFile.readFile(yFile).trim();
+        String headingData = ReadWriteFile.readFile(headingFile).trim();
+        opMode.telemetry.addLine("readPose - Data Found");
+
+
+        double x = Double.parseDouble(xData);
+        double y = Double.parseDouble(yData);
+        double heading = Double.parseDouble(headingData);
+
+        return new Pose2D(DistanceUnit.MM, x, y, AngleUnit.DEGREES, heading);
+
+    }  // end of method readPose()
 }

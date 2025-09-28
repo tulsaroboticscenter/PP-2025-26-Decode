@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Libraries;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -14,6 +15,7 @@ import java.lang.Math;
 
 import java.io.File;
 
+@Config
 public class Targeting {
 
     public HWProfile robot;
@@ -22,6 +24,15 @@ public class Targeting {
     // if the shooter is on the back of the robot instead of the front, set this to true.
     // if the shooter is on the front of the robot, set this to false.
     boolean reversePolarity = true;
+
+    // Proportional value
+    // When tuning, start with this value and start small, e.g., 0.01 to 0.05,
+    // then double until you see oscillation (back and forth movement).
+    public static double KpVal = 0.01;
+
+    // Derivative value
+    // Tune this after Kp. start small, (e.g., 0.001 to 0.05) then increase until oscillations stop
+    public static double KdVal = 0.001;
 
 
     public Targeting(HWProfile myRobot, LinearOpMode myOpMode)
@@ -34,10 +45,11 @@ public class Targeting {
 
         ElapsedTime correctionTimer = new ElapsedTime();
         double correctionCheckDurationSeconds = 0.5;
+        double turn;
 
         while (opMode.opModeIsActive()) {
 
-            double turn = getTargetingRotationPowerPD(robot.pinpoint.getPosition(), targetLocation, tolerance, robot.pdTimer, true);
+            turn = getTargetingRotationPowerPD(robot.pinpoint.getPosition(), targetLocation, tolerance, robot.pdTimer, true);
 
             robot.leftFrontDrive.setPower(turn);
             robot.leftBackDrive.setPower(turn);
@@ -150,15 +162,12 @@ public class Targeting {
             // or set derivative to 0 for this cycle.
         }
 
-        // Proportional value
-        // When tuning, start with this value and start small, e.g., 0.01 to 0.05,
-        // then double until you see oscillation (back and forth movement).
-        double Kp = 0.01;
+
+        double Kp = KpVal;
         double proportionalPower = Kp * currentDegreesToTarget;
 
-        // Derivative value
-        // Tune this after Kp. start small, (e.g., 0.001 to 0.05) then increase until oscillations stop
-        double Kd = 0.01;
+
+        double Kd = KdVal;
         double errorRateOfChange = (currentDegreesToTarget - previousDegreesToTarget) / dt;
         double derivativePower = Kd * errorRateOfChange;
 

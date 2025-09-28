@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -16,15 +17,16 @@ import org.firstinspires.ftc.teamcode.Libraries.MechOps;
 import java.util.Locale;
 
 /** @noinspection ALL*/
-@TeleOp(name="SauronTeleOp", group="Robot")
+@TeleOp(name="SauronRed", group="Robot")
 //@Disabled
-public class Sauron extends LinearOpMode {
+public class SauronRed extends LinearOpMode {
 
 
     private final static HWProfile robot = new HWProfile();
     private final Targeting targeting = new Targeting(robot, this);
+    private final MechOps ops = new MechOps(robot, this);
 
-    private final MechOps ops = new MechOps();
+    //private Pose2D goalPosition = new Pose2D(DistanceUnit.INCH, 140, 94, AngleUnit.DEGREES, 0);
 
     public static double NEW_P = 15;
     public static double NEW_I = 1;
@@ -52,15 +54,30 @@ public class Sauron extends LinearOpMode {
         double storedHeading = 0.0;
         double botHeading = 0.0;
         Pose2D storedLocation;
+        Pose2D goalPosition;
 
         try {
             storedLocation = ops.readPose("PoseFile");
             storedHeading = storedLocation.getHeading(AngleUnit.DEGREES);
+            telemetry.addData("Position Found (in inches): ", storedLocation.getX(DistanceUnit.INCH) + ", " + storedLocation.getY(DistanceUnit.INCH));
             robot.pinpoint.setPosition(storedLocation);
+            telemetry.addLine("Position Set.");
+
         } catch (Exception e) {
-            telemetry.addData("Error reading PoseFile", e.getMessage());
+            telemetry.addLine("Error reading PoseFile");
+            storedLocation = new Pose2D(DistanceUnit.MM, 0, 0, AngleUnit.DEGREES, 0);
+            storedHeading = 0.0;
         }
 
+        robot.pinpoint.setPosition(storedLocation);
+
+        try {
+            goalPosition = ops.readPose("GoalPositionFile");
+            telemetry.addLine("Goal Position Found.");
+        } catch (Exception e) {
+            telemetry.addLine("Error reading GoalPositionFile");
+            goalPosition = new Pose2D(DistanceUnit.INCH, 140, 105, AngleUnit.DEGREES, 0);
+        }
 
         telemetry.addData("Stored Heading from File (if any): ", storedHeading);
         telemetry.addData("Current Bot Heading: ", botHeading);
@@ -90,7 +107,10 @@ public class Sauron extends LinearOpMode {
 
         // booleans for keeping track of toggles
         boolean isTargeting = false;
-        boolean spinning = false;
+        boolean spinning = true;
+
+        // automatically spin up the launcher motor.
+        robot.launcher.setVelocity(velocity);
 
         double y = 0;
         double x = 0;
@@ -127,7 +147,7 @@ public class Sauron extends LinearOpMode {
 
             if (isTargeting)
             {
-                rx = targeting.getTargetingRotationPowerPD(pos, robot.goalPositionBlue, 1, pdTimer, true);
+                rx = targeting.getTargetingRotationPowerPD(pos, goalPosition, 1, pdTimer, true);
             }
             else
             {
@@ -193,6 +213,10 @@ public class Sauron extends LinearOpMode {
                 }
             }
 
+            if (gamepad1.share) {
+                robot.pinpoint.resetPosAndIMU();
+            }
+
 
 
             // Denominator is the largest motor power (absolute value) or 1
@@ -211,8 +235,8 @@ public class Sauron extends LinearOpMode {
 
             telemetry.addData("Velocity: ", robot.launcher.getVelocity());
             telemetry.addData("Targeting: ", isTargeting);
-            telemetry.addData("Distance to Target (mm): ", targeting.getDistanceToTarget(pos, robot.goalPositionBlue));
-            telemetry.addData("Distance to Target (in): ", (targeting.getDistanceToTarget(pos, robot.goalPositionBlue) / 25.4));
+            telemetry.addData("Distance to Target (mm): ", targeting.getDistanceToTarget(pos, goalPosition));
+            telemetry.addData("Distance to Target (in): ", (targeting.getDistanceToTarget(pos, goalPosition) / 25.4));
             telemetry.addLine("----------------------------------------");
             telemetry.addData("Time Total", totalRuntime.time());
             telemetry.update();
@@ -222,4 +246,7 @@ public class Sauron extends LinearOpMode {
         // reset the heading value in the HeadingFile to 0
         targeting.writeToFile(0,"HeadingFile");
     }
+
+
+
 }

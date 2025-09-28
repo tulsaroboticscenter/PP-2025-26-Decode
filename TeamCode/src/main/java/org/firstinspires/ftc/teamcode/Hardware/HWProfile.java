@@ -2,12 +2,12 @@ package org.firstinspires.ftc.teamcode.Hardware;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -17,10 +17,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.goBilda.GoBildaPinpointDriver;
 
+@Config
 public class HWProfile {
 
-    public Pose2D goalPositionBlue = new Pose2D(DistanceUnit.MM, 100, 2692, AngleUnit.DEGREES, 0);
-
+    public static Pose2D goalPositionBlue = new Pose2D(DistanceUnit.MM, 100, 2392, AngleUnit.DEGREES, 0);
     public final double FEED_TIME_SECONDS = 0.20; //The feeder servos run this long when a shot is requested.
     public final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
     public final double FULL_SPEED = 1.0;
@@ -48,7 +48,6 @@ public class HWProfile {
 
     public ElapsedTime feederTimer = new ElapsedTime();
     public ElapsedTime pdTimer = new ElapsedTime();
-
 
     HardwareMap hwMap =  null;
 
