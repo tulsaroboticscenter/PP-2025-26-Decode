@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Hardware.HWProfile;
+import org.firstinspires.ftc.teamcode.Libraries.FieldMarkers;
 import org.firstinspires.ftc.teamcode.Libraries.MechOps;
 import org.firstinspires.ftc.teamcode.Libraries.Targeting;
 
@@ -24,8 +25,9 @@ public class SauronBlue extends LinearOpMode {
     private final static HWProfile robot = new HWProfile();
     private final Targeting targeting = new Targeting(robot, this);
     private final MechOps ops = new MechOps(robot, this);
+    private final FieldMarkers markers = new FieldMarkers();
 
-    //private Pose2D goalPosition = new Pose2D(DistanceUnit.INCH, 140, 94, AngleUnit.DEGREES, 0);
+    private Pose2D goalPosition = markers.blueGoal;
 
     public static double NEW_P = 15;
     public static double NEW_I = 1;
@@ -41,6 +43,7 @@ public class SauronBlue extends LinearOpMode {
         // INITIALIZATION OPERATIONS
 
         robot.init(hardwareMap, true);
+        robot.pinpoint.update();
 
         telemetry.addData("Status:", "Initialized");
         telemetry.update();
@@ -53,29 +56,31 @@ public class SauronBlue extends LinearOpMode {
         double storedHeading = 0.0;
         double botHeading = 0.0;
         Pose2D storedLocation;
-        Pose2D goalPosition;
+        boolean load = true;
+        Pose2D startingPosition = markers.blueSmallZone;
 
         try {
             storedLocation = ops.readPose("PoseFile");
-            storedHeading = storedLocation.getHeading(AngleUnit.DEGREES);
-            telemetry.addData("Position Found (in inches): ", storedLocation.getX(DistanceUnit.INCH) + ", " + storedLocation.getY(DistanceUnit.INCH));
-            robot.pinpoint.setPosition(storedLocation);
-            telemetry.addLine("Position Set.");
+            String locationData = String.format(Locale.US, "X: %.1f in, Y: %.1f in, %.1f degrees", storedLocation.getX(DistanceUnit.INCH), storedLocation.getY(DistanceUnit.INCH), storedLocation.getHeading(AngleUnit.DEGREES));
+            telemetry.addData("Position Found", locationData);
+            telemetry.addLine("Load? (A: Yes (default), B: No)");
+            telemetry.update();
+            while (opModeInInit()) {
+                if (gamepad1.b) {
+                    load = false;
+                    telemetry.addLine("Position Disregarded.");
+                    telemetry.addLine("Starting at Blue Side Small Zone on Start.");
+                    telemetry.update();
+                } else if (gamepad1.a || isStopRequested()) {
+                    break;
+                }
+            }
+
 
         } catch (Exception e) {
             telemetry.addLine("Error reading PoseFile");
-            storedLocation = new Pose2D(DistanceUnit.MM, 0, 0, AngleUnit.DEGREES, 0);
-            storedHeading = 0.0;
-        }
-
-        robot.pinpoint.setPosition(storedLocation);
-
-        try {
-            goalPosition = ops.readPose("GoalPositionFile");
-            telemetry.addLine("Goal Position Found.");
-        } catch (Exception e) {
-            telemetry.addLine("Error reading GoalPositionFile");
-            goalPosition = new Pose2D(DistanceUnit.INCH, 140, -105, AngleUnit.DEGREES, 0);
+            storedLocation = markers.blueSmallZone;
+            storedHeading = startingPosition.getHeading(AngleUnit.DEGREES);;
         }
 
         telemetry.addData("Stored Heading from File (if any): ", storedHeading);
@@ -89,6 +94,16 @@ public class SauronBlue extends LinearOpMode {
 
         /* Wait for the game driver to press play */
         waitForStart();
+
+        if (load) {
+            robot.pinpoint.setPosition(storedLocation);
+            robot.pinpoint.update();
+            storedHeading = storedLocation.getHeading(AngleUnit.DEGREES);
+        } else if (!load) {
+            robot.pinpoint.setPosition(startingPosition);
+            robot.pinpoint.update();
+            storedHeading = startingPosition.getHeading(AngleUnit.DEGREES);
+        }
 
         // Initializes ElapsedTimes. One for total runtime of the program and the others set up for toggles.
         ElapsedTime totalRuntime = new ElapsedTime();
@@ -133,7 +148,7 @@ public class SauronBlue extends LinearOpMode {
 
             robot.pinpoint.update();    //update the IMU value
             Pose2D pos = robot.pinpoint.getPosition();
-            String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(DistanceUnit.MM), pos.getY(DistanceUnit.MM), pos.getHeading(AngleUnit.DEGREES));
+            String data = String.format(Locale.US, "{X: %.1f in, Y: %.1f in, H: %.1f}", pos.getX(DistanceUnit.INCH), pos.getY(DistanceUnit.INCH), pos.getHeading(AngleUnit.DEGREES));
             telemetry.addData("Position", data); // prints current positional data from pinpoint
 
             botHeading = Math.toRadians(pos.getHeading(AngleUnit.DEGREES) - storedHeading);
@@ -234,18 +249,12 @@ public class SauronBlue extends LinearOpMode {
 
             telemetry.addData("Velocity: ", robot.launcher.getVelocity());
             telemetry.addData("Targeting: ", isTargeting);
-            telemetry.addData("Distance to Target (mm): ", targeting.getDistanceToTarget(pos, robot.goalPositionBlue));
-            telemetry.addData("Distance to Target (in): ", (targeting.getDistanceToTarget(pos, robot.goalPositionBlue) / 25.4));
+            telemetry.addData("Distance to Target (in): ", (targeting.getDistanceToTarget(pos, goalPosition) / 25.4));
             telemetry.addLine("----------------------------------------");
             telemetry.addData("Time Total", totalRuntime.time());
             telemetry.update();
-
-
         }
-        // reset the heading value in the HeadingFile to 0
-        targeting.writeToFile(0,"HeadingFile");
+        robot.pinpoint.update();
+        ops.writePose(robot.pinpoint.getPosition(), "PoseFile");
     }
-
-
-
 }

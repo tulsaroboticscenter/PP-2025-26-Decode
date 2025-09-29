@@ -20,7 +20,6 @@ import org.firstinspires.ftc.teamcode.goBilda.GoBildaPinpointDriver;
 @Config
 public class HWProfile {
 
-    public static Pose2D goalPositionBlue = new Pose2D(DistanceUnit.MM, 100, 2392, AngleUnit.DEGREES, 0);
     public final double FEED_TIME_SECONDS = 0.20; //The feeder servos run this long when a shot is requested.
     public final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
     public final double FULL_SPEED = 1.0;
@@ -97,6 +96,8 @@ public class HWProfile {
         pinpoint.resetPosAndIMU();
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        pinpoint.setOffsets(-10, -50);
+
         // pinpoint.setEncoderDirections();
     }
 }
