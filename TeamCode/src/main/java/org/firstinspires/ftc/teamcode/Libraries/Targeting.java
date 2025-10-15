@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.Libraries;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -223,6 +226,27 @@ public class Targeting {
         return myNumber;       // provide the number to the Block calling this myBlock
 
     }  // end of method readFromFile()
+
+
+
+    public void recalibrateGoalTargeting() {
+        double currentHeading = robot.pinpoint.getPosition().getHeading(AngleUnit.DEGREES);
+        double currentX = robot.pinpoint.getPosition().getX(DistanceUnit.MM);
+        double currentY = robot.pinpoint.getPosition().getY(DistanceUnit.MM);
+
+        LLResult result = robot.limelight.getLatestResult();
+        if (result != null && result.isValid()) {
+            double tx = result.getTx(); // How far left or right the target is (degrees)
+            double ty = result.getTy(); // How far up or down the target is (degrees)
+            double ta = result.getTa(); // How big the target looks (0%-100% of the image)
+
+            
+
+        } else {
+            telemetry.addData("Limelight", "No Targets");
+        }
+
+    }
 
 }
 

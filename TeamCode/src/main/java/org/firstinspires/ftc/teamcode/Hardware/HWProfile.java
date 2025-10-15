@@ -11,6 +11,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.LLStatus;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -44,6 +48,8 @@ public class HWProfile {
 
     public GoBildaPinpointDriver pinpoint = null; // pinpoint
 
+    public Limelight3A limelight = null; // limelight
+
 
     public ElapsedTime feederTimer = new ElapsedTime();
     public ElapsedTime pdTimer = new ElapsedTime();
@@ -67,6 +73,8 @@ public class HWProfile {
         leftFeeder = hwMap.get(CRServo.class, "leftFeeder");
 
         pinpoint = hwMap.get(GoBildaPinpointDriver.class,"pinpoint");
+
+        limelight = hwMap.get(Limelight3A.class, "limelight");
 
         // reverse one side to make sure all motors are in sync
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -98,6 +106,8 @@ public class HWProfile {
         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.FORWARD);
         pinpoint.setOffsets(-10, -50);
 
-        // pinpoint.setEncoderDirections();
+        limelight.setPollRateHz(100);
+        limelight.start();
+        limelight.pipelineSwitch(0);
     }
 }
