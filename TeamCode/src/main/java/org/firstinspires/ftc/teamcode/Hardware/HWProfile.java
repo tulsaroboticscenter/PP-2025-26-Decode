@@ -68,13 +68,12 @@ public class HWProfile {
         leftBackDrive = hwMap.get(DcMotor.class, "driveLR");
         rightBackDrive = hwMap.get(DcMotor.class, "driveRR");
 
-
         launcher = hwMap.get(DcMotorEx.class, "launcher");
         leftFeeder = hwMap.get(CRServo.class, "leftFeeder");
 
         pinpoint = hwMap.get(GoBildaPinpointDriver.class,"pinpoint");
 
-        limelight = hwMap.get(Limelight3A.class, "limelight");
+        //limelight = hwMap.get(Limelight3A.class, "limelight");
 
         // reverse one side to make sure all motors are in sync
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -94,7 +93,6 @@ public class HWProfile {
         rightBackDrive.setZeroPowerBehavior(BRAKE);
         launcher.setZeroPowerBehavior(BRAKE);
 
-
         leftFeeder.setPower(STOP_SPEED);
 
         launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300, 0, 0, 10));
@@ -103,11 +101,10 @@ public class HWProfile {
 
         pinpoint.resetPosAndIMU();
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.FORWARD);
-        pinpoint.setOffsets(-10, -50);
+        pinpoint.setOffsets(10, 175.5);
 
-        limelight.setPollRateHz(100);
-        limelight.start();
-        limelight.pipelineSwitch(0);
+        //limelight.setPollRateHz(100);
+        //limelight.start();
+        //limelight.pipelineSwitch(0);
     }
 }

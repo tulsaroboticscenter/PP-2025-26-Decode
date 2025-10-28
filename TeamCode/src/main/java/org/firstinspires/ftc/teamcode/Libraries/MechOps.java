@@ -32,6 +32,8 @@ public class MechOps {
         opMode = myOpMode;
     }
 
+
+    /**
     public void launch() {
         //if (robot.launcher.getVelocity() >= robot.LAUNCHER_MIN_VELOCITY) {
             robot.leftFeeder.setPower(robot.FULL_SPEED);
@@ -40,6 +42,7 @@ public class MechOps {
     public void stopLaunch() {
         robot.leftFeeder.setPower(robot.STOP_SPEED);
     }
+     **/
 
     public void setAllMotors(double power) {
         robot.leftFrontDrive.setPower(power);

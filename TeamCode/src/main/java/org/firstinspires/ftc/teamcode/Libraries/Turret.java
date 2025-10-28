@@ -1,10 +1,8 @@
 package org.firstinspires.ftc.teamcode.Libraries;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
-
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.util.ReadWriteFile;
@@ -14,18 +12,17 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.Hardware.HWProfile;
-import java.lang.Math;
 
 import java.io.File;
 
 @Config
-public class Targeting {
+public class Turret {
 
     public HWProfile robot;
     public LinearOpMode opMode;
 
-    // If the launcher is opposite the front side of your robot, set this to true. If not, leave this as false.
-
+    // if the shooter is on the back of the robot instead of the front, set this to true.
+    // if the shooter is on the front of the robot, set this to false.
     boolean reversePolarity = true;
 
     // Proportional value
@@ -37,23 +34,59 @@ public class Targeting {
     // Tune this after Kp. start small, (e.g., 0.001 to 0.05) then increase until oscillations stop
     public static double KdVal = 0.001;
 
-    public static double leadCoefficient = 1;
+    // Assumption
+    public double turretPPR = 145.1;
+
+    // Assumption
+    public double turretGearRatio = 5;
+
+    public double ticksPerTurretRevolution = turretPPR * turretGearRatio;
+
+    public double tickToDegreeCoeffecient = 360 / ticksPerTurretRevolution;
 
 
-    public Targeting(HWProfile myRobot, LinearOpMode myOpMode)
+
+    public double getTurretMotorTickTarget(Pose2D currentLocation, Pose2D targetLocation, DcMotor turretMotor) {
+
+        double difference = getAngleToTarget(currentLocation, getTurretAngle(turretMotor.getCurrentPosition(), AngleUnit.DEGREES), targetLocation, AngleUnit.DEGREES);
+
+        double tickDifference = (difference / 360) * ticksPerTurretRevolution;
+
+        return turretMotor.getCurrentPosition() + tickDifference;
+    }
+
+    public double getTurretAngle(double turretMotorTicks, AngleUnit angleUnit) {
+        double motorRevolutions = turretMotorTicks / ticksPerTurretRevolution;
+        double turretAngle = motorRevolutions * 360;
+
+        while (turretAngle > 180) {
+            turretAngle -= 360;
+        }
+        while (turretAngle < -180) {
+            turretAngle += 360;
+        }
+
+        if (angleUnit == AngleUnit.DEGREES) {
+            return turretAngle;
+        } else {
+            return Math.toRadians(turretAngle);
+        }
+    }
+
+    public Turret(HWProfile myRobot, LinearOpMode myOpMode)
     {
         robot = myRobot;
         opMode = myOpMode;
     }
 
-    public double getTargetAngle(Pose2D currentLocation, Pose2D targetLocation, boolean convertToRadians)
+    public double getTargetAngle(Pose2D currentLocation, Pose2D targetLocation, AngleUnit angleUnit)
     {
         double deltaY = (targetLocation.getY(DistanceUnit.MM) - currentLocation.getY(DistanceUnit.MM));
         double deltaX = (targetLocation.getX(DistanceUnit.MM) - currentLocation.getX(DistanceUnit.MM));
 
         double targetRadians = Math.atan2(deltaY, deltaX);
 
-        if (convertToRadians)
+        if (angleUnit == AngleUnit.RADIANS)
         {
             return targetRadians;
         }
@@ -63,7 +96,7 @@ public class Targeting {
         }
     }
 
-    public double getDegreesToTarget(Pose2D currentLocation, Pose2D targetLocation, boolean convertToRadians)
+    public double getAngleToTarget(Pose2D currentLocation, double currentAngleDegrees, Pose2D targetLocation, AngleUnit angleUnit)
     {
         // Grabs change in Y and change in X to calculate slope to target
         double deltaY = (targetLocation.getY(DistanceUnit.MM) - currentLocation.getY(DistanceUnit.MM));
@@ -77,18 +110,18 @@ public class Targeting {
         double currentDegrees;
         if (reversePolarity)
         {
-            if (currentLocation.getHeading(AngleUnit.DEGREES) > 0)
+            if (currentAngleDegrees > 0)
             {
-                currentDegrees = currentLocation.getHeading(AngleUnit.DEGREES) - 180;
+                currentDegrees = currentAngleDegrees - 180;
             }
             else
             {
-                currentDegrees = currentLocation.getHeading(AngleUnit.DEGREES) + 180;
+                currentDegrees = currentAngleDegrees + 180;
             }
         }
         else
         {
-            currentDegrees = currentLocation.getHeading(AngleUnit.DEGREES);
+            currentDegrees = currentAngleDegrees;
         }
 
         // this value indicates where the target is relative to the robot's heading
@@ -105,7 +138,7 @@ public class Targeting {
             degreesToTarget += 360;
         }
 
-        if (convertToRadians)
+        if (angleUnit == AngleUnit.RADIANS)
         {
             return Math.toRadians(degreesToTarget);
         }
@@ -120,8 +153,8 @@ public class Targeting {
 
     // A PD-controller for generating a value to turn to a target.
     // in use, the value this function generates replaces the gamepad1.right_stick_x (or turn) value
-    public double getTargetingRotationPowerPD(Pose2D currentLocation, Pose2D targetLocation, double tolerance, ElapsedTime pdTimer, boolean reversePolarity) {
-        double currentDegreesToTarget = getDegreesToTarget(currentLocation, targetLocation, false);
+    public double getTargetingRotationPowerPD(Pose2D currentLocation, double currentAngleDegrees, Pose2D targetLocation, double tolerance, ElapsedTime pdTimer, boolean reversePolarity) {
+        double currentDegreesToTarget = getAngleToTarget(currentLocation, currentAngleDegrees, targetLocation, AngleUnit.DEGREES);
 
         if (Math.abs(currentDegreesToTarget) <= tolerance)
         {
@@ -170,7 +203,7 @@ public class Targeting {
     }
 
     // returns distance from one position to another.
-    public double getDistanceToTarget(Pose2D position1, Pose2D position2)
+    public double getDistance(Pose2D position1, Pose2D position2)
     {
         double deltaY = position2.getY(DistanceUnit.MM) - position1.getY(DistanceUnit.MM);
         double deltaX = position2.getX(DistanceUnit.MM) - position1.getX(DistanceUnit.MM);
@@ -179,7 +212,6 @@ public class Targeting {
 
         return distanceMM;
     }
-
 
     public void writeToFile (double headingValue, String fileName)
     {
@@ -203,26 +235,8 @@ public class Targeting {
 
 
 
-    /**
-    public void recalibrateGoalTargeting() {
-        double currentHeading = robot.pinpoint.getPosition().getHeading(AngleUnit.DEGREES);
-        double currentX = robot.pinpoint.getPosition().getX(DistanceUnit.MM);
-        double currentY = robot.pinpoint.getPosition().getY(DistanceUnit.MM);
-
-        LLResult result = robot.limelight.getLatestResult();
-        if (result != null && result.isValid()) {
-            double tx = result.getTx(); // How far left or right the target is (degrees)
-            double ty = result.getTy(); // How far up or down the target is (degrees)
-            double ta = result.getTa(); // How big the target looks (0%-100% of the image)
-
-            
-
-        } else {
-            telemetry.addData("Limelight", "No Targets");
-        }
-
-    }
-     **/
-
+    // normal targeting system for turrets using "Run-To-Position" PID controller included with gobilda motor
+    // velocity calculation and compensation system
+    // trajectory calculation system with adjustable height
 }
 

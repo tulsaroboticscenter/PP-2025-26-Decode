@@ -13,23 +13,33 @@ import org.firstinspires.ftc.teamcode.Hardware.HWProfile;
 import org.firstinspires.ftc.teamcode.Libraries.FieldMarkers;
 import org.firstinspires.ftc.teamcode.Libraries.MechOps;
 import org.firstinspires.ftc.teamcode.Libraries.Targeting;
+import org.firstinspires.ftc.teamcode.Libraries.Velocity;
 
 import java.util.Locale;
 
 /** @noinspection ALL*/
-@TeleOp(name="SauronBlue (Player-Centric)", group="Robot")
+@TeleOp(name="SauronBlue (Experimental)", group="Robot")
 //@Disabled
-public class SauronBluePC extends LinearOpMode {
+public class SauronBlueEXPERIMENTAL extends LinearOpMode {
 
+
+
+    /**
+
+        EXPERIMENTAL OPMODE
+
+     Current Function: Testing lead logic.
+
+     **/
 
     private final static HWProfile robot = new HWProfile();
     private final Targeting targeting = new Targeting(robot, this);
     private final MechOps ops = new MechOps(robot, this);
     private final FieldMarkers markers = new FieldMarkers();
 
-    private Pose2D goalPosition = markers.redGoal;
-    private Pose2D playerPosition = markers.redDriver;
+    private final Velocity robotVel = new Velocity(robot, this);
 
+    private Pose2D goalPosition = markers.blueGoal;
 
     public static double NEW_P = 15;
     public static double NEW_I = 1;
@@ -56,7 +66,6 @@ public class SauronBluePC extends LinearOpMode {
         telemetry.update();
 
         double storedHeading = 0.0;
-        double botToPlayerHeading = 0.0;
         double botHeading = 0.0;
         Pose2D storedLocation;
         boolean load = true;
@@ -145,6 +154,8 @@ public class SauronBluePC extends LinearOpMode {
          **/
 
         while(opModeIsActive()){
+            robotVel.Monitor(0.02, goalPosition); // 50hz
+
             y = -gamepad1.left_stick_y;
             x = gamepad1.left_stick_x;
 
@@ -154,30 +165,15 @@ public class SauronBluePC extends LinearOpMode {
             String data = String.format(Locale.US, "{X: %.1f in, Y: %.1f in, H: %.1f}", pos.getX(DistanceUnit.INCH), pos.getY(DistanceUnit.INCH), pos.getHeading(AngleUnit.DEGREES));
             telemetry.addData("Position", data); // prints current positional data from pinpoint
 
-            botToPlayerHeading = (Math.toRadians(pos.getHeading(AngleUnit.DEGREES) - storedHeading) + targeting.getDegreesToTarget(playerPosition, pos, false));
             botHeading = Math.toRadians(pos.getHeading(AngleUnit.DEGREES) - storedHeading);
 
             // Rotate the movement direction counter to the bot's rotation
-            double rotX = x * Math.cos(-botToPlayerHeading) - y * Math.sin(-botToPlayerHeading);
-            double rotY = x * Math.sin(-botToPlayerHeading) + y * Math.cos(-botToPlayerHeading);
-
-            // Denominator is the largest motor power (absolute value) or 1
-            // This ensures all the powers maintain the same ratio,
-            // but only if at least one is out of the range [-1, 1]
-            double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
-            double frontLeftPower = (rotY + rotX + rx) / denominator;
-            double backLeftPower = (rotY - rotX + rx) / denominator;
-            double frontRightPower = (rotY - rotX - rx) / denominator;
-            double backRightPower = (rotY + rotX - rx) / denominator;
-
-            robot.leftFrontDrive.setPower(frontLeftPower);
-            robot.leftBackDrive.setPower(backLeftPower);
-            robot.rightFrontDrive.setPower(frontRightPower);
-            robot.rightBackDrive.setPower(backRightPower);
+            double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
+            double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
 
             if (isTargeting)
             {
-                rx = targeting.getTargetingRotationPowerPD(pos, goalPosition, 1, pdTimer, true);
+                rx = targeting.getTargetingRotationPowerPD(pos, robotVel.getLeadCoord(), 1, pdTimer, true);
             }
             else
             {
@@ -247,10 +243,23 @@ public class SauronBluePC extends LinearOpMode {
                 robot.pinpoint.resetPosAndIMU();
             }
 
+            // Denominator is the largest motor power (absolute value) or 1
+            // This ensures all the powers maintain the same ratio,
+            // but only if at least one is out of the range [-1, 1]
+            double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
+            double frontLeftPower = (rotY + rotX + rx) / denominator;
+            double backLeftPower = (rotY - rotX + rx) / denominator;
+            double frontRightPower = (rotY - rotX - rx) / denominator;
+            double backRightPower = (rotY + rotX - rx) / denominator;
+
+            robot.leftFrontDrive.setPower(frontLeftPower);
+            robot.leftBackDrive.setPower(backLeftPower);
+            robot.rightFrontDrive.setPower(frontRightPower);
+            robot.rightBackDrive.setPower(backRightPower);
+
             telemetry.addData("Velocity: ", robot.launcher.getVelocity());
             telemetry.addData("Targeting: ", isTargeting);
             telemetry.addData("Distance to Target (in): ", (targeting.getDistanceToTarget(pos, goalPosition) / 25.4));
-            telemetry.addData("Degrees to Robot (From Player Zone): ", targeting.getDegreesToTarget(playerPosition, pos, false));
             telemetry.addLine("----------------------------------------");
             telemetry.addData("Time Total", totalRuntime.time());
             telemetry.update();

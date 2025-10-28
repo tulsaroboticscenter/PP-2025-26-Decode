@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.goBilda.GoBildaPinpointDriver;
 import java.util.Locale;
 
 
-@Autonomous(name = "AutoBlue", group = "Robot", preselectTeleOp = "SauronRed")
+@Autonomous(name = "AutoRed", group = "Robot", preselectTeleOp = "SauronRed")
 public class autoRed extends LinearOpMode {
 
     private static final HWProfile robot = new HWProfile();
