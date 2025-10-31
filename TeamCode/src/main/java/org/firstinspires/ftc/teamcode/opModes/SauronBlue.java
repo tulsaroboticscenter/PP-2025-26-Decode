@@ -57,7 +57,7 @@ public class SauronBlue extends LinearOpMode {
         double botHeading = 0.0;
         Pose2D storedLocation;
         boolean load = true;
-        Pose2D startingPosition = markers.blueSmallZone;
+        Pose2D startingPosition = markers.redSmallZone;
 
         try {
             storedLocation = ops.readPose("PoseFile");
@@ -69,7 +69,7 @@ public class SauronBlue extends LinearOpMode {
                 if (gamepad1.b) {
                     load = false;
                     telemetry.addLine("Position Disregarded.");
-                    telemetry.addLine("Starting at Blue Side Small Zone on Start.");
+                    telemetry.addLine("Starting at Red Side Small Zone on Start.");
                     telemetry.update();
                 } else if (gamepad1.a || isStopRequested()) {
                     break;
@@ -104,6 +104,14 @@ public class SauronBlue extends LinearOpMode {
             robot.pinpoint.update();
             storedHeading = startingPosition.getHeading(AngleUnit.DEGREES);
         }
+
+        // flip the orientation of Field-Centric, since we're on blue side.
+        if (storedHeading > 0) {
+            storedHeading -= 180;
+        } else {
+            storedHeading += 180;
+        }
+
 
         // Initializes ElapsedTimes. One for total runtime of the program and the others set up for toggles.
         ElapsedTime totalRuntime = new ElapsedTime();
@@ -151,13 +159,12 @@ public class SauronBlue extends LinearOpMode {
             String data = String.format(Locale.US, "{X: %.1f in, Y: %.1f in, H: %.1f}", pos.getX(DistanceUnit.INCH), pos.getY(DistanceUnit.INCH), pos.getHeading(AngleUnit.DEGREES));
             telemetry.addData("Position", data); // prints current positional data from pinpoint
 
-            botHeading = Math.toRadians(pos.getHeading(AngleUnit.DEGREES) - storedHeading);
+            botHeading = Math.toRadians((pos.getHeading(AngleUnit.DEGREES) - storedHeading));
+
 
             // Rotate the movement direction counter to the bot's rotation
             double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
             double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
-
-
 
             if (isTargeting)
             {
@@ -167,8 +174,6 @@ public class SauronBlue extends LinearOpMode {
             {
                 rx = gamepad1.right_stick_x;
             }
-
-
 
             if (gamepad1.a && targetingDelayRuntime.time() >= 0.4) {
                 if (isTargeting)

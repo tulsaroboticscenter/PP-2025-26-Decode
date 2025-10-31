@@ -24,7 +24,6 @@ public class FieldMarkers {
         public Pose2D redBase = new Pose2D(DistanceUnit.INCH, -21, -36, AngleUnit.DEGREES, 0);
         public Pose2D blueBase = new Pose2D(DistanceUnit.INCH, 21, -36, AngleUnit.DEGREES, 0);
         public Pose2D center = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
-
         public Pose2D blueDriver = new Pose2D(DistanceUnit.INCH, 80, -48, AngleUnit.DEGREES, 180);
         public Pose2D redDriver = new Pose2D(DistanceUnit.INCH, -80, -48, AngleUnit.DEGREES, 0);
 

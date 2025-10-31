@@ -86,7 +86,7 @@ public class autoBlue extends LinearOpMode {
 
             robot.pinpoint.update();
 
-            telemetry.addData("Ending Position: ", robot.pinpoint.getPosX() + ", " + robot.pinpoint.getPosY());
+            telemetry.addData("Ending Position", "(" + robot.pinpoint.getPosX() + ", " + robot.pinpoint.getPosY() + ")");
             telemetry.update();
             ops.writePose(robot.pinpoint.getPosition(), "PoseFile");
         }

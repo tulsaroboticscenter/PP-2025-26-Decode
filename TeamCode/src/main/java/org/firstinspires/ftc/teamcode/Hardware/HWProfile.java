@@ -48,7 +48,7 @@ public class HWProfile {
 
     public GoBildaPinpointDriver pinpoint = null; // pinpoint
 
-    public Limelight3A limelight = null; // limelight
+    //public Limelight3A limelight = null; // limelight
 
 
     public ElapsedTime feederTimer = new ElapsedTime();
@@ -74,7 +74,7 @@ public class HWProfile {
 
         pinpoint = hwMap.get(GoBildaPinpointDriver.class,"pinpoint");
 
-        limelight = hwMap.get(Limelight3A.class, "limelight");
+        //limelight = hwMap.get(Limelight3A.class, "limelight");
 
         // reverse one side to make sure all motors are in sync
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -106,8 +106,8 @@ public class HWProfile {
         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.FORWARD);
         pinpoint.setOffsets(-10, -50);
 
-        limelight.setPollRateHz(100);
-        limelight.start();
-        limelight.pipelineSwitch(0);
+        //limelight.setPollRateHz(100);
+        //limelight.start();
+        //limelight.pipelineSwitch(0);
     }
 }
