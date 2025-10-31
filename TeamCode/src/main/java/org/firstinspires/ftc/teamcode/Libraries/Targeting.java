@@ -175,9 +175,7 @@ public class Targeting {
         double deltaY = position2.getY(DistanceUnit.MM) - position1.getY(DistanceUnit.MM);
         double deltaX = position2.getX(DistanceUnit.MM) - position1.getX(DistanceUnit.MM);
 
-        double distanceMM = Math.sqrt(Math.pow(deltaX, 2) - Math.pow(deltaY, 2));
-
-        return distanceMM;
+        return (Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2)));
     }
 
 

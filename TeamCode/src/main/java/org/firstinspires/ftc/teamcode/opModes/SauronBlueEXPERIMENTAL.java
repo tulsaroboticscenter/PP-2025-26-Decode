@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -37,7 +38,7 @@ public class SauronBlueEXPERIMENTAL extends LinearOpMode {
     private final MechOps ops = new MechOps(robot, this);
     private final FieldMarkers markers = new FieldMarkers();
 
-    private final Velocity robotVel = new Velocity(robot, this);
+    private final Velocity robotVel = new Velocity(robot, this, targeting);
 
     private Pose2D goalPosition = markers.blueGoal;
 
@@ -122,12 +123,16 @@ public class SauronBlueEXPERIMENTAL extends LinearOpMode {
         ElapsedTime targetingDelayRuntime = new ElapsedTime();
         ElapsedTime targetingRefreshRuntime = new ElapsedTime();
         ElapsedTime velocityAdjustmentRuntime = new ElapsedTime();
+        ElapsedTime robotLeadRuntime = new ElapsedTime();
 
         totalRuntime.reset();
         targetingDelayRuntime.reset();
         targetingRefreshRuntime.reset();
         velocityAdjustmentRuntime.reset();
         pdTimer.reset();
+        robotLeadRuntime.reset();
+
+        Pose2D leadPose = robotVel.getLeadTarget(goalPosition);
 
         double velocity = robot.LAUNCHER_TARGET_VELOCITY;
 
@@ -154,8 +159,6 @@ public class SauronBlueEXPERIMENTAL extends LinearOpMode {
          **/
 
         while(opModeIsActive()){
-            robotVel.Monitor(0.02, goalPosition); // 50hz
-
             y = -gamepad1.left_stick_y;
             x = gamepad1.left_stick_x;
 
@@ -171,9 +174,13 @@ public class SauronBlueEXPERIMENTAL extends LinearOpMode {
             double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
             double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
 
+            if (robotLeadRuntime.seconds() > 0.02) { // 50hz
+                leadPose = robotVel.getLeadTarget(goalPosition);
+            }
+
             if (isTargeting)
             {
-                rx = targeting.getTargetingRotationPowerPD(pos, robotVel.getLeadCoord(), 1, pdTimer, true);
+                rx = targeting.getTargetingRotationPowerPD(pos, leadPose, 1, pdTimer, true);
             }
             else
             {
@@ -257,9 +264,11 @@ public class SauronBlueEXPERIMENTAL extends LinearOpMode {
             robot.rightFrontDrive.setPower(frontRightPower);
             robot.rightBackDrive.setPower(backRightPower);
 
-            telemetry.addData("Velocity: ", robot.launcher.getVelocity());
+            telemetry.addData("Launcher Velocity: ", robot.launcher.getVelocity());
             telemetry.addData("Targeting: ", isTargeting);
             telemetry.addData("Distance to Target (in): ", (targeting.getDistanceToTarget(pos, goalPosition) / 25.4));
+            telemetry.addLine("----------------------------------------");
+            telemetry.addData("Robot Velocity", robotVel.getMagnitude());
             telemetry.addLine("----------------------------------------");
             telemetry.addData("Time Total", totalRuntime.time());
             telemetry.update();
