@@ -52,37 +52,31 @@ public class autoBlue extends LinearOpMode {
 
         if (opModeIsActive()) {
 
-            switch (State){
-                case SHOOT:
-                    robot.launcher.setVelocity(robot.LAUNCHER_TARGET_VELOCITY);
-                    ops.setAllMotors(0.3);
-                    sleep(1000);
-                    ops.allStop();
-                    sleep(200);
 
-                    while (robot.launcher.getVelocity() < robot.LAUNCHER_TARGET_VELOCITY - 100) {
-                        sleep(10);
-                    }
-                    robot.leftFeeder.setPower(robot.FULL_SPEED);
-                    sleep(6000);
-                    robot.leftFeeder.setPower(0);
-                    robot.launcher.setVelocity(0);
-                    sleep(200);
-                    State = States.PARK;
-                    break;
+            robot.launcher.setVelocity(robot.LAUNCHER_TARGET_VELOCITY);
+            ops.setAllMotors(0.3);
+            sleep(2000);
+            ops.allStop();
+            sleep(200);
 
-                case PARK:
-                    robot.leftFrontDrive.setPower(0.3);
-                    robot.leftBackDrive.setPower(0.3);
-                    robot.rightFrontDrive.setPower(-0.3);
-                    robot.rightBackDrive.setPower(-0.3);
-                    sleep(700);
-                    ops.setAllMotors(0.3);
-                    sleep(2000);
-                    ops.allStop();
-                    sleep(2000);
-                    break;
+            while (robot.launcher.getVelocity() < robot.LAUNCHER_TARGET_VELOCITY - 100) {
+                sleep(10);
             }
+            robot.leftFeeder.setPower(robot.FULL_SPEED);
+            sleep(6000);
+            robot.leftFeeder.setPower(0);
+            robot.launcher.setVelocity(0);
+            sleep(200);
+
+            robot.leftFrontDrive.setPower(0.3);
+            robot.leftBackDrive.setPower(0.3);
+            robot.rightFrontDrive.setPower(-0.3);
+            robot.rightBackDrive.setPower(-0.3);
+            sleep(500);
+            ops.setAllMotors(0.3);
+            sleep(1500);
+            ops.allStop();
+            sleep(2000);
 
             robot.pinpoint.update();
 

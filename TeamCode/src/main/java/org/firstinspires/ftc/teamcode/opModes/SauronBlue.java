@@ -53,7 +53,7 @@ public class SauronBlue extends LinearOpMode {
         telemetry.addLine("Robot Ready.");
         telemetry.update();
 
-        double storedHeading = 0.0;
+        double storedHeading = 90.0;
         double botHeading = 0.0;
         Pose2D storedLocation;
         boolean load = true;
@@ -118,12 +118,14 @@ public class SauronBlue extends LinearOpMode {
         ElapsedTime targetingDelayRuntime = new ElapsedTime();
         ElapsedTime targetingRefreshRuntime = new ElapsedTime();
         ElapsedTime velocityAdjustmentRuntime = new ElapsedTime();
+        ElapsedTime launcherMotorRuntime = new ElapsedTime();
 
         totalRuntime.reset();
         targetingDelayRuntime.reset();
         targetingRefreshRuntime.reset();
         velocityAdjustmentRuntime.reset();
         pdTimer.reset();
+        launcherMotorRuntime.reset();
 
         double velocity = robot.LAUNCHER_TARGET_VELOCITY;
 
@@ -175,6 +177,7 @@ public class SauronBlue extends LinearOpMode {
                 rx = gamepad1.right_stick_x;
             }
 
+
             if (gamepad1.a && targetingDelayRuntime.time() >= 0.4) {
                 if (isTargeting)
                 {
@@ -191,21 +194,21 @@ public class SauronBlue extends LinearOpMode {
                 targetingDelayRuntime.reset();
             }
 
-            if (gamepad1.y)
-            {
-                robot.launcher.setVelocity(velocity);
-                spinning = true;
-            }
-            else if (gamepad1.b)
-            { // stop flywheel
-                robot.launcher.setVelocity(robot.STOP_SPEED);
-                spinning = false;
+            // toggle to turn on/off the launcher
+            if (gamepad1.b && launcherMotorRuntime.seconds() > 0.6) {
+                if (spinning) {
+                    robot.launcher.setVelocity(robot.STOP_SPEED);
+                    spinning = false;
+                } else {
+                    robot.launcher.setVelocity(velocity);
+                    spinning = true;
+                }
+                launcherMotorRuntime.reset();
             }
 
-            if (gamepad1.right_trigger > 0.5)
+            if (gamepad1.right_trigger > 0.5 && robot.launcher.getVelocity() > robot.LAUNCHER_TARGET_VELOCITY - 100)
             {
-                // robot will not launch an artifact until the launching motor's velocity
-                // meets or exceeds HWProfile.LAUNCHER_MINIMUM_VELOCITY
+                // robot will not launch an artifact until the launching motor's velocity spins up
                 robot.leftFeeder.setPower(robot.FULL_SPEED);
                 robot.feederTimer.reset();
             }
@@ -233,7 +236,7 @@ public class SauronBlue extends LinearOpMode {
             }
 
             if (gamepad1.share) {
-                robot.pinpoint.resetPosAndIMU();
+                robot.pinpoint.setPosition(markers.center);
             }
 
 
@@ -253,6 +256,7 @@ public class SauronBlue extends LinearOpMode {
             robot.rightBackDrive.setPower(backRightPower);
 
             telemetry.addData("Velocity: ", robot.launcher.getVelocity());
+            telemetry.addData("Launcher Spinning", spinning);
             telemetry.addData("Targeting: ", isTargeting);
             telemetry.addData("Distance to Target (in): ", (targeting.getDistanceToTarget(pos, goalPosition) / 25.4));
             telemetry.addLine("----------------------------------------");

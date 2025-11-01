@@ -34,7 +34,7 @@ public class HWProfile {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
-    public final double LAUNCHER_TARGET_VELOCITY = 1300;
+    public final double LAUNCHER_TARGET_VELOCITY = 1500;
     public final double LAUNCHER_MIN_VELOCITY = 1200;
 
     // Declare OpMode members.

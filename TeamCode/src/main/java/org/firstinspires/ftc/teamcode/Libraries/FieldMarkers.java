@@ -27,8 +27,6 @@ public class FieldMarkers {
         public Pose2D blueDriver = new Pose2D(DistanceUnit.INCH, 80, -48, AngleUnit.DEGREES, 180);
         public Pose2D redDriver = new Pose2D(DistanceUnit.INCH, -80, -48, AngleUnit.DEGREES, 0);
 
-
-
         // Starting Positions
 
         public Pose2D blueSmallZone = new Pose2D(DistanceUnit.INCH, 12, -60, AngleUnit.DEGREES, 90);

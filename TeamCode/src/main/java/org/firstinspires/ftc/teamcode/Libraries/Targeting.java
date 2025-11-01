@@ -69,7 +69,6 @@ public class Targeting {
                 correctionTimer.reset();
             }
         }
-
     }
 
     public double getTargetDegree(Pose2D currentLocation, Pose2D targetLocation, boolean convertToRadians)
