@@ -28,6 +28,8 @@ public class HWProfile {
     public final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
     public final double FULL_SPEED = 1.0;
 
+    public final double FULL_DRIVE_SPEED = 0.6;
+
     /*
      * When we control our launcher motor, we are using encoders. These allow the control system
      * to read the current speed of the motor and apply more or less power to keep it at a constant

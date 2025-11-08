@@ -44,7 +44,7 @@ public class Targeting {
         opMode = myOpMode;
     }
 
-    public void rotateToTarget(Pose2D targetLocation, double tolerance) {
+    public void rotateToTarget(Pose2D targetLocation, double toleranceDegrees) {
 
         ElapsedTime correctionTimer = new ElapsedTime();
         double correctionCheckDurationSeconds = 0.5;
@@ -52,13 +52,13 @@ public class Targeting {
 
         while (opMode.opModeIsActive()) {
 
-            turn = getTargetingRotationPowerPD(robot.pinpoint.getPosition(), targetLocation, tolerance, robot.pdTimer, true);
+            turn = getTargetingRotationPowerPD(robot.pinpoint.getPosition(), targetLocation, toleranceDegrees, robot.pdTimer, true);
 
             robot.leftFrontDrive.setPower(turn);
             robot.leftBackDrive.setPower(turn);
             robot.rightFrontDrive.setPower(-turn);
             robot.rightBackDrive.setPower(-turn);
-            if (getDegreesToTarget(robot.pinpoint.getPosition(), targetLocation, false) > tolerance) {
+            if (getDegreesToTarget(robot.pinpoint.getPosition(), targetLocation, false) > toleranceDegrees) {
                 // If the robot is in tolerance, check if it has been in tolerance for correctionCheckDurationSeconds
                 if (correctionTimer.seconds() > correctionCheckDurationSeconds) {
                     // if it is, then break out of the while loop.

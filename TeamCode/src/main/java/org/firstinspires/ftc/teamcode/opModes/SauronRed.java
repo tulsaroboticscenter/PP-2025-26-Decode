@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Libraries.Targeting;
 import java.util.Locale;
 
 /** @noinspection ALL*/
-@TeleOp(name="SauronRed", group="Robot")
+@TeleOp(name="TeleRed", group="Robot")
 //@Disabled
 public class SauronRed extends LinearOpMode {
 
@@ -144,8 +144,8 @@ public class SauronRed extends LinearOpMode {
          **/
 
         while(opModeIsActive()){
-            y = -gamepad1.left_stick_y;
-            x = gamepad1.left_stick_x;
+            y = -gamepad1.left_stick_y * robot.FULL_DRIVE_SPEED;
+            x = gamepad1.left_stick_x * robot.FULL_DRIVE_SPEED;
 
 
             robot.pinpoint.update();    //update the IMU value

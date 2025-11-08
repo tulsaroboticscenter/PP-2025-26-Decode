@@ -15,7 +15,7 @@ import java.io.PipedOutputStream;
 import java.util.Locale;
 
 
-@Autonomous(name = "AutoBlue", group = "Robot", preselectTeleOp = "SauronBlue")
+@Autonomous(name = "AutoBlue", group = "Robot", preselectTeleOp = "TeleBlue")
 public class autoBlue extends LinearOpMode {
 
     private static final HWProfile robot = new HWProfile();
