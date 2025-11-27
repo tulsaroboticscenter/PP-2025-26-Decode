@@ -38,7 +38,7 @@ public class Turret {
     public double turretPPR = 145.1;
 
     // Assumption
-    public double turretGearRatio = 5;
+    public double turretGearRatio = 4.75;
 
     public double ticksPerTurretRevolution = turretPPR * turretGearRatio;
 

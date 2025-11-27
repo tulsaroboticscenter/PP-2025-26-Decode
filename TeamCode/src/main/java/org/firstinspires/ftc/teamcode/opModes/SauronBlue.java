@@ -13,19 +13,34 @@ import org.firstinspires.ftc.teamcode.Hardware.HWProfile;
 import org.firstinspires.ftc.teamcode.Libraries.FieldMarkers;
 import org.firstinspires.ftc.teamcode.Libraries.MechOps;
 import org.firstinspires.ftc.teamcode.Libraries.Targeting;
+import org.firstinspires.ftc.teamcode.Libraries.TurretTargeting;
+import org.firstinspires.ftc.teamcode.Libraries.Velocity;
 
 import java.util.Locale;
 
 /** @noinspection ALL*/
-@TeleOp(name="SauronBlue", group="Robot")
+@TeleOp(name="TeleBlue", group="Robot")
 //@Disabled
 public class SauronBlue extends LinearOpMode {
 
+
+
+    /**
+
+        EXPERIMENTAL OPMODE
+
+     Current Function: Testing lead logic.
+
+     **/
 
     private final static HWProfile robot = new HWProfile();
     private final Targeting targeting = new Targeting(robot, this);
     private final MechOps ops = new MechOps(robot, this);
     private final FieldMarkers markers = new FieldMarkers();
+
+    private final TurretTargeting turretTargeting = new TurretTargeting(robot, this);
+
+    private final Velocity robotVel = new Velocity(robot, this, targeting);
 
     private Pose2D goalPosition = markers.blueGoal;
 
@@ -110,21 +125,28 @@ public class SauronBlue extends LinearOpMode {
         ElapsedTime targetingDelayRuntime = new ElapsedTime();
         ElapsedTime targetingRefreshRuntime = new ElapsedTime();
         ElapsedTime velocityAdjustmentRuntime = new ElapsedTime();
+        ElapsedTime robotLeadRuntime = new ElapsedTime();
+        ElapsedTime intakeToggleRuntime = new ElapsedTime();
 
         totalRuntime.reset();
         targetingDelayRuntime.reset();
         targetingRefreshRuntime.reset();
         velocityAdjustmentRuntime.reset();
         pdTimer.reset();
+        robotLeadRuntime.reset();
+        intakeToggleRuntime.reset();
+
+        Pose2D leadPose = robotVel.getLeadTarget(goalPosition);
 
         double velocity = robot.LAUNCHER_TARGET_VELOCITY;
 
         // booleans for keeping track of toggles
         boolean isTargeting = false;
         boolean spinning = true;
+        boolean isIntaking = false;
 
         // automatically spin up the launcher motor.
-        robot.launcher.setVelocity(velocity);
+        //robot.launcherR.setVelocity(velocity);
 
         double y = 0;
         double x = 0;
@@ -132,6 +154,8 @@ public class SauronBlue extends LinearOpMode {
 
         gamepad1.setLedColor(0, 1, 0, 100000000);
         gamepad1.rumbleBlips(3);
+
+        robot.turretRotationMotor.setPower(1);
 
 //        requestOpModeStop();
 
@@ -144,7 +168,7 @@ public class SauronBlue extends LinearOpMode {
         while(opModeIsActive()){
             y = -gamepad1.left_stick_y;
             x = gamepad1.left_stick_x;
-
+            rx = gamepad1.right_stick_x;
 
             robot.pinpoint.update();    //update the IMU value
             Pose2D pos = robot.pinpoint.getPosition();
@@ -157,18 +181,9 @@ public class SauronBlue extends LinearOpMode {
             double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
             double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
 
-
-
-            if (isTargeting)
-            {
-                rx = targeting.getTargetingRotationPowerPD(pos, goalPosition, 1, pdTimer, true);
+            if (robotLeadRuntime.seconds() > 0.02) { // 50hz
+                leadPose = robotVel.getLeadTarget(goalPosition);
             }
-            else
-            {
-                rx = gamepad1.right_stick_x;
-            }
-
-
 
             if (gamepad1.a && targetingDelayRuntime.time() >= 0.4) {
                 if (isTargeting)
@@ -186,36 +201,47 @@ public class SauronBlue extends LinearOpMode {
                 targetingDelayRuntime.reset();
             }
 
-            if (gamepad1.y)
-            {
-                robot.launcher.setVelocity(velocity);
-                spinning = true;
-            }
-            else if (gamepad1.b)
-            { // stop flywheel
-                robot.launcher.setVelocity(robot.STOP_SPEED);
-                spinning = false;
+            if (gamepad1.right_trigger > 0.2) {
+                robot.gateServo.setPosition(0.8);
+            } else {
+                robot.gateServo.setPosition(0.5);
             }
 
-            if (gamepad1.right_trigger > 0.5)
-            {
-                // robot will not launch an artifact until the launching motor's velocity
-                // meets or exceeds HWProfile.LAUNCHER_MINIMUM_VELOCITY
-                robot.leftFeeder.setPower(robot.FULL_SPEED);
-                robot.feederTimer.reset();
+            if (gamepad1.right_trigger > 0.5) {
+                robot.intakeMotor.setPower(gamepad1.right_trigger);
             }
 
-            if (robot.feederTimer.seconds() > robot.FEED_TIME_SECONDS)
-            {
-                robot.leftFeeder.setPower(0);
+            if (isTargeting) {
+                robot.turretRotationMotor.setTargetPosition(turretTargeting.HeadingToTurretTicks(targeting.getDegreesToTarget(pos, goalPosition, false), AngleUnit.DEGREES));
+            } else {
+
             }
 
+            if (gamepad1.b && intakeToggleRuntime.seconds() > 0.4) {
+                if (isIntaking) {
+                    isIntaking = false;
+                } else if (!isIntaking) {
+                    isIntaking = true;
+                }
+            }
+
+            if (gamepad1.right_trigger < 0.5) {
+                if (isIntaking) {
+                    robot.intakeMotor.setPower(1);
+                } else if (!isIntaking) {
+                    robot.intakeMotor.setPower(0);
+                }
+            }
+
+
+
+            /**
             if (gamepad1.dpad_down && velocityAdjustmentRuntime.seconds() > 0.4)
             {
                 velocity -= 50;
                 velocityAdjustmentRuntime.reset();
                 if (spinning) {
-                    robot.launcher.setVelocity(velocity);
+                    robot.launcherR.setVelocity(velocity);
                 }
             }
             else if (gamepad1.dpad_up && velocityAdjustmentRuntime.seconds() > 0.4)
@@ -223,15 +249,16 @@ public class SauronBlue extends LinearOpMode {
                 velocity += 50;
                 velocityAdjustmentRuntime.reset();
                 if (spinning) {
-                    robot.launcher.setVelocity(velocity);
+                    robot.launcherR.setVelocity(velocity);
                 }
             }
+             **/
+
+
 
             if (gamepad1.share) {
                 robot.pinpoint.resetPosAndIMU();
             }
-
-
 
             // Denominator is the largest motor power (absolute value) or 1
             // This ensures all the powers maintain the same ratio,
@@ -247,9 +274,11 @@ public class SauronBlue extends LinearOpMode {
             robot.rightFrontDrive.setPower(frontRightPower);
             robot.rightBackDrive.setPower(backRightPower);
 
-            telemetry.addData("Velocity: ", robot.launcher.getVelocity());
+            //telemetry.addData("Launcher Velocity: ", robot.launcherR.getVelocity());
             telemetry.addData("Targeting: ", isTargeting);
             telemetry.addData("Distance to Target (in): ", (targeting.getDistanceToTarget(pos, goalPosition) / 25.4));
+            telemetry.addLine("----------------------------------------");
+            telemetry.addData("Robot Velocity", robotVel.getMagnitude());
             telemetry.addLine("----------------------------------------");
             telemetry.addData("Time Total", totalRuntime.time());
             telemetry.update();

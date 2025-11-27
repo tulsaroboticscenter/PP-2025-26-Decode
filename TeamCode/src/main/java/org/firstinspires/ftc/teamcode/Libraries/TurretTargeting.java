@@ -24,19 +24,13 @@ public class TurretTargeting {
     // if the shooter is on the front of the robot, set this to false.
     boolean reversePolarity = true;
 
-    // Proportional value
-    // When tuning, start with this value and start small, e.g., 0.01 to 0.05,
-    // then double until you see oscillation (back and forth movement).
-    public static double KpVal = 0.01;
-
-    // Derivative value
-    // Tune this after Kp. start small, (e.g., 0.001 to 0.05) then increase until oscillations stop
-    public static double KdVal = 0.001;
-
     public double turretPPR = 145.1;
-    public double turretGearRatio = 0;
+    public double turretGearRatio = 4.75;
 
     public double ticksPerTurretRevolution = turretPPR * turretGearRatio;
+
+    public double ticksToDegreesCoeffecient = 360 / ticksPerTurretRevolution;
+    public double ticksToRadiansCoeffecient = (2 * Math.PI) / ticksPerTurretRevolution;
 
     public double getTurretAngle(double turretMotorTicks, AngleUnit angleUnit) {
         double motorRevolutions = turretMotorTicks / ticksPerTurretRevolution;
@@ -53,6 +47,14 @@ public class TurretTargeting {
             return turretAngle;
         } else {
             return Math.toRadians(turretAngle);
+        }
+    }
+
+    public int HeadingToTurretTicks(double angle, AngleUnit angleunit) {
+        if (angleunit == AngleUnit.DEGREES) {
+            return (int)(angle / ticksToDegreesCoeffecient);
+        } else {
+            return (int)(angle / ticksToRadiansCoeffecient);
         }
     }
 
@@ -130,60 +132,6 @@ public class TurretTargeting {
         {
             return degreesToTarget;
         }
-    }
-
-
-    private double previousDegreesToTarget = 0.0;
-
-    // A PD-controller for generating a value to turn to a target.
-    // in use, the value this function generates replaces the gamepad1.right_stick_x (or turn) value
-    public double getTargetingRotationPowerPD(Pose2D currentLocation, double currentAngleDegrees, Pose2D targetLocation, double tolerance, ElapsedTime pdTimer, boolean reversePolarity) {
-        double currentDegreesToTarget = getAngleToTarget(currentLocation, currentAngleDegrees, targetLocation, AngleUnit.DEGREES);
-
-        if (Math.abs(currentDegreesToTarget) <= tolerance)
-        {
-            previousDegreesToTarget = currentDegreesToTarget; // Keep it updated even when stopped
-            return 0; // Within tolerance
-        }
-
-        double dt = pdTimer.seconds(); // Time since last calculation
-        pdTimer.reset(); // Reset for next cycle
-
-        // Prevent division by zero or huge derivative spike on first run or after long pause
-        if (dt == 0 || dt > 0.5)
-        { // If dt is too large, it might indicate a resume, skip D for one cycle
-            dt = 0.02; // Assume a typical loop time, or simply skip D-term for this iteration
-            // or set derivative to 0 for this cycle.
-        }
-
-
-        double Kp = KpVal;
-        double proportionalPower = Kp * currentDegreesToTarget;
-
-
-        double Kd = KdVal;
-        double errorRateOfChange = (currentDegreesToTarget - previousDegreesToTarget) / dt;
-        double derivativePower = Kd * errorRateOfChange;
-
-        // Update for next iteration
-        previousDegreesToTarget = currentDegreesToTarget;
-
-        // Total Power
-        // If currentDegreesToTarget is positive (target to the left), and it's decreasing
-        // (meaning errorRateOfChange is negative), we are moving towards target.
-        // derivativePower will be negative (Kd * negative_roc).
-        // This negative derivativePower will subtract from positive proportionalPower, slowing it down.
-        double totalPower = proportionalPower + derivativePower;
-
-        // Minimum power application (handle with care with PD)
-        double minPowerAbs = 0.15; // Tune this
-        if (Math.abs(totalPower) > 0.001 && Math.abs(totalPower) < minPowerAbs && Math.abs(currentDegreesToTarget) > tolerance)
-        {
-            totalPower = Math.copySign(minPowerAbs, totalPower);
-        }
-
-        // Clamp power
-        return Range.clip(totalPower, -1.0, 1.0);
     }
 
     // returns distance from one position to another.

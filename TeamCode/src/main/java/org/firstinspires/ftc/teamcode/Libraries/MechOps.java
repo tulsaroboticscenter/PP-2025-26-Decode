@@ -33,16 +33,17 @@ public class MechOps {
     }
 
 
-    /**
-    public void launch() {
-        //if (robot.launcher.getVelocity() >= robot.LAUNCHER_MIN_VELOCITY) {
-            robot.leftFeeder.setPower(robot.FULL_SPEED);
-        //}
+/**
+    public void setHoodServoPosition(double position) {
+        robot.hoodServoL.setPosition(position);
+        robot.hoodServoR.setPosition(position);
     }
-    public void stopLaunch() {
-        robot.leftFeeder.setPower(robot.STOP_SPEED);
+
+    public void setLauncherVelocity(double velocity) {
+        robot.launcherL.setVelocity(velocity);
+        robot.launcherR.setVelocity(velocity);
     }
-     **/
+ **/
 
     public void setAllMotors(double power) {
         robot.leftFrontDrive.setPower(power);

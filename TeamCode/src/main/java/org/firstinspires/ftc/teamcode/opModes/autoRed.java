@@ -52,21 +52,23 @@ public class autoRed extends LinearOpMode {
 
             switch (State){
                 case SHOOT:
-                    robot.launcher.setVelocity(robot.LAUNCHER_TARGET_VELOCITY);
+                    /**
+                    robot.launcherR.setVelocity(robot.LAUNCHER_TARGET_VELOCITY);
                     ops.setAllMotors(0.3);
                     sleep(1000);
                     ops.allStop();
                     sleep(200);
 
-                    while (robot.launcher.getVelocity() < robot.LAUNCHER_TARGET_VELOCITY - 100) {
+                    while (robot.launcherR.getVelocity() < robot.LAUNCHER_TARGET_VELOCITY - 100) {
                         sleep(10);
                     }
                     robot.leftFeeder.setPower(robot.FULL_SPEED);
                     sleep(6000);
                     robot.leftFeeder.setPower(0);
-                    robot.launcher.setVelocity(0);
+                    robot.launcherR.setVelocity(0);
                     sleep(200);
                     State = States.PARK;
+                     **/
                     break;
 
                 case PARK:

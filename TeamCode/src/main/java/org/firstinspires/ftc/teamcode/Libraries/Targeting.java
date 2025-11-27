@@ -26,7 +26,7 @@ public class Targeting {
 
     // If the launcher is opposite the front side of your robot, set this to true. If not, leave this as false.
 
-    boolean reversePolarity = true;
+    boolean reversePolarity = false;
 
     // Proportional value
     // When tuning, start with this value and start small, e.g., 0.01 to 0.05,
