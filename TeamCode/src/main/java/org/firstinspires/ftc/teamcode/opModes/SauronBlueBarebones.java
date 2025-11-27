@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Libraries.Targeting;
 import java.util.Locale;
 
 /** @noinspection ALL*/
-@TeleOp(name="SauronBlueBarebones", group="Robot")
+@TeleOp(name="DriveOnly", group="Robot")
 //@Disabled
 public class SauronBlueBarebones extends LinearOpMode {
 

@@ -32,8 +32,6 @@ public class MechOps {
         opMode = myOpMode;
     }
 
-
-/**
     public void setHoodServoPosition(double position) {
         robot.hoodServoL.setPosition(position);
         robot.hoodServoR.setPosition(position);
@@ -43,7 +41,6 @@ public class MechOps {
         robot.launcherL.setVelocity(velocity);
         robot.launcherR.setVelocity(velocity);
     }
- **/
 
     public void setAllMotors(double power) {
         robot.leftFrontDrive.setPower(power);

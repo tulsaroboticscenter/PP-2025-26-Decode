@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.teamcode.goBilda.GoBildaPinpointDriver;
 import java.util.Locale;
 
 
+@Disabled
 @Autonomous(name = "AutoBlue", group = "Robot", preselectTeleOp = "SauronBlue")
 public class autoBlue extends LinearOpMode {
 

@@ -37,15 +37,15 @@ public class HWProfile {
     public DcMotor rightFrontDrive = null; // driveRF
     public DcMotor leftBackDrive = null; // driveLR
     public DcMotor rightBackDrive = null; // driveRR
-    //public DcMotorEx launcherR = null; // launcherR
-    //public DcMotorEx launcherL = null; // launcherL
+    public DcMotorEx launcherR = null; // launcherR
+    public DcMotorEx launcherL = null; // launcherL
     public DcMotor intakeMotor = null; // intakeMotor
     public DcMotor turretRotationMotor = null; // trMotor
 
     public Servo gateServo = null; // gate
 
-    //public Servo hoodServoL = null; //hoodServoL
-    //public Servo hoodServoR = null; //hoodServoR
+    public Servo hoodServoL = null; //hoodServoL
+    public Servo hoodServoR = null; //hoodServoR
 
     public RevTouchSensor turretLimitSwitch = null; // turretLimitSwitch
 
@@ -72,15 +72,15 @@ public class HWProfile {
         leftBackDrive = hwMap.get(DcMotor.class, "driveLR");
         rightBackDrive = hwMap.get(DcMotor.class, "driveRR");
 
-        //launcherR = hwMap.get(DcMotorEx.class, "launcherR");
-        //launcherL = hwMap.get(DcMotorEx.class, "launcherL");
+        launcherR = hwMap.get(DcMotorEx.class, "launcherR");
+        launcherL = hwMap.get(DcMotorEx.class, "launcherL");
 
         intakeMotor = hwMap.get(DcMotor.class, "intakeMotor");
 
         turretRotationMotor = hwMap.get(DcMotor.class, "turretRotationMotor");
 
-        //hoodServoL = hwMap.get(Servo.class, "hoodServoL");
-        //hoodServoR = hwMap.get(Servo.class, "hoodServoR");
+        hoodServoL = hwMap.get(Servo.class, "hoodServoL");
+        hoodServoR = hwMap.get(Servo.class, "hoodServoR");
 
         gateServo = hwMap.get(Servo.class, "gate");
 
@@ -101,8 +101,8 @@ public class HWProfile {
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        //launcherR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //launcherL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        launcherR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        launcherL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         turretRotationMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         turretRotationMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -114,26 +114,26 @@ public class HWProfile {
         rightFrontDrive.setZeroPowerBehavior(BRAKE);
         leftBackDrive.setZeroPowerBehavior(BRAKE);
         rightBackDrive.setZeroPowerBehavior(BRAKE);
-        //launcherR.setZeroPowerBehavior(BRAKE);
-        //launcherL.setZeroPowerBehavior(BRAKE);
+        launcherR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        launcherL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         turretRotationMotor.setZeroPowerBehavior(BRAKE);
 
         intakeMotor.setPower(0);
 
-        //launcherR.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300, 0, 0, 10));
-        //launcherL.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300, 0, 0, 10));
+        launcherR.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300, 0, 0, 10));
+        launcherL.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300, 0, 0, 10));
 
         intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
-        //launcherL.setDirection(DcMotorSimple.Direction.FORWARD);
-        //launcherR.setDirection(DcMotorSimple.Direction.REVERSE);
+        launcherL.setDirection(DcMotorSimple.Direction.FORWARD);
+        launcherR.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        //hoodServoL.setDirection(Servo.Direction.FORWARD);
-        //hoodServoR.setDirection(Servo.Direction.REVERSE);
+        hoodServoL.setDirection(Servo.Direction.FORWARD);
+        hoodServoR.setDirection(Servo.Direction.REVERSE);
 
         gateServo.setPosition(0.5);
-        //hoodServoL.setPosition(0);
-        //hoodServoR.setPosition(0);
+        hoodServoL.setPosition(0);
+        hoodServoR.setPosition(0);
 
         pinpoint.resetPosAndIMU();
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
