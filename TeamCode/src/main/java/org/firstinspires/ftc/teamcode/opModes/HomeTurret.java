@@ -58,12 +58,14 @@ public class HomeTurret extends LinearOpMode {
         robot.turretRotationMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.turretRotationMotor.setPower(0);
 
-        /* Wait for the game driver to press play */
-        waitForStart();
-
         telemetry.addData("Rotate Left", "D-pad Left");
         telemetry.addData("Rotate Right", "D-pad Right");
         telemetry.update();
+
+        /* Wait for the game driver to press play */
+        waitForStart();
+
+        int homedPosition = 0;
 
         while(opModeIsActive()){
 
@@ -76,15 +78,31 @@ public class HomeTurret extends LinearOpMode {
             }
 
             if (robot.turretLimitSwitch.isPressed()) {
-                isSwitchFlipped = true;
-                telemetry.addLine("Homed.");
-                telemetry.update();
+                break;
             }
-
-            telemetry.addData("Limit Switch", robot.turretLimitSwitch.isPressed());
-            telemetry.update();
-
         }
+
+        isSwitchFlipped = true;
+        robot.turretRotationMotor.setPower(0);
+        homedPosition = robot.turretRotationMotor.getCurrentPosition();
+        telemetry.addLine("Homing...");
+        telemetry.update();
+        sleep(750);
+        robot.turretRotationMotor.setTargetPosition(homedPosition);
+        robot.turretRotationMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.turretRotationMotor.setPower(0.5);
+
+        sleep(1000);
+        robot.turretRotationMotor.setPower(0);
+        robot.turretRotationMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.turretRotationMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.turretRotationMotor.setPower(0);
+
+        telemetry.addLine("Homing Complete.");
+        telemetry.addLine("OpMode will Auto-stop in 5 seconds.");
+        telemetry.update();
+        sleep(5000);
+        
         robot.pinpoint.update();
         ops.writePose(robot.pinpoint.getPosition(), "PoseFile");
     }
