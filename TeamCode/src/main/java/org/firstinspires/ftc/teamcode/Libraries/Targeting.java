@@ -37,8 +37,6 @@ public class Targeting {
     // Tune this after Kp. start small, (e.g., 0.001 to 0.05) then increase until oscillations stop
     public static double KdVal = 0.001;
 
-    public static double leadCoefficient = 1;
-
 
     public Targeting(HWProfile myRobot, LinearOpMode myOpMode)
     {

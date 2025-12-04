@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Libraries;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
+import android.graphics.ColorSpace;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -32,14 +34,47 @@ public class MechOps {
         opMode = myOpMode;
     }
 
-    public void setHoodServoPosition(double position) {
-        robot.hoodServoL.setPosition(position);
-        robot.hoodServoR.setPosition(position);
+    public void setHoodPosition(double position)
+    {
+
+        if (position > 0.9)
+        {
+            robot.hoodServoL.setPosition(0.1);
+            robot.hoodServoR.setPosition(0.9);
+        }
+        else
+        {
+            robot.hoodServoL.setPosition(1 - position);
+            robot.hoodServoR.setPosition(position);
+        }
     }
 
-    public void setLauncherVelocity(double velocity) {
+    public void setRGB(double color)
+    {
+        robot.light1.setColor(color);
+        robot.light2.setColor(color);
+    }
+
+    public void setRGBMode(RGBLightController.LEDMode mode)
+    {
+        robot.light1.setMode(mode);
+        robot.light2.setMode(mode);
+    }
+
+    public void updateRGB()
+    {
+        robot.light1.update();
+        robot.light2.update();
+    }
+
+    public void setLauncherVelocity(double velocity)
+    {
         robot.launcherL.setVelocity(velocity);
         robot.launcherR.setVelocity(velocity);
+    }
+
+    public double getLauncherRPM() {
+        return (((robot.launcherL.getVelocity() + robot.launcherR.getVelocity()) / 2) / 28) * 60;
     }
 
     public void setAllMotors(double power) {

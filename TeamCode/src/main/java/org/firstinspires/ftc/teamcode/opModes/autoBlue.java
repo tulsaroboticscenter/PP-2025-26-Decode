@@ -4,26 +4,32 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Hardware.HWProfile;
 import org.firstinspires.ftc.teamcode.Libraries.FieldMarkers;
+import org.firstinspires.ftc.teamcode.Libraries.GamepadEffects;
 import org.firstinspires.ftc.teamcode.Libraries.MechOps;
+import org.firstinspires.ftc.teamcode.Libraries.RGBLightController;
 import org.firstinspires.ftc.teamcode.Libraries.Targeting;
+import org.firstinspires.ftc.teamcode.Libraries.TurretTargeting;
 import org.firstinspires.ftc.teamcode.goBilda.GoBildaPinpointDriver;
 
 import java.util.Locale;
 
 
-@Disabled
 @Autonomous(name = "AutoBlue", group = "Robot", preselectTeleOp = "SauronBlue")
 public class autoBlue extends LinearOpMode {
 
     private static final HWProfile robot = new HWProfile();
     private final MechOps ops = new MechOps(robot, this);
     private final Targeting target = new Targeting(robot, this);
+    private final TurretTargeting turret = new TurretTargeting(robot, this);
     private final FieldMarkers markers = new FieldMarkers();
 
-    private Pose2D goalPosition = markers.blueGoal;
+    private final GamepadEffects gamepadEffects = new GamepadEffects();
+
+    private final Pose2D goalPosition = markers.blueGoal;
 
     enum States {
         SHOOT,
@@ -39,12 +45,24 @@ public class autoBlue extends LinearOpMode {
             telemetry.update();
             robot.pinpoint.update();
         }
-        robot.pinpoint.setPosition(markers.blueTouchingGoal);
+        robot.pinpoint.setPosition(markers.blueTouchingGoalFacingToward);
         robot.pinpoint.update();
         sleep(300);
         String data = String.format(Locale.US, "{%.1f, %.1f} %.1f degrees", (robot.pinpoint.getPosX() / 25.4), (robot.pinpoint.getPosY() / 25.4), Math.toDegrees(robot.pinpoint.getHeading()));
         telemetry.addData("Starting Position: ", data);
         telemetry.update();
+
+        gamepad1.runLedEffect(gamepadEffects.wakeBlue);
+
+        robot.light1.setColor(0.611);
+        robot.light2.setColor(0.611);
+        robot.light1.setMode(RGBLightController.LEDMode.WAKE);
+        robot.light2.setMode(RGBLightController.LEDMode.WAKE);
+        while (opModeInInit())
+        {
+            robot.light1.update();
+            robot.light2.update();
+        }
 
         waitForStart();
 
@@ -52,23 +70,25 @@ public class autoBlue extends LinearOpMode {
 
             switch (State){
                 case SHOOT:
-                    /**
-                    robot.launcherR.setVelocity(robot.LAUNCHER_TARGET_VELOCITY);
-                    ops.setAllMotors(0.3);
+
+                    ops.setLauncherVelocity(robot.LAUNCHER_LOW_VELOCITY);
+                    ops.setAllMotors(-0.3);
                     sleep(1000);
                     ops.allStop();
                     sleep(200);
 
-                    while (robot.launcherR.getVelocity() < robot.LAUNCHER_TARGET_VELOCITY - 100) {
+                    // Aim
+                    robot.turretRotationMotor.setTargetPosition(turret.HeadingToTurretTicks(target.getDegreesToTarget(robot.pinpoint.getPosition(), goalPosition, false), AngleUnit.DEGREES));
+
+                    while (robot.launcherR.getVelocity() < robot.LAUNCHER_LOW_VELOCITY - 100) {
                         sleep(10);
                     }
-                    robot.leftFeeder.setPower(robot.FULL_SPEED);
+                    robot.intakeMotor.setPower(1);
                     sleep(6000);
-                    robot.leftFeeder.setPower(0);
-                    robot.launcherR.setVelocity(0);
+                    robot.intakeMotor.setPower(0);
+                    ops.setLauncherVelocity(0);
                     sleep(200);
                     State = States.PARK;
-                     **/
                     break;
 
                 case PARK:
@@ -77,7 +97,7 @@ public class autoBlue extends LinearOpMode {
                     robot.rightFrontDrive.setPower(-0.3);
                     robot.rightBackDrive.setPower(-0.3);
                     sleep(700);
-                    ops.setAllMotors(0.3);
+                    ops.setAllMotors(-0.3);
                     sleep(2000);
                     ops.allStop();
                     sleep(2000);

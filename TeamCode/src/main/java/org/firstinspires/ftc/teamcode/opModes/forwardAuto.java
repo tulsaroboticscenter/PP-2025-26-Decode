@@ -33,6 +33,8 @@ public class forwardAuto extends LinearOpMode {
             sleep(500);
             ops.allStop();
 
+            robot.pinpoint.update();
+
             telemetry.addData("Ending Position: ", robot.pinpoint.getPosX() + ", " + robot.pinpoint.getPosY());
             ops.writePose(robot.pinpoint.getPosition(), "PoseFile");
             ops.writePose(goalPosition, "GoalPositionFile");

@@ -4,23 +4,18 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Hardware.HWProfile;
 import org.firstinspires.ftc.teamcode.Libraries.FieldMarkers;
 import org.firstinspires.ftc.teamcode.Libraries.MechOps;
 import org.firstinspires.ftc.teamcode.Libraries.Targeting;
 
-import java.util.Locale;
-
 /** @noinspection ALL*/
-@TeleOp(name="Home Turret", group="Robot")
+@TeleOp(name="Home Hood", group="Robot")
 //@Disabled
-public class HomeTurret extends LinearOpMode {
+public class HomeHood extends LinearOpMode {
 
 
     private final static HWProfile robot = new HWProfile();
@@ -38,6 +33,10 @@ public class HomeTurret extends LinearOpMode {
     private HardwareMap hwMap;
 
     private boolean isSwitchFlipped = false;
+
+    private ElapsedTime hoodAdjustRuntime = new ElapsedTime();
+
+    private double hoodPosition = 1;
 
 
     @Override
@@ -57,50 +56,58 @@ public class HomeTurret extends LinearOpMode {
 
         robot.turretRotationMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.turretRotationMotor.setPower(0);
+        ops.setHoodPosition(1);
 
         telemetry.addData("Rotate Left", "D-pad Left");
         telemetry.addData("Rotate Right", "D-pad Right");
         telemetry.update();
 
+        hoodAdjustRuntime.reset();
+
         /* Wait for the game driver to press play */
         waitForStart();
 
-        int homedPosition = 0;
 
-        while(opModeIsActive()){
 
-            if (gamepad1.dpad_left && !isSwitchFlipped) {
-                robot.turretRotationMotor.setPower(0.5);
-            } else if (gamepad1.dpad_right && !isSwitchFlipped) {
-                robot.turretRotationMotor.setPower(-0.5);
-            } else {
-                robot.turretRotationMotor.setPower(0);
+        while(opModeIsActive())
+        {
+
+            if (hoodAdjustRuntime.seconds() > 0.25)
+            {
+                if (gamepad1.dpad_down)
+                {
+                    hoodPosition = 0;
+                }
+                else if (gamepad1.dpad_up)
+                {
+                    hoodPosition = 1;
+                }
+                else if (gamepad1.left_stick_y > 0.2 || gamepad1.left_stick_y < -0.2)
+                {
+                    hoodPosition += (0.1 * gamepad1.left_stick_y);
+                }
+                hoodAdjustRuntime.reset();
             }
 
-            if (robot.turretLimitSwitch.isPressed()) {
-                isSwitchFlipped = true;
-                break;
+            if (hoodPosition > 1)
+            {
+                hoodPosition = 1;
             }
+            else if (hoodPosition < 0)
+            {
+                hoodPosition = 0;
+            }
+
+            ops.setHoodPosition(hoodPosition);
+            telemetry.addData("Hood Goal Position", hoodPosition);
+            telemetry.addData("Left Hood Servo Position", robot.hoodServoL.getPosition());
+            telemetry.addData("Right Hood Servo Position", robot.hoodServoR.getPosition());
+            telemetry.addLine("------------------------------");
+            telemetry.addLine("Set Position to 1: Dpad Up");
+            telemetry.addLine("Set Position to 0: Dpad Down");
+            telemetry.addLine("Adjust Hood Up/Down: Left Stick");
+            telemetry.update();
         }
-        robot.turretRotationMotor.setPower(0);
-        homedPosition = robot.turretRotationMotor.getCurrentPosition();
-        telemetry.addLine("Homing...");
-        telemetry.update();
-        sleep(750);
-        robot.turretRotationMotor.setTargetPosition(homedPosition);
-        robot.turretRotationMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.turretRotationMotor.setPower(0.5);
-
-        sleep(1000);
-        robot.turretRotationMotor.setPower(0);
-        robot.turretRotationMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.turretRotationMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.turretRotationMotor.setPower(0);
-
-        telemetry.addLine("Homing Complete.");
-        telemetry.addLine("OpMode will Auto-stop in 5 seconds.");
-        telemetry.update();
-        sleep(5000);
         
         robot.pinpoint.update();
         ops.writePose(robot.pinpoint.getPosition(), "PoseFile");

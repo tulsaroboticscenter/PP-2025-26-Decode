@@ -11,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.Hardware.HWProfile;
+import org.opencv.core.Mat;
 
 import java.io.File;
 
@@ -23,6 +24,8 @@ public class TurretTargeting {
     // if the shooter is on the back of the robot instead of the front, set this to true.
     // if the shooter is on the front of the robot, set this to false.
     boolean reversePolarity = true;
+
+    boolean clamped = true;
 
     public double turretPPR = 145.1;
     public double turretGearRatio = 4.75;
@@ -51,10 +54,49 @@ public class TurretTargeting {
     }
 
     public int HeadingToTurretTicks(double angle, AngleUnit angleunit) {
-        if (angleunit == AngleUnit.DEGREES) {
-            return (int)(angle / ticksToDegreesCoeffecient);
-        } else {
-            return (int)(angle / ticksToRadiansCoeffecient);
+        if (clamped)
+        {
+            if (angleunit == AngleUnit.DEGREES)
+            {
+                if (angle > 90)
+                {
+                    return (int)(90 / ticksToDegreesCoeffecient);
+                }
+                else if (angle < -90)
+                {
+                    return (int)(-90 / ticksToDegreesCoeffecient);
+                }
+                else
+                {
+                    return (int)(angle / ticksToDegreesCoeffecient);
+                }
+            }
+            else
+            {
+                if (angle > (Math.PI / 2))
+                {
+                    return (int)((Math.PI / 2) / ticksToRadiansCoeffecient);
+                }
+                else if (angle < -(Math.PI / 2))
+                {
+                    return (int)((Math.PI / 2) / ticksToRadiansCoeffecient);
+                }
+                else
+                {
+                    return (int)(angle / ticksToRadiansCoeffecient);
+                }
+            }
+        }
+        else
+        {
+            if (angleunit == AngleUnit.DEGREES)
+            {
+                return (int)(angle / ticksToDegreesCoeffecient);
+            }
+            else
+            {
+                return (int)(angle / ticksToRadiansCoeffecient);
+            }
         }
     }
 

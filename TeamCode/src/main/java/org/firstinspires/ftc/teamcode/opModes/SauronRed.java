@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.opModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -24,7 +23,7 @@ import java.util.Locale;
 /** @noinspection ALL*/
 @TeleOp(name="TeleBlue", group="Robot")
 //@Disabled
-public class SauronBlue extends LinearOpMode {
+public class SauronRed extends LinearOpMode {
 
 
 
@@ -47,7 +46,7 @@ public class SauronBlue extends LinearOpMode {
 
     private final GamepadEffects gamepadEffects = new GamepadEffects();
 
-    private Pose2D goalPosition = markers.blueGoal;
+    private Pose2D goalPosition = markers.redGoal;
 
     public static double NEW_P = 15;
     public static double NEW_I = 1;
@@ -82,7 +81,7 @@ public class SauronBlue extends LinearOpMode {
         double botHeading = 0.0;
         Pose2D storedLocation;
         boolean load = true;
-        Pose2D startingPosition = markers.blueSmallZone;
+        Pose2D startingPosition = markers.redSmallZone;
 
         try {
             storedLocation = ops.readPose("PoseFile");
@@ -90,8 +89,8 @@ public class SauronBlue extends LinearOpMode {
             telemetry.addData("Position Found", locationData);
             telemetry.addLine("Load? (A: Yes (default), B: No)");
             telemetry.update();
-            gamepad1.runLedEffect(gamepadEffects.wakeBlue);
-            ops.setRGB(0.611);
+            gamepad1.runLedEffect(gamepadEffects.wakeRed);
+            ops.setRGB(0.28);
             ops.setRGBMode(RGBLightController.LEDMode.WAKE);
             while (opModeInInit()) {
                 if (gamepad1.b) {

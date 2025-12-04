@@ -34,8 +34,14 @@ public class FieldMarkers {
 
         public Pose2D blueSmallZone = new Pose2D(DistanceUnit.INCH, 12, -60, AngleUnit.DEGREES, 90);
         public Pose2D redSmallZone = new Pose2D(DistanceUnit.INCH, -12, -60, AngleUnit.DEGREES, 90);
-        public Pose2D blueTouchingGoal = new Pose2D(DistanceUnit.INCH, -48, 48, AngleUnit.DEGREES, -36.678);
-        public Pose2D redTouchingGoal = new Pose2D(DistanceUnit.INCH, 48, 48, AngleUnit.DEGREES, -143.332);
+
+        public Pose2D blueSmallZoneMovingForward = new Pose2D(DistanceUnit.INCH, 12, -60, AngleUnit.DEGREES, 0);
+        public Pose2D blueTouchingGoalFacingAway = new Pose2D(DistanceUnit.INCH, -48, 48, AngleUnit.DEGREES, -36.678);
+        public Pose2D redTouchingGoalFacingAway = new Pose2D(DistanceUnit.INCH, 48, 48, AngleUnit.DEGREES, -143.332);
+
+        public Pose2D blueTouchingGoalFacingToward = new Pose2D(DistanceUnit.INCH, -48, 48, AngleUnit.DEGREES, 143.332);
+
+        public Pose2D redTouchingGoalFacingToward = new Pose2D(DistanceUnit.INCH, 48, 48, AngleUnit.DEGREES, 36.678);
 
 
 }

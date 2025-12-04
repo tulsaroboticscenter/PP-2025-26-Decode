@@ -77,7 +77,7 @@ public class Test extends LinearOpMode {
         velocityAdjustmentRuntime.reset();
         pdTimer.reset();
 
-        double velocity = robot.LAUNCHER_TARGET_VELOCITY;
+        double velocity = robot.LAUNCHER_LOW_VELOCITY;
 
         // booleans for keeping track of toggles
         boolean isTargeting = false;

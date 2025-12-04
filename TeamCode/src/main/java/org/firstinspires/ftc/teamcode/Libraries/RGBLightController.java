@@ -1,0 +1,89 @@
+package org.firstinspires.ftc.teamcode.Libraries;
+import com.qualcomm.robotcore.hardware.Servo;
+
+public class RGBLightController {
+
+    private final Servo light;
+    private LEDMode currentMode = LEDMode.SOLID;
+    private double color = 0;
+    private long modeStartTime;
+
+    public enum LEDMode {
+        SOLID,
+        PULSE,
+        RAINBOW,
+        FLASH,
+        WAKE
+    }
+
+    // Call once in init
+    public RGBLightController(Servo light) {
+        this.light = light;
+        this.modeStartTime = System.currentTimeMillis();
+    }
+
+    // Switch to a new effect
+    public void setMode(LEDMode mode) {
+        currentMode = mode;
+        modeStartTime = System.currentTimeMillis();
+    }
+
+    public void setColor(double color)
+    {
+
+    }
+
+    // Call this continuously in loop()
+    public void update()
+    {
+        long t = System.currentTimeMillis() - modeStartTime;
+
+        switch (currentMode)
+        {
+            case SOLID:
+                light.setPosition(color);
+                break;
+
+            case PULSE:
+                // slow breathing effect (0.3-0.7)
+                double pulse = 0.5 + 0.2 * Math.sin(t / 300.0);
+                light.setPosition(pulse);
+                break;
+
+            case RAINBOW:
+                // map time into 0-1 for smooth color cycling
+                double rainbow = (t % 2000) / 2000.0;
+                light.setPosition(rainbow);
+                break;
+
+            case FLASH:
+                // toggle between two colors
+                if ((t / 250) % 2 == 0)
+                    light.setPosition(color);
+                else
+                    light.setPosition(0);
+                break;
+
+            case WAKE:
+                // flash awake, then go solid (used on init for style effect)
+                if (t < 100)
+                    light.setPosition(color);
+                else if (t < 200)
+                    light.setPosition(0);
+                else if (t < 300)
+                    light.setPosition(color);
+                else if (t < 400)
+                    light.setPosition(0);
+                else if (t < 500)
+                    light.setPosition(color);
+                else if (t < 600)
+                    light.setPosition(0);
+                else
+                {
+                    light.setPosition(color);
+                    setMode(LEDMode.SOLID);
+                }
+
+        }
+    }
+}
