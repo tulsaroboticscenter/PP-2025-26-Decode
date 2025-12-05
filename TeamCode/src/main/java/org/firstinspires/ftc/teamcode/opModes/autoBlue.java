@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opModes;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -24,7 +25,7 @@ public class autoBlue extends LinearOpMode {
     private static final HWProfile robot = new HWProfile();
     private final MechOps ops = new MechOps(robot, this);
     private final Targeting target = new Targeting(robot);
-    private final TurretTargeting turret = new TurretTargeting(robot);
+    private final TurretTargeting turret = new TurretTargeting(robot, target);
     private final FieldMarkers markers = new FieldMarkers();
 
     private final GamepadEffects gamepadEffects = new GamepadEffects();
@@ -54,11 +55,26 @@ public class autoBlue extends LinearOpMode {
 
         gamepad1.runLedEffect(gamepadEffects.wakeBlue);
 
+        ElapsedTime preloadingToggleRuntime = new ElapsedTime();
+        preloadingToggleRuntime.reset();
+        boolean preloading = false;
+
         ops.setRGB(0.611);
         ops.setRGBMode(RGBLightController.LEDMode.PULSE_WAKE);
         while (opModeInInit())
         {
             ops.updateRGB();
+
+            if (gamepad1.b && preloadingToggleRuntime.seconds() > 0.5)
+            {
+                if (preloading)
+                    robot.intakeMotor.setPower(0);
+                else
+                    robot.intakeMotor.setPower(1);
+
+                preloading = !preloading;
+                preloadingToggleRuntime.reset();
+            }
         }
 
         waitForStart();
@@ -69,14 +85,14 @@ public class autoBlue extends LinearOpMode {
                 case SHOOT:
 
                     ops.setLauncherVelocity(robot.LAUNCHER_LOW_VELOCITY);
+                    ops.setHoodPosition(robot.HOOD_LOW_POSITION);
                     ops.setAllMotors(-0.3);
-                    sleep(1000);
+                    sleep(500);
                     ops.allStop();
                     sleep(200);
 
                     // Aim
-                    robot.turretRotationMotor.setTargetPosition(turret.HeadingToTurretTicks(target.getDegreesToTarget(robot.pinpoint.getPosition(), goalPosition, false), AngleUnit.DEGREES));
-
+                    turret.lockOnTarget(robot.pinpoint.getPosition(), goalPosition);
                     while (robot.launcherR.getVelocity() < robot.LAUNCHER_LOW_VELOCITY - 100) {
                         sleep(10);
                     }

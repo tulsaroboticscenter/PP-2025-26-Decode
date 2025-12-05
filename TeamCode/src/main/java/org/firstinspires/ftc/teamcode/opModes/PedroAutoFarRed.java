@@ -4,10 +4,9 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
-import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -21,8 +20,8 @@ import org.firstinspires.ftc.teamcode.Libraries.Targeting;
 import org.firstinspires.ftc.teamcode.Libraries.TurretTargeting;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Pedro Far Blue", group = "Autonomous")
-public class PedroAutoFarBlue extends OpMode {
+@Autonomous(name = "Pedro Far Red", group = "Autonomous")
+public class PedroAutoFarRed extends OpMode {
 
     private static final HWProfile robot = new HWProfile();
     private final MechOps ops = new MechOps(robot, this);
@@ -31,21 +30,20 @@ public class PedroAutoFarBlue extends OpMode {
     private final FieldMarkers markers = new FieldMarkers();
     private final GamepadEffects gamepadEffects = new GamepadEffects();
 
-    private final Pose2D goalPosition = markers.blueGoal;
+    private final Pose2D goalPosition = markers.redGoal;
 
 
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
     private int pathState;
 
-    private final Pose startPose = new Pose(60, 12, Math.toRadians(90));
-    private final Pose endPose = new Pose(60.000, 12.000, Math.toRadians(180));
-
-    private Path moveOut;
+    private final Pose startPose = new Pose(84.0, 12.0, Math.toRadians(90));
+    private final Pose endPose = new Pose(84.0, 12.0, Math.toRadians(0));
 
     private ElapsedTime preloadingToggleRuntime = new ElapsedTime();
     private boolean preloading = false;
 
+    private Path moveOut;
 
     public void buildPaths() {
         /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
@@ -134,7 +132,6 @@ public class PedroAutoFarBlue extends OpMode {
     public void init_loop()
     {
         ops.updateRGB();
-
         if (gamepad1.b && preloadingToggleRuntime.seconds() > 0.5)
         {
             if (preloading)

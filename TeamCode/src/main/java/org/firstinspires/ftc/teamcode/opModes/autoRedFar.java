@@ -17,9 +17,8 @@ import org.firstinspires.ftc.teamcode.goBilda.GoBildaPinpointDriver;
 import java.util.Locale;
 
 
-
-@Autonomous(name = "AutoRed", group = "Robot", preselectTeleOp = "SauronRed")
-public class autoRed extends LinearOpMode {
+@Autonomous(name = "AutoRedFar", group = "Robot", preselectTeleOp = "SauronBlue")
+public class autoRedFar extends LinearOpMode {
 
     private static final HWProfile robot = new HWProfile();
     private final MechOps ops = new MechOps(robot, this);
@@ -29,7 +28,7 @@ public class autoRed extends LinearOpMode {
 
     private final GamepadEffects gamepadEffects = new GamepadEffects();
 
-    private final Pose2D goalPosition = markers.redGoal;
+    private final Pose2D goalPosition = markers.blueGoal;
 
     enum States {
         SHOOT,
@@ -38,8 +37,6 @@ public class autoRed extends LinearOpMode {
 
     States State = States.SHOOT;
 
-
-
     public void runOpMode() {
         robot.init(hardwareMap, false);
         while (robot.pinpoint.getDeviceStatus() != GoBildaPinpointDriver.DeviceStatus.READY) {
@@ -47,14 +44,14 @@ public class autoRed extends LinearOpMode {
             telemetry.update();
             robot.pinpoint.update();
         }
-        robot.pinpoint.setPosition(markers.redTouchingGoalFacingToward);
+        robot.pinpoint.setPosition(markers.blueSmallZone);
         robot.pinpoint.update();
         sleep(300);
         String data = String.format(Locale.US, "{%.1f, %.1f} %.1f degrees", (robot.pinpoint.getPosX() / 25.4), (robot.pinpoint.getPosY() / 25.4), Math.toDegrees(robot.pinpoint.getHeading()));
         telemetry.addData("Starting Position: ", data);
         telemetry.update();
 
-        gamepad1.runLedEffect(gamepadEffects.wakeRed);
+        gamepad1.runLedEffect(gamepadEffects.wakeBlue);
 
         ElapsedTime preloadingToggleRuntime = new ElapsedTime();
         preloadingToggleRuntime.reset();
@@ -85,16 +82,17 @@ public class autoRed extends LinearOpMode {
             switch (State){
                 case SHOOT:
 
-                    ops.setLauncherVelocity(robot.LAUNCHER_LOW_VELOCITY);
-                    ops.setHoodPosition(robot.HOOD_LOW_POSITION);
-                    ops.setAllMotors(-0.3);
-                    sleep(500);
-                    ops.allStop();
-                    sleep(200);
+                    robot.pinpoint.update();
 
                     // Aim
+                    ops.setLauncherVelocity(robot.LAUNCHER_HIGH_VELOCITY);
+                    ops.setHoodPosition(robot.HOOD_HIGH_POSITION);
                     turret.lockOnTarget(robot.pinpoint.getPosition(), goalPosition);
-                    sleep(1500);
+                    sleep(2000);
+
+                    while (robot.launcherR.getVelocity() < robot.LAUNCHER_HIGH_VELOCITY - 100) {
+                        sleep(10);
+                    }
                     ops.openGate();
                     robot.intakeMotor.setPower(1);
                     sleep(6000);
@@ -106,12 +104,7 @@ public class autoRed extends LinearOpMode {
                     break;
 
                 case PARK:
-                    robot.leftFrontDrive.setPower(-0.3);
-                    robot.leftBackDrive.setPower(-0.3);
-                    robot.rightFrontDrive.setPower(0.3);
-                    robot.rightBackDrive.setPower(0.3);
-                    sleep(700);
-                    ops.setAllMotors(-0.3);
+                    ops.setAllMotors(0.3);
                     sleep(2000);
                     ops.allStop();
                     sleep(2000);

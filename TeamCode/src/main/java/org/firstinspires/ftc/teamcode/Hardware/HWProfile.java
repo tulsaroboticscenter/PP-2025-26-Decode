@@ -30,6 +30,10 @@ public class HWProfile {
     public final double LAUNCHER_MEDIUM_VELOCITY = 1250;
     public final double LAUNCHER_HIGH_VELOCITY = 1600;
 
+    public final double HOOD_LOW_POSITION = 0;
+    public final double HOOD_MEDIUM_POSITION = 0.35;
+    public final double HOOD_HIGH_POSITION = 0.6;
+
     // Declare OpMode members.
     public DcMotor leftFrontDrive = null; // driveLF
     public DcMotor rightFrontDrive = null; // driveRF

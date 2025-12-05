@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Libraries;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.pedropathing.geometry.Pose;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -42,6 +43,11 @@ public class FieldMarkers {
         public Pose2D blueTouchingGoalFacingToward = new Pose2D(DistanceUnit.INCH, -48, 48, AngleUnit.DEGREES, 143.332);
 
         public Pose2D redTouchingGoalFacingToward = new Pose2D(DistanceUnit.INCH, 48, 48, AngleUnit.DEGREES, 36.678);
+
+        public Pose toPedro(Pose2D position)
+        {
+            return new Pose(position.getX(DistanceUnit.INCH) + 72, position.getY(DistanceUnit.INCH) + 72, position.getHeading(AngleUnit.RADIANS));
+        }
 
 
 }

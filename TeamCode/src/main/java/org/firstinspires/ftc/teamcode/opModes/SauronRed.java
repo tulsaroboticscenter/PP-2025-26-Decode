@@ -40,7 +40,7 @@ public class SauronRed extends LinearOpMode {
     private final MechOps ops = new MechOps(robot, this);
     private final FieldMarkers markers = new FieldMarkers();
 
-    private final TurretTargeting turretTargeting = new TurretTargeting(robot);
+    private final TurretTargeting turretTargeting = new TurretTargeting(robot, targeting);
 
     private final Velocity robotVel = new Velocity(robot, targeting);
 
