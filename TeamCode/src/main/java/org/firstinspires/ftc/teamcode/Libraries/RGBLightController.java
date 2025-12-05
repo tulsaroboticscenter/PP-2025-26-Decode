@@ -13,7 +13,8 @@ public class RGBLightController {
         PULSE,
         RAINBOW,
         FLASH,
-        WAKE
+        WAKE,
+        PULSE_WAKE
     }
 
     // Call once in init
@@ -28,9 +29,9 @@ public class RGBLightController {
         modeStartTime = System.currentTimeMillis();
     }
 
-    public void setColor(double color)
+    public void setColor(double newColor)
     {
-
+        color = newColor;
     }
 
     // Call this continuously in loop()
@@ -46,7 +47,7 @@ public class RGBLightController {
 
             case PULSE:
                 // slow breathing effect (0.3-0.7)
-                double pulse = 0.5 + 0.2 * Math.sin(t / 300.0);
+                double pulse = 0.5 + 0.22 * Math.sin(t / 300.0);
                 light.setPosition(pulse);
                 break;
 
@@ -66,23 +67,31 @@ public class RGBLightController {
 
             case WAKE:
                 // flash awake, then go solid (used on init for style effect)
-                if (t < 100)
+                if (t < 400)
                     light.setPosition(color);
-                else if (t < 200)
+                else if (t < 800)
                     light.setPosition(0);
-                else if (t < 300)
+                else if (t < 1200)
                     light.setPosition(color);
-                else if (t < 400)
-                    light.setPosition(0);
-                else if (t < 500)
-                    light.setPosition(color);
-                else if (t < 600)
+                else if (t < 1600)
                     light.setPosition(0);
                 else
                 {
                     light.setPosition(color);
                     setMode(LEDMode.SOLID);
                 }
+                break;
+
+            case PULSE_WAKE:
+                // slow breathing effect until it hits target color
+                double pulseWake = 0.5 + 0.22 * Math.sin(t / 300.0);
+                light.setPosition(pulseWake);
+                if (pulseWake > color - 0.02 && pulseWake < color + 0.02 && t > 1500)
+                {
+                    light.setPosition(color);
+                    setMode(LEDMode.SOLID);
+                }
+                break;
 
         }
     }

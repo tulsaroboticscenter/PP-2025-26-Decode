@@ -25,10 +25,10 @@ public class HWProfile {
     public final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
     public final double FULL_SPEED = 1.0;
 
-    public final double LAUNCHER_LOW_VELOCITY = 1400;
+    public final double LAUNCHER_LOW_VELOCITY = 850;
 
-    public final double LAUNCHER_MEDIUM_VELOCITY = 1800;
-    public final double LAUNCHER_HIGH_VELOCITY = 2000;
+    public final double LAUNCHER_MEDIUM_VELOCITY = 1250;
+    public final double LAUNCHER_HIGH_VELOCITY = 1600;
 
     // Declare OpMode members.
     public DcMotor leftFrontDrive = null; // driveLF
@@ -53,13 +53,14 @@ public class HWProfile {
 
     public RevTouchSensor turretLimitSwitch = null; // turretLimitSwitch
 
-
     public GoBildaPinpointDriver pinpoint = null; // pinpoint
 
     public Limelight3A limelight = null; // limelight
 
     public ElapsedTime feederTimer = new ElapsedTime();
     public ElapsedTime pdTimer = new ElapsedTime();
+
+    public static
 
     HardwareMap hwMap =  null;
 
@@ -69,9 +70,6 @@ public class HWProfile {
     public void init(HardwareMap ahwMap, boolean TeleOp) {
 
         hwMap = ahwMap;
-
-        light1 = new RGBLightController(RGBLight1);
-        light2 = new RGBLightController(RGBLight2);
 
         leftFrontDrive = hwMap.get(DcMotor.class, "driveLF");
         rightFrontDrive = hwMap.get(DcMotor.class, "driveRF");
@@ -114,7 +112,10 @@ public class HWProfile {
         launcherL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         turretRotationMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        turretRotationMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        if (!TeleOp)
+        {
+            turretRotationMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }
         turretRotationMotor.setTargetPosition(0);
         turretRotationMotor.setPower(0);
         turretRotationMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -143,11 +144,15 @@ public class HWProfile {
         hoodServoR.setDirection(Servo.Direction.REVERSE);
 
         gateServo.setPosition(0.5);
-        hoodServoL.setPosition(1);
-        hoodServoR.setPosition(0);
 
-        RGBLight1.setPosition(1);
-        RGBLight2.setPosition(1);
+        if (!TeleOp)
+        {
+            hoodServoL.setPosition(1);
+            hoodServoR.setPosition(0);
+        }
+
+        light1 = new RGBLightController(RGBLight1);
+        light2 = new RGBLightController(RGBLight2);
 
         pinpoint.resetPosAndIMU();
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);

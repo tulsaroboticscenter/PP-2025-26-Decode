@@ -38,10 +38,9 @@ public class Targeting {
     public static double KdVal = 0.001;
 
 
-    public Targeting(HWProfile myRobot, LinearOpMode myOpMode)
+    public Targeting(HWProfile myRobot)
     {
         robot = myRobot;
-        opMode = myOpMode;
     }
 
     public double getTargetAngle(Pose2D currentLocation, Pose2D targetLocation, boolean convertToRadians)

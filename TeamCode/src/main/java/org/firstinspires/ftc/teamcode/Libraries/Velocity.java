@@ -41,9 +41,8 @@ public class Velocity {
     public ElapsedTime velocityTimer = new ElapsedTime();
 
 
-    public Velocity(HWProfile myRobot, LinearOpMode myOpMode, Targeting myTargeting) {
+    public Velocity(HWProfile myRobot, Targeting myTargeting) {
         robot = myRobot;
-        opMode = myOpMode;
         targeting = myTargeting;
     }
 

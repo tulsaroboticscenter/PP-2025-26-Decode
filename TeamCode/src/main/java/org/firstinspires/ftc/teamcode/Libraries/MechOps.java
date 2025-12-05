@@ -3,7 +3,9 @@ import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.tel
 
 import android.graphics.ColorSpace;
 
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -24,14 +26,26 @@ import java.io.File;
 public class MechOps {
 
     private HWProfile robot;
-    private LinearOpMode opMode;
+    private LinearOpMode linearOpMode = null;
+    private OpMode opMode = null;
     private double leftPower;
     private double rightPower;
     private double strafePower;
 
-    public MechOps(HWProfile myRobot, LinearOpMode myOpMode) {
+    public MechOps(HWProfile myRobot, LinearOpMode myLinearOpMode) {
+        robot = myRobot;
+        linearOpMode = myLinearOpMode;
+    }
+
+    public MechOps(HWProfile myRobot, OpMode myOpMode)
+    {
         robot = myRobot;
         opMode = myOpMode;
+    }
+
+    public Pose2D poseToPose2D(Pose pose)
+    {
+        return new Pose2D(DistanceUnit.INCH, pose.getX() - 72, pose.getY() - 72, AngleUnit.RADIANS, pose.getHeading());
     }
 
     public void setHoodPosition(double position)
@@ -54,6 +68,16 @@ public class MechOps {
         robot.light1.setColor(color);
         robot.light2.setColor(color);
     }
+
+    public void openGate()
+    {
+        robot.gateServo.setPosition(0.8);
+    }
+    public void closeGate()
+    {
+        robot.gateServo.setPosition(0.5);
+    }
+
 
     public void setRGBMode(RGBLightController.LEDMode mode)
     {
@@ -93,7 +117,8 @@ public class MechOps {
 
     }
 
-    public void writePose (Pose2D Pose, String fileName) {
+    public void writePose (Pose2D Pose, String fileName)
+    {
 
         File x = AppUtil.getInstance().getSettingsFile(fileName + "X");
         File y = AppUtil.getInstance().getSettingsFile(fileName + "Y");
@@ -105,7 +130,21 @@ public class MechOps {
 
     }
 
-    public Pose2D readPose (String fromFileName) {
+    public void writePosePedro (Pose2D Pose, String fileName)
+    {
+
+        File x = AppUtil.getInstance().getSettingsFile(fileName + "X");
+        File y = AppUtil.getInstance().getSettingsFile(fileName + "Y");
+        File heading = AppUtil.getInstance().getSettingsFile(fileName + "Heading");
+
+        ReadWriteFile.writeFile(x, Double.toString((Pose.getX(DistanceUnit.MM) - (25.4 * 72))));
+        ReadWriteFile.writeFile(y, Double.toString(Pose.getY(DistanceUnit.MM) - (25.4 + 72)));
+        ReadWriteFile.writeFile(heading, Double.toString(Pose.getHeading(AngleUnit.DEGREES)));
+
+    }
+
+    public Pose2D readPose (String fromFileName)
+    {
 
         File xFile = AppUtil.getInstance().getSettingsFile(fromFileName + "X");
         File yFile = AppUtil.getInstance().getSettingsFile(fromFileName + "Y");

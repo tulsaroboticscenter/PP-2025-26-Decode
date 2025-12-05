@@ -19,7 +19,7 @@ public class HomeHood extends LinearOpMode {
 
 
     private final static HWProfile robot = new HWProfile();
-    private final Targeting targeting = new Targeting(robot, this);
+    private final Targeting targeting = new Targeting(robot);
     private final MechOps ops = new MechOps(robot, this);
     private final FieldMarkers markers = new FieldMarkers();
 

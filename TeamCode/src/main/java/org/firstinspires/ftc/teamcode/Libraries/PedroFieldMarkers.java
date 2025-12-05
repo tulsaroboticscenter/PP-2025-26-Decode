@@ -7,7 +7,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 @Config
-public class FieldMarkers {
+public class PedroFieldMarkers {
 
     /**
 
@@ -17,8 +17,8 @@ public class FieldMarkers {
 
         // Points of Interest
 
-        public Pose2D blueGoal = new Pose2D(DistanceUnit.INCH, -72, 72, AngleUnit.DEGREES, 0);
-        public Pose2D redGoal = new Pose2D(DistanceUnit.INCH, 72, 72, AngleUnit.DEGREES, 0);
+        public Pose2D blueGoal = new Pose2D(DistanceUnit.INCH, 0, 144, AngleUnit.DEGREES, 0);
+        public Pose2D redGoal = new Pose2D(DistanceUnit.INCH, 144, 144, AngleUnit.DEGREES, 0);
         public Pose2D redHumanPlayerZone = new Pose2D(DistanceUnit.INCH, -54, -54, AngleUnit.DEGREES, 0);
         public Pose2D blueHumanPlayerZone = new Pose2D(DistanceUnit.INCH, 54, -54, AngleUnit.DEGREES, 0);
         public Pose2D redBase = new Pose2D(DistanceUnit.INCH, -21, -36, AngleUnit.DEGREES, 0);

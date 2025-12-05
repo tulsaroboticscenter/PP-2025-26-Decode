@@ -17,7 +17,7 @@ public class forwardAuto extends LinearOpMode {
 
     private static final HWProfile robot = new HWProfile();
     private final MechOps ops = new MechOps(robot, this);
-    private final Targeting target = new Targeting(robot, this);
+    private final Targeting target = new Targeting(robot);
 
     private final Pose2D goalPosition = new Pose2D(DistanceUnit.INCH, -15, 0, AngleUnit.DEGREES, 0);
 

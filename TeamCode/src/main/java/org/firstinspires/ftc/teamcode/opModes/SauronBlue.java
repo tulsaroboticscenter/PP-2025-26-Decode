@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
@@ -37,13 +38,13 @@ public class SauronBlue extends LinearOpMode {
      **/
 
     private final static HWProfile robot = new HWProfile();
-    private final Targeting targeting = new Targeting(robot, this);
+    private final Targeting targeting = new Targeting(robot);
     private final MechOps ops = new MechOps(robot, this);
     private final FieldMarkers markers = new FieldMarkers();
 
-    private final TurretTargeting turretTargeting = new TurretTargeting(robot, this);
+    private final TurretTargeting turretTargeting = new TurretTargeting(robot);
 
-    private final Velocity robotVel = new Velocity(robot, this, targeting);
+    private final Velocity robotVel = new Velocity(robot, targeting);
 
     private final GamepadEffects gamepadEffects = new GamepadEffects();
 
@@ -123,6 +124,7 @@ public class SauronBlue extends LinearOpMode {
 
         /* Wait for the game driver to press play */
         waitForStart();
+        ops.setHoodPosition(0);
 
         LauncherStatus status = LauncherStatus.LOW;
         ops.setRGB(0.5);
@@ -200,6 +202,7 @@ public class SauronBlue extends LinearOpMode {
         while(opModeIsActive()){
             y = -gamepad1.left_stick_y;
             x = gamepad1.left_stick_x;
+            rx = gamepad1.right_stick_x;
 
             robot.pinpoint.update();    //update the IMU value
             Pose2D pos = robot.pinpoint.getPosition();
@@ -288,14 +291,14 @@ public class SauronBlue extends LinearOpMode {
             {
                 if (status == LauncherStatus.LOW)
                 {
-                    ops.setHoodPosition(0.5);
+                    ops.setHoodPosition(0.35);
                     ops.setRGB(0.388);
                     velocity = robot.LAUNCHER_MEDIUM_VELOCITY;
                     status = LauncherStatus.MEDIUM;
                 }
                 else if (status == LauncherStatus.MEDIUM)
                 {
-                    ops.setHoodPosition(0.9);
+                    ops.setHoodPosition(0.6);
                     ops.setRGB(0.28);
                     velocity = robot.LAUNCHER_HIGH_VELOCITY;
                     status = LauncherStatus.HIGH;
@@ -355,19 +358,17 @@ public class SauronBlue extends LinearOpMode {
 
             if (isTargeting)
             {
-                rx = targeting.getTargetingRotationPowerPD(pos, leadPose, 1, pdTimer, true);
-            }
-            else
-            {
-                rx = gamepad1.right_stick_x;
+                robot.turretRotationMotor.setTargetPosition(turretTargeting.HeadingToTurretTicks(targeting.getDegreesToTarget(pos, goalPosition, false), AngleUnit.DEGREES));
             }
 
-            if (endgame == false && totalRuntime.seconds() > 200)
+            if (endgame == false && totalRuntime.seconds() > 100)
             {
                 endgame = true;
                 gamepad1.setLedColor(1, 0, 0, 100000000);
                 gamepad1.runLedEffect(gamepadEffects.wakeRed);
                 gamepad1.rumbleBlips(5);
+                ops.setRGB(0.28);
+                ops.setRGBMode(RGBLightController.LEDMode.WAKE);
                 ElapsedTime endgameTickRuntime = new ElapsedTime();
                 endgameTickRuntime.reset();
             }

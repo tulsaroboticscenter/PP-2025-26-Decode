@@ -24,8 +24,8 @@ public class autoRed extends LinearOpMode {
 
     private static final HWProfile robot = new HWProfile();
     private final MechOps ops = new MechOps(robot, this);
-    private final Targeting target = new Targeting(robot, this);
-    private final TurretTargeting turret = new TurretTargeting(robot, this);
+    private final Targeting target = new Targeting(robot);
+    private final TurretTargeting turret = new TurretTargeting(robot);
     private final FieldMarkers markers = new FieldMarkers();
 
     private final GamepadEffects gamepadEffects = new GamepadEffects();
@@ -57,14 +57,11 @@ public class autoRed extends LinearOpMode {
 
         gamepad1.runLedEffect(gamepadEffects.wakeRed);
 
-        robot.light1.setColor(0.28);
-        robot.light2.setColor(0.28);
-        robot.light1.setMode(RGBLightController.LEDMode.WAKE);
-        robot.light2.setMode(RGBLightController.LEDMode.WAKE);
+        ops.setRGB(0.28);
+        ops.setRGBMode(RGBLightController.LEDMode.PULSE_WAKE);
         while (opModeInInit())
         {
-            robot.light1.update();
-            robot.light2.update();
+            ops.updateRGB();
         }
 
         waitForStart();

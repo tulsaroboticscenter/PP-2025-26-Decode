@@ -21,6 +21,11 @@ public class TurretTargeting {
     public HWProfile robot;
     public LinearOpMode opMode;
 
+    public TurretTargeting(HWProfile myRobot)
+    {
+        robot = myRobot;
+    }
+
     // if the shooter is on the back of the robot instead of the front, set this to true.
     // if the shooter is on the front of the robot, set this to false.
     boolean reversePolarity = true;
@@ -58,13 +63,13 @@ public class TurretTargeting {
         {
             if (angleunit == AngleUnit.DEGREES)
             {
-                if (angle > 90)
+                if (angle > 60)
                 {
-                    return (int)(90 / ticksToDegreesCoeffecient);
+                    return (int)(60 / ticksToDegreesCoeffecient);
                 }
-                else if (angle < -90)
+                else if (angle < -150)
                 {
-                    return (int)(-90 / ticksToDegreesCoeffecient);
+                    return (int)(-150 / ticksToDegreesCoeffecient);
                 }
                 else
                 {
@@ -98,13 +103,6 @@ public class TurretTargeting {
                 return (int)(angle / ticksToRadiansCoeffecient);
             }
         }
-    }
-
-
-    public TurretTargeting(HWProfile myRobot, LinearOpMode myOpMode)
-    {
-        robot = myRobot;
-        opMode = myOpMode;
     }
 
     public double getTargetAngle(Pose2D currentLocation, Pose2D targetLocation, AngleUnit angleUnit)
