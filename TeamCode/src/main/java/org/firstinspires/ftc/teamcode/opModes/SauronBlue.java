@@ -148,6 +148,7 @@ public class SauronBlue extends LinearOpMode {
         ElapsedTime intakeToggleRuntime = new ElapsedTime();
         ElapsedTime hoodToggleRuntime = new ElapsedTime();
         ElapsedTime flywheelToggleRuntime = new ElapsedTime();
+        ElapsedTime endgameTickRuntime = new ElapsedTime();
 
         totalRuntime.reset();
         targetingDelayRuntime.reset();
@@ -177,8 +178,7 @@ public class SauronBlue extends LinearOpMode {
 
 
 
-        // automatically spin up the launcher motor.
-        //robot.launcherR.setVelocity(velocity);
+
 
         double y = 0;
         double x = 0;
@@ -190,8 +190,6 @@ public class SauronBlue extends LinearOpMode {
         robot.turretRotationMotor.setPower(1);
 
         ops.setLauncherVelocity(0);
-
-//        requestOpModeStop();
 
         /**
 
@@ -226,11 +224,13 @@ public class SauronBlue extends LinearOpMode {
                 {
                     isTargeting = false;
                     gamepad1.rumble(50);
+                    ops.setRGBMode(RGBLightController.LEDMode.SOLID);
                 }
                 else if (!isTargeting)
                 {
                     isTargeting = true;
                     gamepad1.rumble(50);
+                    ops.setRGBMode(RGBLightController.LEDMode.FLASH);
                 }
                 targetingDelayRuntime.reset();
             }
@@ -367,10 +367,8 @@ public class SauronBlue extends LinearOpMode {
                 gamepad1.setLedColor(1, 0, 0, 100000000);
                 gamepad1.runLedEffect(gamepadEffects.wakeRed);
                 gamepad1.rumbleBlips(5);
-                ops.setRGB(0.28);
+                ops.setRGB(1);
                 ops.setRGBMode(RGBLightController.LEDMode.WAKE);
-                ElapsedTime endgameTickRuntime = new ElapsedTime();
-                endgameTickRuntime.reset();
             }
 
             ops.updateRGB();

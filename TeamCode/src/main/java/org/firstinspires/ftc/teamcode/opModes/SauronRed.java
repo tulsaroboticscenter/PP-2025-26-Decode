@@ -223,11 +223,13 @@ public class SauronRed extends LinearOpMode {
                 {
                     isTargeting = false;
                     gamepad1.rumble(50);
+                    ops.setRGBMode(RGBLightController.LEDMode.SOLID);
                 }
                 else if (!isTargeting)
                 {
                     isTargeting = true;
                     gamepad1.rumble(50);
+                    ops.setRGBMode(RGBLightController.LEDMode.FLASH);
                 }
                 targetingDelayRuntime.reset();
             }
@@ -364,10 +366,8 @@ public class SauronRed extends LinearOpMode {
                 gamepad1.setLedColor(1, 0, 0, 100000000);
                 gamepad1.runLedEffect(gamepadEffects.wakeRed);
                 gamepad1.rumbleBlips(5);
-                ops.setRGB(0.28);
+                ops.setRGB(1);
                 ops.setRGBMode(RGBLightController.LEDMode.WAKE);
-                ElapsedTime endgameTickRuntime = new ElapsedTime();
-                endgameTickRuntime.reset();
             }
 
             ops.updateRGB();
