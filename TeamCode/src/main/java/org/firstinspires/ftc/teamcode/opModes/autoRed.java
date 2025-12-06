@@ -102,10 +102,8 @@ public class autoRed extends LinearOpMode {
                     robot.intakeMotor.setPower(0);
                     ops.setLauncherVelocity(0);
                     sleep(200);
-                    State = States.PARK;
-                    break;
 
-                case PARK:
+                    //park
                     robot.leftFrontDrive.setPower(-0.3);
                     robot.leftBackDrive.setPower(-0.3);
                     robot.rightFrontDrive.setPower(0.3);
@@ -115,7 +113,20 @@ public class autoRed extends LinearOpMode {
                     sleep(2000);
                     ops.allStop();
                     sleep(2000);
+                    State = States.PARK;
                     break;
+
+                case PARK:
+                    /*robot.leftFrontDrive.setPower(-0.3);
+                    robot.leftBackDrive.setPower(-0.3);
+                    robot.rightFrontDrive.setPower(0.3);
+                    robot.rightBackDrive.setPower(0.3);
+                    sleep(700);
+                    ops.setAllMotors(-0.3);
+                    sleep(2000);
+                    ops.allStop();
+                    sleep(2000);
+                    break;*/
             }
 
             robot.pinpoint.update();

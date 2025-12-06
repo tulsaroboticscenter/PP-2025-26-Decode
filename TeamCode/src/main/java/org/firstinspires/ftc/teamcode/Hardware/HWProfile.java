@@ -25,7 +25,7 @@ public class HWProfile {
     public final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
     public final double FULL_SPEED = 1.0;
 
-    public final double LAUNCHER_LOW_VELOCITY = 850;
+    public final double LAUNCHER_LOW_VELOCITY = 900;
 
     public final double LAUNCHER_MEDIUM_VELOCITY = 1250;
     public final double LAUNCHER_HIGH_VELOCITY = 1600;

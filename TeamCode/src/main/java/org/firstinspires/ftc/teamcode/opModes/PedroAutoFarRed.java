@@ -7,6 +7,7 @@ import com.pedropathing.paths.Path;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -32,13 +33,12 @@ public class PedroAutoFarRed extends OpMode {
 
     private final Pose2D goalPosition = markers.redGoal;
 
-
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
     private int pathState;
 
     private final Pose startPose = new Pose(84.0, 12.0, Math.toRadians(90));
-    private final Pose endPose = new Pose(84.0, 12.0, Math.toRadians(0));
+    private final Pose endPose = new Pose(90.0, 13.0, Math.toRadians(90));
 
     private ElapsedTime preloadingToggleRuntime = new ElapsedTime();
     private boolean preloading = false;
@@ -57,29 +57,38 @@ public class PedroAutoFarRed extends OpMode {
                 ops.openGate();
                 ops.setLauncherVelocity(robot.LAUNCHER_HIGH_VELOCITY);
                 ops.setHoodPosition(robot.HOOD_HIGH_POSITION);
+                robot.turretRotationMotor.setTargetPosition(30);
                 setPathState(1);
                 break;
 
             case 1:
-                if (pathTimer.getElapsedTime() > 2000)
-                    setPathState(1);
+                if (pathTimer.getElapsedTime() > 5000) {
+                    setPathState(2);
+                }
                 break;
 
             case 2:
                 robot.intakeMotor.setPower(1);
-                setPathState(2);
-                break;
-
-            case 3:
-                follower.followPath(moveOut);
                 setPathState(3);
                 break;
 
-            case 4:
-                ops.writePosePedro(ops.poseToPose2D(follower.getPose()), "PoseFile");
-                setPathState(4);
+            case 3:
+                if (pathTimer.getElapsedTime() > 3000) {
+                    ops.setAllMotors(0.3);
+                    robot.intakeMotor.setPower(0);
+                    ops.setLauncherVelocity(0);
+                    setPathState(4);
+                }
                 break;
 
+            case 4:
+                if (pathTimer.getElapsedTime() > 1000) {
+                    robot.turretRotationMotor.setTargetPosition(0);
+                    ops.allStop();
+                    ops.writePosePedro(ops.poseToPose2D(follower.getPose()), "PoseFile");
+                    setPathState(4);
+                }
+                break;
         }
     }
 
@@ -95,7 +104,7 @@ public class PedroAutoFarRed extends OpMode {
         // These loop the movements of the robot, these must be called continuously in order to work
         follower.update();
         autonomousPathUpdate();
-        robot.turretRotationMotor.setTargetPosition(turret.HeadingToTurretTicks(target.getDegreesToTarget(ops.poseToPose2D(follower.getPose()), goalPosition, false), AngleUnit.DEGREES));
+        //robot.turretRotationMotor.setTargetPosition(turret.HeadingToTurretTicks(target.getDegreesToTarget(ops.poseToPose2D(follower.getPose()), goalPosition, false), AngleUnit.DEGREES));
 
 
         // Feedback to Driver Hub for debugging
@@ -103,6 +112,7 @@ public class PedroAutoFarRed extends OpMode {
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
+        telemetry.addData("flywheel speed", ops.getLauncherRPM());
         telemetry.update();
     }
 
@@ -125,6 +135,10 @@ public class PedroAutoFarRed extends OpMode {
         follower.setStartingPose(startPose);
 
         preloadingToggleRuntime.reset();
+
+        robot.turretRotationMotor.setTargetPosition(0);
+        robot.turretRotationMotor.setPower(1);
+        robot.turretRotationMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     /** This method is called continuously after Init while waiting for "play". **/
