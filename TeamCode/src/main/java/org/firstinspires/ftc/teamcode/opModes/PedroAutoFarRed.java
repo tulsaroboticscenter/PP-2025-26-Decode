@@ -57,7 +57,7 @@ public class PedroAutoFarRed extends OpMode {
                 ops.openGate();
                 ops.setLauncherVelocity(robot.LAUNCHER_HIGH_VELOCITY);
                 ops.setHoodPosition(robot.HOOD_HIGH_POSITION);
-                robot.turretRotationMotor.setTargetPosition(30);
+                robot.turretRotationMotor.setTargetPosition(50);
                 setPathState(1);
                 break;
 
