@@ -1,12 +1,12 @@
-package org.firstinspires.ftc.teamcode.opModes;
+package org.firstinspires.ftc.teamcode.opModes.Autos;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
-import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -14,14 +14,15 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Hardware.HWProfile;
-import org.firstinspires.ftc.teamcode.Libraries.FieldMarkers;
 import org.firstinspires.ftc.teamcode.Libraries.GamepadEffects;
 import org.firstinspires.ftc.teamcode.Libraries.MechOps;
+import org.firstinspires.ftc.teamcode.Libraries.PedroFieldMarkers;
 import org.firstinspires.ftc.teamcode.Libraries.RGBLightController;
 import org.firstinspires.ftc.teamcode.Libraries.Targeting;
 import org.firstinspires.ftc.teamcode.Libraries.TurretTargeting;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
+@Disabled
 @Autonomous(name = "Pedro Far Blue", group = "Autonomous")
 public class PedroAutoFarBlue extends OpMode {
 
@@ -29,7 +30,7 @@ public class PedroAutoFarBlue extends OpMode {
     private final MechOps ops = new MechOps(robot, this);
     private final Targeting target = new Targeting(robot);
     private final TurretTargeting turret = new TurretTargeting(robot, target);
-    private final FieldMarkers markers = new FieldMarkers();
+    private final PedroFieldMarkers markers = new PedroFieldMarkers();
     private final GamepadEffects gamepadEffects = new GamepadEffects();
 
     private final Pose2D goalPosition = markers.blueGoal;
@@ -40,13 +41,12 @@ public class PedroAutoFarBlue extends OpMode {
     private int pathState;
 
     private final Pose startPose = new Pose(60, 12, Math.toRadians(90));
-    private final Pose endPose = new Pose(60.000, 12.000, Math.toRadians(180));
+    private final Pose endPose = new Pose(60.000, 36.0, Math.toRadians(180));
 
     private Path moveOut;
 
     private ElapsedTime preloadingToggleRuntime = new ElapsedTime();
     private boolean preloading = false;
-
 
     public void buildPaths() {
         /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
@@ -60,7 +60,7 @@ public class PedroAutoFarBlue extends OpMode {
                 ops.openGate();
                 ops.setLauncherVelocity(robot.LAUNCHER_HIGH_VELOCITY);
                 ops.setHoodPosition(robot.HOOD_HIGH_POSITION);
-                robot.turretRotationMotor.setTargetPosition(-50);
+                robot.turretRotationMotor.setTargetPosition(turret.HeadingToTurretTicks(target.getDegreesToTarget(ops.poseToPose2D(follower.getPose()), markers.blueGoal, false), AngleUnit.DEGREES));
                 setPathState(1);
                 break;
 
@@ -76,7 +76,6 @@ public class PedroAutoFarBlue extends OpMode {
 
             case 3:
                 if (pathTimer.getElapsedTime() > 3000) {
-                    ops.setAllMotors(0.3);
                     robot.intakeMotor.setPower(0);
                     ops.setLauncherVelocity(0);
                     setPathState(4);
@@ -86,7 +85,6 @@ public class PedroAutoFarBlue extends OpMode {
             case 4:
                 if (pathTimer.getElapsedTime() > 1000) {
                     robot.turretRotationMotor.setTargetPosition(0);
-                    ops.allStop();
                     ops.writePosePedro(ops.poseToPose2D(follower.getPose()), "PoseFile");
                     setPathState(4);
                 }
@@ -124,7 +122,7 @@ public class PedroAutoFarBlue extends OpMode {
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
-        robot.init(hardwareMap, false);
+        robot.initPedro(hardwareMap, false);
 
         ops.setRGB(0.611);
         ops.setRGBMode(RGBLightController.LEDMode.PULSE_WAKE);

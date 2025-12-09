@@ -149,12 +149,12 @@ public class MechOps {
         File xFile = AppUtil.getInstance().getSettingsFile(fromFileName + "X");
         File yFile = AppUtil.getInstance().getSettingsFile(fromFileName + "Y");
         File headingFile = AppUtil.getInstance().getSettingsFile(fromFileName + "Heading");
-        opMode.telemetry.addLine("readPose - File Found");
+        //opMode.telemetry.addLine("readPose - File Found");
 
         String xData = ReadWriteFile.readFile(xFile).trim();
         String yData = ReadWriteFile.readFile(yFile).trim();
         String headingData = ReadWriteFile.readFile(headingFile).trim();
-        opMode.telemetry.addLine("readPose - Data Found");
+        //opMode.telemetry.addLine("readPose - Data Found");
 
 
         double x = Double.parseDouble(xData);

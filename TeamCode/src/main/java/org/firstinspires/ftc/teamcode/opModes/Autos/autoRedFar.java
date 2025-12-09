@@ -1,34 +1,28 @@
-package org.firstinspires.ftc.teamcode.opModes;
+package org.firstinspires.ftc.teamcode.opModes.Autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Hardware.HWProfile;
-import org.firstinspires.ftc.teamcode.Libraries.FieldMarkers;
+import org.firstinspires.ftc.teamcode.Libraries.Field;
 import org.firstinspires.ftc.teamcode.Libraries.GamepadEffects;
 import org.firstinspires.ftc.teamcode.Libraries.MechOps;
 import org.firstinspires.ftc.teamcode.Libraries.RGBLightController;
-import org.firstinspires.ftc.teamcode.Libraries.Targeting;
-import org.firstinspires.ftc.teamcode.Libraries.TurretTargeting;
 import org.firstinspires.ftc.teamcode.goBilda.GoBildaPinpointDriver;
 
 import java.util.Locale;
 
 
-@Autonomous(name = "AutoBlueFar", group = "Robot", preselectTeleOp = "SauronBlue")
-public class autoBlueFar extends LinearOpMode {
+@Autonomous(name = "AutoRedFar", group = "Robot", preselectTeleOp = "TeleRedFar")
+public class autoRedFar extends LinearOpMode {
 
     private static final HWProfile robot = new HWProfile();
     private final MechOps ops = new MechOps(robot, this);
-    private final Targeting target = new Targeting(robot);
-    private final TurretTargeting turret = new TurretTargeting(robot, target);
-    private final FieldMarkers markers = new FieldMarkers();
-
-    private final GamepadEffects gamepadEffects = new GamepadEffects();
-
-    private final Pose2D goalPosition = markers.blueGoal;
+    private final Pose2D goalPosition = Field.redGoal;
 
     enum States {
         SHOOT,
@@ -44,20 +38,20 @@ public class autoBlueFar extends LinearOpMode {
             telemetry.update();
             robot.pinpoint.update();
         }
-        robot.pinpoint.setPosition(markers.redSmallZone);
+        robot.pinpoint.setPosition(Field.blueSmallZone);
         robot.pinpoint.update();
         sleep(300);
         String data = String.format(Locale.US, "{%.1f, %.1f} %.1f degrees", (robot.pinpoint.getPosX() / 25.4), (robot.pinpoint.getPosY() / 25.4), Math.toDegrees(robot.pinpoint.getHeading()));
         telemetry.addData("Starting Position: ", data);
         telemetry.update();
 
-        gamepad1.runLedEffect(gamepadEffects.wakeBlue);
+        gamepad1.runLedEffect(GamepadEffects.wakeBlue);
 
         ElapsedTime preloadingToggleRuntime = new ElapsedTime();
         preloadingToggleRuntime.reset();
         boolean preloading = false;
 
-        ops.setRGB(0.611);
+        ops.setRGB(0.28);
         ops.setRGBMode(RGBLightController.LEDMode.PULSE_WAKE);
         while (opModeInInit())
         {
@@ -78,6 +72,7 @@ public class autoBlueFar extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
+            robot.turret.update();
 
             switch (State){
                 case SHOOT:
@@ -87,7 +82,7 @@ public class autoBlueFar extends LinearOpMode {
                     // Aim
                     ops.setLauncherVelocity(robot.LAUNCHER_HIGH_VELOCITY);
                     ops.setHoodPosition(robot.HOOD_HIGH_POSITION);
-                    turret.lockOnTarget(robot.pinpoint.getPosition(), goalPosition);
+                    robot.turret.setTarget(robot.pinpoint.getPosition(), goalPosition);
                     sleep(2000);
 
                     while (robot.launcherR.getVelocity() < robot.LAUNCHER_HIGH_VELOCITY - 100) {
@@ -101,11 +96,10 @@ public class autoBlueFar extends LinearOpMode {
                     ops.setLauncherVelocity(0);
                     sleep(200);
                     State = States.PARK;
-                    break;
 
                 case PARK:
                     ops.setAllMotors(0.3);
-                    sleep(2000);
+                    sleep(1500);
                     ops.allStop();
                     sleep(2000);
                     break;
@@ -115,7 +109,9 @@ public class autoBlueFar extends LinearOpMode {
 
             telemetry.addData("Ending Position: ", robot.pinpoint.getPosX() + ", " + robot.pinpoint.getPosY());
             telemetry.update();
-            ops.writePose(robot.pinpoint.getPosition(), "PoseFile");
+
+            Pose2D savingPose = new Pose2D(DistanceUnit.INCH, robot.pinpoint.getPosX(), robot.pinpoint.getPosY(), AngleUnit.DEGREES, (Math.toDegrees(robot.pinpoint.getHeading()) + 90));
+            ops.writePose(savingPose, "PositionFile");
         }
     }
 }

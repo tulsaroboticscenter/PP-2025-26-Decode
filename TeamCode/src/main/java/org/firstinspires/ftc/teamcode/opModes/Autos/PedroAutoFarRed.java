@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opModes;
+package org.firstinspires.ftc.teamcode.opModes.Autos;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
@@ -6,6 +6,7 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -13,7 +14,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Hardware.HWProfile;
-import org.firstinspires.ftc.teamcode.Libraries.FieldMarkers;
+import org.firstinspires.ftc.teamcode.Libraries.Field;
 import org.firstinspires.ftc.teamcode.Libraries.GamepadEffects;
 import org.firstinspires.ftc.teamcode.Libraries.MechOps;
 import org.firstinspires.ftc.teamcode.Libraries.RGBLightController;
@@ -21,6 +22,7 @@ import org.firstinspires.ftc.teamcode.Libraries.Targeting;
 import org.firstinspires.ftc.teamcode.Libraries.TurretTargeting;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
+@Disabled
 @Autonomous(name = "Pedro Far Red", group = "Autonomous")
 public class PedroAutoFarRed extends OpMode {
 
@@ -28,7 +30,7 @@ public class PedroAutoFarRed extends OpMode {
     private final MechOps ops = new MechOps(robot, this);
     private final Targeting target = new Targeting(robot);
     private final TurretTargeting turret = new TurretTargeting(robot, target);
-    private final FieldMarkers markers = new FieldMarkers();
+    private final Field markers = new Field();
     private final GamepadEffects gamepadEffects = new GamepadEffects();
 
     private final Pose2D goalPosition = markers.redGoal;
@@ -38,7 +40,7 @@ public class PedroAutoFarRed extends OpMode {
     private int pathState;
 
     private final Pose startPose = new Pose(84.0, 12.0, Math.toRadians(90));
-    private final Pose endPose = new Pose(90.0, 13.0, Math.toRadians(90));
+    private final Pose endPose = new Pose(84.0, 36.0, Math.toRadians(90));
 
     private ElapsedTime preloadingToggleRuntime = new ElapsedTime();
     private boolean preloading = false;
@@ -57,12 +59,13 @@ public class PedroAutoFarRed extends OpMode {
                 ops.openGate();
                 ops.setLauncherVelocity(robot.LAUNCHER_HIGH_VELOCITY);
                 ops.setHoodPosition(robot.HOOD_HIGH_POSITION);
-                robot.turretRotationMotor.setTargetPosition(50);
+                robot.turretRotationMotor.setTargetPosition(turret.HeadingToTurretTicks(target.getDegreesToTarget(ops.poseToPose2D(follower.getPose()), markers.blueGoal, false), AngleUnit.DEGREES));
                 setPathState(1);
                 break;
 
             case 1:
-                if (pathTimer.getElapsedTime() > 5000) {
+                if (pathTimer.getElapsedTime() > 5000)
+                {
                     setPathState(2);
                 }
                 break;
@@ -73,8 +76,8 @@ public class PedroAutoFarRed extends OpMode {
                 break;
 
             case 3:
-                if (pathTimer.getElapsedTime() > 3000) {
-                    ops.setAllMotors(0.3);
+                if (pathTimer.getElapsedTime() > 3000)
+                {
                     robot.intakeMotor.setPower(0);
                     ops.setLauncherVelocity(0);
                     setPathState(4);
@@ -82,13 +85,20 @@ public class PedroAutoFarRed extends OpMode {
                 break;
 
             case 4:
-                if (pathTimer.getElapsedTime() > 1000) {
-                    robot.turretRotationMotor.setTargetPosition(0);
-                    ops.allStop();
-                    ops.writePosePedro(ops.poseToPose2D(follower.getPose()), "PoseFile");
-                    setPathState(4);
+                follower.followPath(moveOut);
+                if (!follower.isBusy())
+                {
+                    setPathState(5);
                 }
                 break;
+
+
+            case 5:
+                if (pathTimer.getElapsedTime() > 1000)
+                {
+                    ops.writePosePedro(ops.poseToPose2D(follower.getPose()), "PoseFile");
+                    setPathState(6);
+                }
         }
     }
 
@@ -123,7 +133,7 @@ public class PedroAutoFarRed extends OpMode {
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
-        robot.init(hardwareMap, false);
+        robot.initPedro(hardwareMap, false);
 
         ops.setRGB(0.611);
         ops.setRGBMode(RGBLightController.LEDMode.PULSE_WAKE);
@@ -163,6 +173,7 @@ public class PedroAutoFarRed extends OpMode {
     @Override
     public void start()
     {
+        follower.activateAllPIDFs();
         opmodeTimer.resetTimer();
         setPathState(0);
     }

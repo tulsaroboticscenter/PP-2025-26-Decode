@@ -59,7 +59,7 @@ public class RGBLightController {
 
             case FLASH:
                 // toggle between two colors
-                if ((t / 250) % 2 == 0)
+                if ((t / 500) % 2 == 0)
                     light.setPosition(color);
                 else
                     light.setPosition(0);

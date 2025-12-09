@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opModes;
+package org.firstinspires.ftc.teamcode.opModes.TeleOps;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -10,7 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Hardware.HWProfile;
-import org.firstinspires.ftc.teamcode.Libraries.FieldMarkers;
+import org.firstinspires.ftc.teamcode.Libraries.Field;
 import org.firstinspires.ftc.teamcode.Libraries.GamepadEffects;
 import org.firstinspires.ftc.teamcode.Libraries.MechOps;
 import org.firstinspires.ftc.teamcode.Libraries.RGBLightController;
@@ -21,9 +21,9 @@ import org.firstinspires.ftc.teamcode.Libraries.Velocity;
 import java.util.Locale;
 
 /** @noinspection ALL*/
-@TeleOp(name="TeleRed", group="Robot")
+@TeleOp(name="TeleRedFar", group="Robot")
 //@Disabled
-public class SauronRed extends LinearOpMode {
+public class SauronRedFar extends LinearOpMode {
 
 
 
@@ -38,15 +38,13 @@ public class SauronRed extends LinearOpMode {
     private final static HWProfile robot = new HWProfile();
     private final Targeting targeting = new Targeting(robot);
     private final MechOps ops = new MechOps(robot, this);
-    private final FieldMarkers markers = new FieldMarkers();
-
     private final TurretTargeting turretTargeting = new TurretTargeting(robot, targeting);
 
     private final Velocity robotVel = new Velocity(robot, targeting);
 
     private final GamepadEffects gamepadEffects = new GamepadEffects();
 
-    private Pose2D goalPosition = markers.redGoal;
+    private Pose2D goalPosition = Field.redGoal;
 
     public static double NEW_P = 15;
     public static double NEW_I = 1;
@@ -81,10 +79,10 @@ public class SauronRed extends LinearOpMode {
         double botHeading = 0.0;
         Pose2D storedLocation;
         boolean load = true;
-        Pose2D startingPosition = markers.redSmallZone;
+        Pose2D startingPosition = Field.redSmallZone;
 
         try {
-            storedLocation = ops.readPose("PoseFile");
+            storedLocation = ops.readPose("PositionFile");
             String locationData = String.format(Locale.US, "X: %.1f in, Y: %.1f in, %.1f degrees", storedLocation.getX(DistanceUnit.INCH), storedLocation.getY(DistanceUnit.INCH), storedLocation.getHeading(AngleUnit.DEGREES));
             telemetry.addData("Position Found", locationData);
             telemetry.addLine("Load? (A: Yes (default), B: No)");
@@ -107,7 +105,8 @@ public class SauronRed extends LinearOpMode {
 
         } catch (Exception e) {
             telemetry.addLine("Error reading PoseFile");
-            storedLocation = markers.blueSmallZone;
+            telemetry.addLine(e.toString());
+            storedLocation = Field.blueSmallZone;
             storedHeading = startingPosition.getHeading(AngleUnit.DEGREES);;
         }
 
@@ -168,14 +167,7 @@ public class SauronRed extends LinearOpMode {
         boolean isOutaking = false;
         boolean isHoodHigh = false;
 
-
-        // ENDGAME
         boolean endgame = false;
-
-
-
-        // automatically spin up the launcher motor.
-        //robot.launcherR.setVelocity(velocity);
 
         double y = 0;
         double x = 0;
@@ -196,7 +188,8 @@ public class SauronRed extends LinearOpMode {
 
          **/
 
-        while(opModeIsActive()){
+        while(opModeIsActive())
+        {
             y = -gamepad1.left_stick_y;
             x = gamepad1.left_stick_x;
             rx = gamepad1.right_stick_x;
@@ -206,7 +199,7 @@ public class SauronRed extends LinearOpMode {
             String data = String.format(Locale.US, "{X: %.1f in, Y: %.1f in, H: %.1f}", pos.getX(DistanceUnit.INCH), pos.getY(DistanceUnit.INCH), pos.getHeading(AngleUnit.DEGREES));
             telemetry.addData("Position", data); // prints current positional data from pinpoint
 
-            botHeading = Math.toRadians(pos.getHeading(AngleUnit.DEGREES) - storedHeading);
+            botHeading = Math.toRadians(pos.getHeading(AngleUnit.DEGREES) - storedHeading) + (Math.PI / 2);
 
             // Rotate the movement direction counter to the bot's rotation
             double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
@@ -234,6 +227,7 @@ public class SauronRed extends LinearOpMode {
                 targetingDelayRuntime.reset();
             }
 
+
             // Right Trigger (Firing)
             if (gamepad1.right_trigger > 0.2) {
                 robot.gateServo.setPosition(0.8);
@@ -250,15 +244,6 @@ public class SauronRed extends LinearOpMode {
                     robot.intakeMotor.setPower(0);
                 }
             }
-
-            // Turret Targeting Code (Currently Disabled)
-            /**
-            if (isTargeting) {
-                robot.turretRotationMotor.setTargetPosition(turretTargeting.HeadingToTurretTicks(targeting.getDegreesToTarget(pos, leadPose, false), AngleUnit.DEGREES));
-            } else {
-
-            }
-             **/
 
             // B (Toggle Intake)
             if (gamepad1.b && intakeToggleRuntime.seconds() > 0.4)
@@ -357,7 +342,7 @@ public class SauronRed extends LinearOpMode {
 
             if (isTargeting)
             {
-                robot.turretRotationMotor.setTargetPosition(turretTargeting.HeadingToTurretTicks(targeting.getDegreesToTarget(pos, goalPosition, false), AngleUnit.DEGREES));
+                robot.turret.setTarget(pos, goalPosition);
             }
 
             if (endgame == false && totalRuntime.seconds() > 100)
@@ -371,6 +356,7 @@ public class SauronRed extends LinearOpMode {
             }
 
             ops.updateRGB();
+            robot.turret.update();
 
             // Denominator is the largest motor power (absolute value) or 1
             // This ensures all the powers maintain the same ratio,

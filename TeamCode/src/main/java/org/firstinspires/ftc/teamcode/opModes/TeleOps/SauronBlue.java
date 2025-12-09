@@ -1,9 +1,7 @@
-package org.firstinspires.ftc.teamcode.opModes;
+package org.firstinspires.ftc.teamcode.opModes.TeleOps;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -12,7 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Hardware.HWProfile;
-import org.firstinspires.ftc.teamcode.Libraries.FieldMarkers;
+import org.firstinspires.ftc.teamcode.Libraries.Field;
 import org.firstinspires.ftc.teamcode.Libraries.GamepadEffects;
 import org.firstinspires.ftc.teamcode.Libraries.MechOps;
 import org.firstinspires.ftc.teamcode.Libraries.RGBLightController;
@@ -40,7 +38,7 @@ public class SauronBlue extends LinearOpMode {
     private final static HWProfile robot = new HWProfile();
     private final Targeting targeting = new Targeting(robot);
     private final MechOps ops = new MechOps(robot, this);
-    private final FieldMarkers markers = new FieldMarkers();
+    private final Field markers = new Field();
 
     private final TurretTargeting turretTargeting = new TurretTargeting(robot, targeting);
 
@@ -86,7 +84,7 @@ public class SauronBlue extends LinearOpMode {
         Pose2D startingPosition = markers.blueSmallZone;
 
         try {
-            storedLocation = ops.readPose("PoseFile");
+            storedLocation = ops.readPose("PositionFile");
             String locationData = String.format(Locale.US, "X: %.1f in, Y: %.1f in, %.1f degrees", storedLocation.getX(DistanceUnit.INCH), storedLocation.getY(DistanceUnit.INCH), storedLocation.getHeading(AngleUnit.DEGREES));
             telemetry.addData("Position Found", locationData);
             telemetry.addLine("Load? (A: Yes (default), B: No)");
@@ -108,10 +106,14 @@ public class SauronBlue extends LinearOpMode {
 
 
         } catch (Exception e) {
-            telemetry.addLine("Error reading PoseFile");
+
+            telemetry.addLine("Error reading PoseFile:");
+            telemetry.addLine(e.toString());
+            telemetry.addLine(e.getLocalizedMessage());
             storedLocation = markers.blueSmallZone;
             storedHeading = startingPosition.getHeading(AngleUnit.DEGREES);;
         }
+
 
         telemetry.addData("Stored Heading from File (if any): ", storedHeading);
         telemetry.addData("Current Bot Heading: ", botHeading);
@@ -172,13 +174,7 @@ public class SauronBlue extends LinearOpMode {
         boolean isOutaking = false;
         boolean isHoodHigh = false;
 
-
-        // ENDGAME
         boolean endgame = false;
-
-
-
-
 
         double y = 0;
         double x = 0;
@@ -186,8 +182,6 @@ public class SauronBlue extends LinearOpMode {
 
         gamepad1.setLedColor(0, 1, 0, 100000000);
         gamepad1.rumbleBlips(3);
-
-        robot.turretRotationMotor.setPower(1);
 
         ops.setLauncherVelocity(0);
 
@@ -207,7 +201,14 @@ public class SauronBlue extends LinearOpMode {
             String data = String.format(Locale.US, "{X: %.1f in, Y: %.1f in, H: %.1f}", pos.getX(DistanceUnit.INCH), pos.getY(DistanceUnit.INCH), pos.getHeading(AngleUnit.DEGREES));
             telemetry.addData("Position", data); // prints current positional data from pinpoint
 
-            botHeading = Math.toRadians(pos.getHeading(AngleUnit.DEGREES) - storedHeading);
+            if (Math.toRadians(pos.getHeading(AngleUnit.DEGREES) - storedHeading) > Math.PI)
+            {
+                botHeading = Math.toRadians(pos.getHeading(AngleUnit.DEGREES) - storedHeading) - Math.PI;
+            }
+            else
+            {
+                botHeading = Math.toRadians(pos.getHeading(AngleUnit.DEGREES) - storedHeading) + Math.PI;
+            }
 
             // Rotate the movement direction counter to the bot's rotation
             double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
@@ -215,10 +216,11 @@ public class SauronBlue extends LinearOpMode {
 
             if (robotLeadRuntime.seconds() > 0.02) { // 50hz
                 leadPose = robotVel.getLeadTarget(goalPosition);
+                robotLeadRuntime.reset();
             }
 
-
             // A (Toggle Targeting)
+
             if (gamepad1.a && targetingDelayRuntime.time() >= 0.6) {
                 if (isTargeting)
                 {
@@ -234,6 +236,7 @@ public class SauronBlue extends LinearOpMode {
                 }
                 targetingDelayRuntime.reset();
             }
+             
 
             // Right Trigger (Firing)
             if (gamepad1.right_trigger > 0.2) {
@@ -251,15 +254,6 @@ public class SauronBlue extends LinearOpMode {
                     robot.intakeMotor.setPower(0);
                 }
             }
-
-            // Turret Targeting Code (Currently Disabled)
-            /**
-            if (isTargeting) {
-                robot.turretRotationMotor.setTargetPosition(turretTargeting.HeadingToTurretTicks(targeting.getDegreesToTarget(pos, leadPose, false), AngleUnit.DEGREES));
-            } else {
-
-            }
-             **/
 
             // B (Toggle Intake)
             if (gamepad1.b && intakeToggleRuntime.seconds() > 0.4)
@@ -358,7 +352,7 @@ public class SauronBlue extends LinearOpMode {
 
             if (isTargeting)
             {
-                robot.turretRotationMotor.setTargetPosition(turretTargeting.HeadingToTurretTicks(targeting.getDegreesToTarget(pos, goalPosition, false), AngleUnit.DEGREES));
+                robot.turret.setTarget(pos, goalPosition);
             }
 
             if (endgame == false && totalRuntime.seconds() > 100)
@@ -372,6 +366,7 @@ public class SauronBlue extends LinearOpMode {
             }
 
             ops.updateRGB();
+            robot.turret.update();
 
             // Denominator is the largest motor power (absolute value) or 1
             // This ensures all the powers maintain the same ratio,

@@ -1,14 +1,14 @@
-package org.firstinspires.ftc.teamcode.opModes;
+package org.firstinspires.ftc.teamcode.opModes.Autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Hardware.HWProfile;
-import org.firstinspires.ftc.teamcode.Libraries.FieldMarkers;
+import org.firstinspires.ftc.teamcode.Libraries.Field;
 import org.firstinspires.ftc.teamcode.Libraries.GamepadEffects;
 import org.firstinspires.ftc.teamcode.Libraries.MechOps;
 import org.firstinspires.ftc.teamcode.Libraries.RGBLightController;
@@ -18,18 +18,13 @@ import org.firstinspires.ftc.teamcode.goBilda.GoBildaPinpointDriver;
 
 import java.util.Locale;
 
-@Autonomous(name = "AutoBlue", group = "Robot", preselectTeleOp = "SauronBlue")
-public class autoBlue extends LinearOpMode {
+
+@Autonomous(name = "AutoBlueFar", group = "Robot", preselectTeleOp = "TeleBlueFar")
+public class autoBlueFar extends LinearOpMode {
 
     private static final HWProfile robot = new HWProfile();
     private final MechOps ops = new MechOps(robot, this);
-    private final Targeting target = new Targeting(robot);
-    private final TurretTargeting turret = new TurretTargeting(robot, target);
-    private final FieldMarkers markers = new FieldMarkers();
-
-    private final GamepadEffects gamepadEffects = new GamepadEffects();
-
-    private final Pose2D goalPosition = markers.blueGoal;
+    private final Pose2D goalPosition = Field.blueGoal;
 
     enum States {
         SHOOT,
@@ -45,15 +40,14 @@ public class autoBlue extends LinearOpMode {
             telemetry.update();
             robot.pinpoint.update();
         }
-        robot.pinpoint.setPosition(markers.blueTouchingGoalFacingToward);
+        robot.pinpoint.setPosition(Field.redSmallZone);
         robot.pinpoint.update();
         sleep(300);
         String data = String.format(Locale.US, "{%.1f, %.1f} %.1f degrees", (robot.pinpoint.getPosX() / 25.4), (robot.pinpoint.getPosY() / 25.4), Math.toDegrees(robot.pinpoint.getHeading()));
         telemetry.addData("Starting Position: ", data);
-        telemetry.addData("Current state", State);
         telemetry.update();
 
-        gamepad1.runLedEffect(gamepadEffects.wakeBlue);
+        gamepad1.runLedEffect(GamepadEffects.wakeBlue);
 
         ElapsedTime preloadingToggleRuntime = new ElapsedTime();
         preloadingToggleRuntime.reset();
@@ -80,60 +74,45 @@ public class autoBlue extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
+            robot.turret.update();
 
             switch (State){
                 case SHOOT:
 
-                    ops.setLauncherVelocity(robot.LAUNCHER_LOW_VELOCITY);
-                    ops.setHoodPosition(robot.HOOD_LOW_POSITION);
-                    ops.setAllMotors(-0.3);
-                    sleep(700);
-                    ops.allStop();
-                    sleep(200);
+                    robot.pinpoint.update();
 
                     // Aim
-                    turret.lockOnTarget(robot.pinpoint.getPosition(), goalPosition);
-                    while (robot.launcherR.getVelocity() < robot.LAUNCHER_LOW_VELOCITY - 100) {
+                    ops.setLauncherVelocity(robot.LAUNCHER_HIGH_VELOCITY);
+                    ops.setHoodPosition(robot.HOOD_HIGH_POSITION);
+                    robot.turret.setTarget(robot.pinpoint.getPosition(), goalPosition);
+                    sleep(2000);
+
+                    while (robot.launcherR.getVelocity() < robot.LAUNCHER_HIGH_VELOCITY - 100) {
                         sleep(10);
                     }
+                    ops.openGate();
                     robot.intakeMotor.setPower(1);
-                    robot.gateServo.setPosition(0.8);
                     sleep(6000);
+                    ops.closeGate();
                     robot.intakeMotor.setPower(0);
                     ops.setLauncherVelocity(0);
+                    sleep(200);
+                    State = States.PARK;
 
-                    //park
-                    robot.leftFrontDrive.setPower(0.3);
-                    robot.leftBackDrive.setPower(0.3);
-                    robot.rightFrontDrive.setPower(-0.3);
-                    robot.rightBackDrive.setPower(-0.3);
-                    sleep(700);
-                    ops.setAllMotors(-0.3);
+                case PARK:
+                    ops.setAllMotors(0.3);
                     sleep(1500);
                     ops.allStop();
                     sleep(2000);
-                    State = States.PARK;
                     break;
-
-                case PARK:
-                    /*robot.leftFrontDrive.setPower(0.3);
-                    robot.leftBackDrive.setPower(0.3);
-                    robot.rightFrontDrive.setPower(-0.3);
-                    robot.rightBackDrive.setPower(-0.3);
-                    sleep(700);
-                    ops.setAllMotors(-0.3);
-                    sleep(2000);
-                    ops.allStop();
-                    sleep(2000);
-                    break;*/
             }
 
             robot.pinpoint.update();
 
             telemetry.addData("Ending Position: ", robot.pinpoint.getPosX() + ", " + robot.pinpoint.getPosY());
-            telemetry.addData("Current state", State);
             telemetry.update();
-            ops.writePose(robot.pinpoint.getPosition(), "PoseFile");
+            Pose2D savingPose = new Pose2D(DistanceUnit.INCH, robot.pinpoint.getPosX(), robot.pinpoint.getPosY(), AngleUnit.DEGREES, (Math.toDegrees(robot.pinpoint.getHeading()) + 90));
+            ops.writePose(savingPose, "PositionFile");
         }
     }
 }

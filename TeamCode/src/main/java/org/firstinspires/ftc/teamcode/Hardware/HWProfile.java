@@ -16,6 +16,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 
 import org.firstinspires.ftc.teamcode.Libraries.RGBLightController;
+import org.firstinspires.ftc.teamcode.Libraries.Turret;
 import org.firstinspires.ftc.teamcode.goBilda.GoBildaPinpointDriver;
 
 @Config
@@ -42,7 +43,7 @@ public class HWProfile {
     public DcMotorEx launcherR = null; // launcherR
     public DcMotorEx launcherL = null; // launcherL
     public DcMotor intakeMotor = null; // intakeMotor
-    public DcMotor turretRotationMotor = null; // trMotor
+    public DcMotorEx turretRotationMotor = null; // trMotor
 
     public Servo gateServo = null; // gate
 
@@ -64,13 +65,18 @@ public class HWProfile {
     public ElapsedTime feederTimer = new ElapsedTime();
     public ElapsedTime pdTimer = new ElapsedTime();
 
-    public static
+    public Turret turret = new Turret(this);
+
+    public static double turretkP = 25;
+    public static double turretkI = 0;
+    public static double turretkD = 2.5;
+    public static double turretkF = 0.00001;
+    public static double turretTolerance = 10;
 
     HardwareMap hwMap =  null;
 
-    public HWProfile() {
+    public HWProfile() {}
 
-    }
     public void init(HardwareMap ahwMap, boolean TeleOp) {
 
         hwMap = ahwMap;
@@ -85,7 +91,7 @@ public class HWProfile {
 
         intakeMotor = hwMap.get(DcMotor.class, "intakeMotor");
 
-        turretRotationMotor = hwMap.get(DcMotor.class, "turretRotationMotor");
+        turretRotationMotor = hwMap.get(DcMotorEx.class, "turretRotationMotor");
 
         hoodServoL = hwMap.get(Servo.class, "hoodServoL");
         hoodServoR = hwMap.get(Servo.class, "hoodServoR");
@@ -118,11 +124,11 @@ public class HWProfile {
         turretRotationMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         if (!TeleOp)
         {
-            turretRotationMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            turretRotationMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         }
-        turretRotationMotor.setTargetPosition(0);
         turretRotationMotor.setPower(0);
-        turretRotationMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        turretRotationMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        turretRotationMotor.setVelocity(0);
 
         leftFrontDrive.setZeroPowerBehavior(BRAKE);
         rightFrontDrive.setZeroPowerBehavior(BRAKE);
@@ -158,6 +164,8 @@ public class HWProfile {
         light1 = new RGBLightController(RGBLight1);
         light2 = new RGBLightController(RGBLight2);
 
+        turret.init();
+
         pinpoint.resetPosAndIMU();
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         pinpoint.setOffsets(76.2, -190.5); // x: 3in y: -7.5in
@@ -167,6 +175,89 @@ public class HWProfile {
         //limelight.start();
         //limelight.pipelineSwitch(0);
 
+
+    }
+
+    public void initPedro(HardwareMap ahwMap, boolean TeleOp) {
+
+        hwMap = ahwMap;
+
+        launcherR = hwMap.get(DcMotorEx.class, "launcherR");
+        launcherL = hwMap.get(DcMotorEx.class, "launcherL");
+
+        intakeMotor = hwMap.get(DcMotor.class, "intakeMotor");
+
+        turretRotationMotor = hwMap.get(DcMotorEx.class, "turretRotationMotor");
+
+        hoodServoL = hwMap.get(Servo.class, "hoodServoL");
+        hoodServoR = hwMap.get(Servo.class, "hoodServoR");
+
+        gateServo = hwMap.get(Servo.class, "gate");
+
+        turretLimitSwitch = hwMap.get(RevTouchSensor.class, "turretLimitSwitch");
+
+        //pinpoint = hwMap.get(GoBildaPinpointDriver.class,"pinpoint");
+
+        RGBLight1 = hwMap.get(Servo.class, "rgb1");
+        RGBLight2 = hwMap.get(Servo.class, "rgb2");
+
+        //limelight = hwMap.get(Limelight3A.class, "limelight");
+
+        launcherR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        launcherL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        turretRotationMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        if (!TeleOp)
+        {
+            turretRotationMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        }
+        turretRotationMotor.setTargetPosition(0);
+        turretRotationMotor.setPower(0);
+        turretRotationMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        turretRotationMotor.setTargetPositionTolerance(10);
+        turretRotationMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, new PIDFCoefficients(turretkP, 0, 0, 0));
+
+        launcherR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        launcherL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        turretRotationMotor.setZeroPowerBehavior(BRAKE);
+
+        intakeMotor.setPower(0);
+        launcherR.setVelocity(0);
+        launcherL.setVelocity(0);
+
+        launcherR.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300, 0, 0, 10));
+        launcherL.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300, 0, 0, 10));
+
+        intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        launcherL.setDirection(DcMotorSimple.Direction.FORWARD);
+        launcherR.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        hoodServoL.setDirection(Servo.Direction.FORWARD);
+        hoodServoR.setDirection(Servo.Direction.REVERSE);
+
+        gateServo.setPosition(0.5);
+        turret.init();
+
+        if (!TeleOp)
+        {
+            hoodServoL.setPosition(1);
+            hoodServoR.setPosition(0);
+        }
+
+        light1 = new RGBLightController(RGBLight1);
+        light2 = new RGBLightController(RGBLight2);
+
+        /**
+        pinpoint.resetPosAndIMU();
+        pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+        pinpoint.setOffsets(76.2, -190.5); // x: 3in y: -7.5in
+        pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        **/
+
+        //limelight.setPollRateHz(100);
+        //limelight.start();
+        //limelight.pipelineSwitch(0);
 
     }
 }

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opModes;
+package org.firstinspires.ftc.teamcode.opModes.Autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Hardware.HWProfile;
-import org.firstinspires.ftc.teamcode.Libraries.FieldMarkers;
+import org.firstinspires.ftc.teamcode.Libraries.Field;
 import org.firstinspires.ftc.teamcode.Libraries.GamepadEffects;
 import org.firstinspires.ftc.teamcode.Libraries.MechOps;
 import org.firstinspires.ftc.teamcode.Libraries.RGBLightController;
@@ -17,18 +17,14 @@ import org.firstinspires.ftc.teamcode.goBilda.GoBildaPinpointDriver;
 import java.util.Locale;
 
 
-@Autonomous(name = "AutoRedFar", group = "Robot", preselectTeleOp = "SauronBlue")
-public class autoRedFar extends LinearOpMode {
+
+@Autonomous(name = "AutoRed", group = "Robot", preselectTeleOp = "TeleRed")
+public class autoRed extends LinearOpMode {
 
     private static final HWProfile robot = new HWProfile();
     private final MechOps ops = new MechOps(robot, this);
-    private final Targeting target = new Targeting(robot);
-    private final TurretTargeting turret = new TurretTargeting(robot, target);
-    private final FieldMarkers markers = new FieldMarkers();
 
-    private final GamepadEffects gamepadEffects = new GamepadEffects();
-
-    private final Pose2D goalPosition = markers.blueGoal;
+    private final Pose2D goalPosition = Field.redGoal;
 
     enum States {
         SHOOT,
@@ -37,6 +33,8 @@ public class autoRedFar extends LinearOpMode {
 
     States State = States.SHOOT;
 
+
+
     public void runOpMode() {
         robot.init(hardwareMap, false);
         while (robot.pinpoint.getDeviceStatus() != GoBildaPinpointDriver.DeviceStatus.READY) {
@@ -44,14 +42,14 @@ public class autoRedFar extends LinearOpMode {
             telemetry.update();
             robot.pinpoint.update();
         }
-        robot.pinpoint.setPosition(markers.blueSmallZone);
+        robot.pinpoint.setPosition(Field.redTouchingGoalFacingToward);
         robot.pinpoint.update();
         sleep(300);
         String data = String.format(Locale.US, "{%.1f, %.1f} %.1f degrees", (robot.pinpoint.getPosX() / 25.4), (robot.pinpoint.getPosY() / 25.4), Math.toDegrees(robot.pinpoint.getHeading()));
         telemetry.addData("Starting Position: ", data);
         telemetry.update();
 
-        gamepad1.runLedEffect(gamepadEffects.wakeBlue);
+        gamepad1.runLedEffect(GamepadEffects.wakeRed);
 
         ElapsedTime preloadingToggleRuntime = new ElapsedTime();
         preloadingToggleRuntime.reset();
@@ -78,21 +76,21 @@ public class autoRedFar extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
+            robot.turret.update();
 
             switch (State){
                 case SHOOT:
 
-                    robot.pinpoint.update();
+                    ops.setLauncherVelocity(robot.LAUNCHER_LOW_VELOCITY);
+                    ops.setHoodPosition(robot.HOOD_LOW_POSITION);
+                    ops.setAllMotors(-0.3);
+                    sleep(500);
+                    ops.allStop();
+                    sleep(200);
 
                     // Aim
-                    ops.setLauncherVelocity(robot.LAUNCHER_HIGH_VELOCITY);
-                    ops.setHoodPosition(robot.HOOD_HIGH_POSITION);
-                    turret.lockOnTarget(robot.pinpoint.getPosition(), goalPosition);
-                    sleep(2000);
-
-                    while (robot.launcherR.getVelocity() < robot.LAUNCHER_HIGH_VELOCITY - 100) {
-                        sleep(10);
-                    }
+                    robot.turret.setTarget(robot.pinpoint.getPosition(), goalPosition);
+                    sleep(1500);
                     ops.openGate();
                     robot.intakeMotor.setPower(1);
                     sleep(6000);
@@ -100,22 +98,38 @@ public class autoRedFar extends LinearOpMode {
                     robot.intakeMotor.setPower(0);
                     ops.setLauncherVelocity(0);
                     sleep(200);
+
+                    //park
+                    robot.leftFrontDrive.setPower(-0.3);
+                    robot.leftBackDrive.setPower(-0.3);
+                    robot.rightFrontDrive.setPower(0.3);
+                    robot.rightBackDrive.setPower(0.3);
+                    sleep(700);
+                    ops.setAllMotors(-0.3);
+                    sleep(2000);
+                    ops.allStop();
+                    sleep(2000);
                     State = States.PARK;
                     break;
 
                 case PARK:
-                    ops.setAllMotors(0.3);
+                    /*robot.leftFrontDrive.setPower(-0.3);
+                    robot.leftBackDrive.setPower(-0.3);
+                    robot.rightFrontDrive.setPower(0.3);
+                    robot.rightBackDrive.setPower(0.3);
+                    sleep(700);
+                    ops.setAllMotors(-0.3);
                     sleep(2000);
                     ops.allStop();
                     sleep(2000);
-                    break;
+                    break;*/
             }
 
             robot.pinpoint.update();
 
             telemetry.addData("Ending Position: ", robot.pinpoint.getPosX() + ", " + robot.pinpoint.getPosY());
             telemetry.update();
-            ops.writePose(robot.pinpoint.getPosition(), "PoseFile");
+            ops.writePose(robot.pinpoint.getPosition(), "PositionFile");
         }
     }
 }

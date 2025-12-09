@@ -26,7 +26,7 @@ public class Targeting {
 
     // If the launcher is opposite the front side of your robot, set this to true. If not, leave this as false.
 
-    boolean reversePolarity = false;
+    public static boolean reversePolarity = false;
 
     // Proportional value
     // When tuning, start with this value and start small, e.g., 0.01 to 0.05,
@@ -60,7 +60,7 @@ public class Targeting {
         }
     }
 
-    public double getDegreesToTarget(Pose2D currentLocation, Pose2D targetLocation, boolean convertToRadians)
+    public static double getDegreesToTarget(Pose2D currentLocation, Pose2D targetLocation, boolean convertToRadians)
     {
         // Grabs change in Y and change in X to calculate slope to target
         double deltaY = (targetLocation.getY(DistanceUnit.MM) - currentLocation.getY(DistanceUnit.MM));

@@ -6,7 +6,7 @@ public class GamepadEffects {
 
     public GamepadEffects(){}
 
-    public LedEffect wakeBlue = new LedEffect.Builder()
+    public static final LedEffect wakeBlue = new LedEffect.Builder()
             .addStep(0,0,1,400)
             .addStep(0,0,0,400)
             .addStep(0,0,1,400)
@@ -14,7 +14,7 @@ public class GamepadEffects {
             .addStep(0,0,1,3000)
             .build();
 
-    public LedEffect wakeRed = new LedEffect.Builder()
+    public static final LedEffect wakeRed = new LedEffect.Builder()
             .addStep(1,0,0,400)
             .addStep(0,0,0,400)
             .addStep(1,0,0,400)
