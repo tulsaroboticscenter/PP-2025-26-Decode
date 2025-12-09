@@ -30,13 +30,14 @@ public class Turret {
 
     public void init()
     {
-        turretPID.setTolerance(10);
+        turretPID.setTolerance(HWProfile.turretTolerance);
         turretPID.setTarget(0);
     }
 
     public void update()
     {
         turretPID.setPIDFCoefficients(HWProfile.turretkP, HWProfile.turretkI, HWProfile.turretkD, HWProfile.turretkF);
+        turretPID.setTolerance(HWProfile.turretTolerance);
         robot.turretRotationMotor.setVelocity(turretPID.calculate(robot.turretRotationMotor.getCurrentPosition()));
     }
 
