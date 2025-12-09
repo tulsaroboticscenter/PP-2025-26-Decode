@@ -211,11 +211,11 @@ public class HWProfile {
         {
             turretRotationMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         }
-        turretRotationMotor.setTargetPosition(0);
+
         turretRotationMotor.setPower(0);
-        turretRotationMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        turretRotationMotor.setTargetPositionTolerance(10);
-        turretRotationMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, new PIDFCoefficients(turretkP, 0, 0, 0));
+        turretRotationMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        turretRotationMotor.setVelocity(0);
+
 
         launcherR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         launcherL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
