@@ -26,14 +26,14 @@ public class HWProfile {
     public final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
     public final double FULL_SPEED = 1.0;
 
-    public final double LAUNCHER_LOW_VELOCITY = 900;
+    public final double LAUNCHER_LOW_VELOCITY = 1000;
 
-    public final double LAUNCHER_MEDIUM_VELOCITY = 1250;
-    public final double LAUNCHER_HIGH_VELOCITY = 1600;
+    public final double LAUNCHER_MEDIUM_VELOCITY = 1400;
+    public final double LAUNCHER_HIGH_VELOCITY = 1700;
 
     public final double HOOD_LOW_POSITION = 0;
-    public final double HOOD_MEDIUM_POSITION = 0.35;
-    public final double HOOD_HIGH_POSITION = 0.6;
+    public final double HOOD_MEDIUM_POSITION = 0.6;
+    public final double HOOD_HIGH_POSITION = 0.9;
 
     // Declare OpMode members.
     public DcMotor leftFrontDrive = null; // driveLF
@@ -70,7 +70,7 @@ public class HWProfile {
     public static double turretkP = 25;
     public static double turretkI = 0;
     public static double turretkD = 2.5;
-    public static double turretkF = 0.00001;
+    public static double turretkF = 5;
     public static double turretTolerance = 10;
 
     HardwareMap hwMap =  null;
