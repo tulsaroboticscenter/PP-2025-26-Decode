@@ -55,6 +55,7 @@ public class autoBlueFar extends LinearOpMode {
 
         ops.setRGB(0.611);
         ops.setRGBMode(RGBLightController.LEDMode.PULSE_WAKE);
+        robot.turret.setTarget(robot.pinpoint.getPosition(), goalPosition);
         while (opModeInInit())
         {
             ops.updateRGB();
@@ -69,12 +70,13 @@ public class autoBlueFar extends LinearOpMode {
                 preloading = !preloading;
                 preloadingToggleRuntime.reset();
             }
+            robot.turret.update();
         }
 
         waitForStart();
 
         if (opModeIsActive()) {
-            robot.turret.update();
+
 
             switch (State){
                 case SHOOT:
@@ -84,7 +86,7 @@ public class autoBlueFar extends LinearOpMode {
                     // Aim
                     ops.setLauncherVelocity(robot.LAUNCHER_HIGH_VELOCITY);
                     ops.setHoodPosition(robot.HOOD_HIGH_POSITION);
-                    robot.turret.setTarget(robot.pinpoint.getPosition(), goalPosition);
+
                     sleep(2000);
 
                     while (robot.launcherR.getVelocity() < robot.LAUNCHER_HIGH_VELOCITY - 100) {
