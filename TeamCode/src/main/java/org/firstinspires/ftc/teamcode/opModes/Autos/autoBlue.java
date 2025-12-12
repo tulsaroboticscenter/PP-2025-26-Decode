@@ -53,6 +53,7 @@ public class autoBlue extends LinearOpMode {
 
         ops.setRGB(0.611);
         ops.setRGBMode(RGBLightController.LEDMode.PULSE_WAKE);
+        robot.turret.setTarget(robot.pinpoint.getPosition(), goalPosition);
         while (opModeInInit())
         {
             ops.updateRGB();
@@ -67,6 +68,7 @@ public class autoBlue extends LinearOpMode {
                 preloading = !preloading;
                 preloadingToggleRuntime.reset();
             }
+            robot.turret.update();
         }
 
         waitForStart();
@@ -80,15 +82,12 @@ public class autoBlue extends LinearOpMode {
                     ops.setLauncherVelocity(robot.LAUNCHER_LOW_VELOCITY);
                     ops.setHoodPosition(robot.HOOD_LOW_POSITION);
                     ops.setAllMotors(-0.3);
-                    sleep(700);
+                    sleep(1000);
                     ops.allStop();
                     sleep(200);
 
                     // Aim
-                    robot.turret.setTarget(robot.pinpoint.getPosition(), goalPosition);
-                    while (robot.launcherR.getVelocity() < robot.LAUNCHER_LOW_VELOCITY - 100) {
-                        sleep(10);
-                    }
+
                     robot.intakeMotor.setPower(1);
                     robot.gateServo.setPosition(0.8);
                     sleep(6000);
@@ -100,9 +99,9 @@ public class autoBlue extends LinearOpMode {
                     robot.leftBackDrive.setPower(0.3);
                     robot.rightFrontDrive.setPower(-0.3);
                     robot.rightBackDrive.setPower(-0.3);
-                    sleep(700);
+                    sleep(1200);
                     ops.setAllMotors(-0.3);
-                    sleep(1500);
+                    sleep(2000);
                     ops.allStop();
                     sleep(2000);
                     State = States.PARK;

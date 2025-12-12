@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.Libraries;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
-import com.acmerobotics.dashboard.config.Config;
+//import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -18,7 +18,7 @@ import java.lang.Math;
 
 import java.io.File;
 
-@Config
+//@Config
 public class Targeting {
 
     public HWProfile robot;

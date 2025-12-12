@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.Hardware;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
-import com.acmerobotics.dashboard.config.Config;
+//import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.Libraries.RGBLightController;
 import org.firstinspires.ftc.teamcode.Libraries.Turret;
 import org.firstinspires.ftc.teamcode.goBilda.GoBildaPinpointDriver;
 
-@Config
+//@Config
 public class HWProfile {
 
     public final double FEED_TIME_SECONDS = 0.20; //The feeder servos run this long when a shot is requested.

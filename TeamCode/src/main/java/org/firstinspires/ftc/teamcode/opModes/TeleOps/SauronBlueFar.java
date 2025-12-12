@@ -280,21 +280,21 @@ public class SauronBlueFar extends LinearOpMode {
             {
                 if (status == LauncherStatus.LOW)
                 {
-                    ops.setHoodPosition(0.35);
+                    ops.setHoodPosition(robot.HOOD_MEDIUM_POSITION);
                     ops.setRGB(0.388);
                     velocity = robot.LAUNCHER_MEDIUM_VELOCITY;
                     status = LauncherStatus.MEDIUM;
                 }
                 else if (status == LauncherStatus.MEDIUM)
                 {
-                    ops.setHoodPosition(0.6);
+                    ops.setHoodPosition(robot.HOOD_HIGH_POSITION);
                     ops.setRGB(0.28);
                     velocity = robot.LAUNCHER_HIGH_VELOCITY;
                     status = LauncherStatus.HIGH;
                 }
                 else if (status == LauncherStatus.HIGH)
                 {
-                    ops.setHoodPosition(0);
+                    ops.setHoodPosition(robot.HOOD_LOW_POSITION);
                     ops.setRGB(0.5);
                     velocity = robot.LAUNCHER_LOW_VELOCITY;
                     status = LauncherStatus.LOW;

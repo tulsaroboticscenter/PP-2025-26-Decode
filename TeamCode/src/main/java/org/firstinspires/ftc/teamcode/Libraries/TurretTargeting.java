@@ -1,13 +1,13 @@
 package org.firstinspires.ftc.teamcode.Libraries;
 
-import com.acmerobotics.dashboard.config.Config;
+//import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Hardware.HWProfile;
 
-@Config
+//@Config
 public class TurretTargeting {
 
     public HWProfile robot;

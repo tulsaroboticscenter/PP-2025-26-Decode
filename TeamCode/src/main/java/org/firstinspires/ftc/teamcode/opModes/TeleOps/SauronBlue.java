@@ -299,7 +299,7 @@ public class SauronBlue extends LinearOpMode {
                 }
                 else if (status == LauncherStatus.HIGH)
                 {
-                    ops.setHoodPosition(0);
+                    ops.setHoodPosition(robot.HOOD_LOW_POSITION);
                     ops.setRGB(0.5);
                     velocity = robot.LAUNCHER_LOW_VELOCITY;
                     status = LauncherStatus.LOW;

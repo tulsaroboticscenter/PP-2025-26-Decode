@@ -14,9 +14,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Hardware.HWProfile;
+import org.firstinspires.ftc.teamcode.Libraries.Field;
 import org.firstinspires.ftc.teamcode.Libraries.GamepadEffects;
 import org.firstinspires.ftc.teamcode.Libraries.MechOps;
-import org.firstinspires.ftc.teamcode.Libraries.PedroFieldMarkers;
 import org.firstinspires.ftc.teamcode.Libraries.RGBLightController;
 import org.firstinspires.ftc.teamcode.Libraries.Targeting;
 import org.firstinspires.ftc.teamcode.Libraries.TurretTargeting;
@@ -30,7 +30,7 @@ public class PedroAutoFarBlue extends OpMode {
     private final MechOps ops = new MechOps(robot, this);
     private final Targeting target = new Targeting(robot);
     private final TurretTargeting turret = new TurretTargeting(robot, target);
-    private final PedroFieldMarkers markers = new PedroFieldMarkers();
+    private final Field markers = new Field();
     private final GamepadEffects gamepadEffects = new GamepadEffects();
 
     private final Pose2D goalPosition = markers.blueGoal;

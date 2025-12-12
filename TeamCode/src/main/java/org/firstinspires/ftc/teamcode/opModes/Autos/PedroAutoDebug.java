@@ -66,10 +66,6 @@ public class PedroAutoDebug extends OpMode {
 
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(Field.toPedro(Field.redSmallZone));
-
-        robot.turretRotationMotor.setTargetPosition(0);
-        robot.turretRotationMotor.setPower(1);
-        robot.turretRotationMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     /** This initializes the Follower and creates the forward and backward Paths. */
@@ -83,9 +79,9 @@ public class PedroAutoDebug extends OpMode {
     @Override
     public void start()
     {
-        follower.activateAllPIDFs();
+
         forwards = new Path(new BezierLine(new Pose(60,8), new Pose(60,36)));
-        forwards.setBrakingStrength(12);
+        forwards.setBrakingStrength(5);
         follower.setMaxPower(1);
         forwards.setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(180));
 

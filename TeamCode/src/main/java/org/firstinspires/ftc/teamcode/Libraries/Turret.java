@@ -26,6 +26,14 @@ public class Turret {
     public double ticksToDegreesCoeffecient = 360 / ticksPerTurretRevolution;
     public double ticksToRadiansCoeffecient = (2 * Math.PI) / ticksPerTurretRevolution;
 
+    private enum turretStates {
+        HIGH,
+        MEDIUM,
+        LOW
+    }
+
+    private turretStates currentStatus = turretStates.LOW;
+
     private final boolean clamped = true;
 
     public void init()
@@ -59,7 +67,6 @@ public class Turret {
     {
         turretPID.setTarget(tickValue);
     }
-
 
     public int HeadingToTurretTicks(double angle, AngleUnit angleunit) {
         if (clamped)

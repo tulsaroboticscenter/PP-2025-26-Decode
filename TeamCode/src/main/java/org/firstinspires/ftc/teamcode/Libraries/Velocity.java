@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.Libraries;
 
-import com.acmerobotics.dashboard.config.Config;
+//import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Hardware.HWProfile;
 
 import java.lang.Math;
 
-@Config
+//@Config
 public class Velocity {
 
     public HWProfile robot;

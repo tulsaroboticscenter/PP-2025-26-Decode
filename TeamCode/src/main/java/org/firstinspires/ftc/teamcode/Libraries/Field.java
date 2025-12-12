@@ -1,13 +1,13 @@
 package org.firstinspires.ftc.teamcode.Libraries;
 
-import com.acmerobotics.dashboard.config.Config;
+//import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.geometry.Pose;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
-@Config
+//@Config
 public class Field {
 
     /**
