@@ -86,9 +86,6 @@ public class autoRedFar extends LinearOpMode {
 
                     sleep(2000);
 
-                    while (robot.launcherR.getVelocity() < robot.LAUNCHER_HIGH_VELOCITY - 100) {
-                        sleep(10);
-                    }
                     ops.openGate();
                     robot.intakeMotor.setPower(1);
                     sleep(6000);

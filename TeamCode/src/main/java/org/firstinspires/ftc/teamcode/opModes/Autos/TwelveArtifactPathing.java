@@ -24,14 +24,14 @@ import org.firstinspires.ftc.teamcode.Libraries.Targeting;
 import org.firstinspires.ftc.teamcode.Libraries.TurretTargeting;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Pedro Blue Debug", group = "Autonomous")
-public class PedroAutoDebug extends OpMode {
+@Autonomous(name = "RAAAAHHHH", group = "Autonomous")
+public class TwelveArtifactPathing extends OpMode {
 
     /**
 
-    This PedroPathing Auto is used to test before updating pathing on other Pedro autos
+     This PedroPathing Auto is used to test before updating pathing on other Pedro autos
 
-    **/
+     **/
 
     private enum AutoState {
         AIMING,
@@ -74,6 +74,8 @@ public class PedroAutoDebug extends OpMode {
 
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(Field.toPedro(Field.redSmallZone));
+
+        robot.turret.setTarget(follower.getPose(), goalPosition);
     }
 
     /** This initializes the Follower and creates the forward and backward Paths. */
@@ -97,52 +99,7 @@ public class PedroAutoDebug extends OpMode {
         follower.update();
         robot.turret.update();
 
-        switch (currentState)
-        {
-            case AIMING:
-                robot.turret.setTarget(follower.getPose(), goalPosition);
-                ops.setHoodPosition(robot.HOOD_HIGH_POSITION);
-                ops.setLauncherVelocity(robot.LAUNCHER_HIGH_VELOCITY);
-                timer.reset();
-                currentState = AutoState.WAIT_TO_FIRE;
-                break;
-
-            case WAIT_TO_FIRE:
-                if (timer.seconds() > 1.5)
-                {
-                    currentState = AutoState.FIRING;
-                    timer.reset();
-                }
-                break;
-
-            case FIRING:
-                ops.openGate();
-                robot.intakeMotor.setPower(1);
-                if (timer.seconds() > 4)
-                {
-                    robot.turretRotationMotor.setTargetPosition(0);
-                    ops.closeGate();
-                    ops.setLauncherVelocity(0);
-                    robot.intakeMotor.setPower(0);
-                    currentState = AutoState.MOVING;
-                    timer.reset();
-                }
-                break;
-
-            case MOVING:
-
-                follower.followPath(forwards, false);
-                if (!follower.isBusy())
-                {
-                    currentState = AutoState.DONE;
-                }
-                break;
-        }
-        telemetry.addData("State", currentState.toString());
-        telemetry.update();
-
-
-
+        follower.followPath(forwards, false);
     }
 }
 

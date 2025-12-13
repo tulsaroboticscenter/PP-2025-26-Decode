@@ -216,7 +216,7 @@ public class SauronBlueFar extends LinearOpMode {
 
             // A (Toggle Targeting)
 
-            if (gamepad1.a && targetingDelayRuntime.time() >= 0.6) {
+            if (gamepad1.y && targetingDelayRuntime.time() >= 0.6) {
                 if (isTargeting)
                 {
                     isTargeting = false;
@@ -251,7 +251,7 @@ public class SauronBlueFar extends LinearOpMode {
             }
 
             // B (Toggle Intake)
-            if (gamepad1.b && intakeToggleRuntime.seconds() > 0.4)
+            if (gamepad1.a && intakeToggleRuntime.seconds() > 0.4)
             {
                 if (isIntaking)
                 {

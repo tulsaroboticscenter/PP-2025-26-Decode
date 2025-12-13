@@ -104,7 +104,7 @@ public class autoRed extends LinearOpMode {
                     robot.leftBackDrive.setPower(-0.3);
                     robot.rightFrontDrive.setPower(0.3);
                     robot.rightBackDrive.setPower(0.3);
-                    sleep(1200);
+                    sleep(850);
                     ops.setAllMotors(-0.3);
                     sleep(2000);
                     ops.allStop();
