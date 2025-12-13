@@ -1,0 +1,89 @@
+package org.firstinspires.ftc.teamcode.fromV1;
+
+//import com.acmerobotics.dashboard.config.Config;
+import com.pedropathing.geometry.Pose;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.Hardware.HWProfile;
+import org.firstinspires.ftc.teamcode.Libraries.Targeting;
+
+import java.lang.Math;
+
+//@Config
+public class Velocity {
+
+    public HWProfile robot;
+
+    public LinearOpMode opMode;
+
+    public org.firstinspires.ftc.teamcode.Libraries.Targeting targeting;
+
+
+    // Lead Variables
+    private double magnitude = 0.0;
+    private double theta = 0.0;
+    private double inverseTheta = 0.0;
+    private double velX;
+    private double velY;
+
+    // Distance Variables
+    private double distance;
+
+
+    // controls the strength of how much the robot leads when targeting.
+    public static double leadCoefficient = 1;
+
+    private Pose2D leadCoord = new Pose2D(DistanceUnit.MM, 0, 0, AngleUnit.RADIANS, 0);
+
+    public ElapsedTime velocityTimer = new ElapsedTime();
+
+
+    public Velocity(HWProfile myRobot, Targeting myTargeting) {
+        robot = myRobot;
+        targeting = myTargeting;
+    }
+
+    public void resetTimer() {
+        velocityTimer.reset();
+    }
+
+    // called every cycle
+
+    public Pose2D getLeadTarget(Pose2D targetPosition) {
+        // pinpoint.getVel returns velocity in mm/sec
+        velX = robot.pinpoint.getVelX();
+        velY = robot.pinpoint.getVelY();
+        magnitude = Math.sqrt(Math.pow(velX, 2) + Math.pow(velY, 2));
+
+        // theta is the heading of the vector
+        theta = Math.atan2(velY, velX);
+
+        if (theta > 0) {
+            inverseTheta = theta - Math.PI;
+        } else {
+            inverseTheta = theta + Math.PI;
+        }
+
+        leadCoord = new Pose2D(DistanceUnit.MM,
+                (targetPosition.getX(DistanceUnit.MM) + (magnitude * leadCoefficient) * Math.cos(inverseTheta)), // Right here, we find the end of the vector.
+                (targetPosition.getY(DistanceUnit.MM) + (magnitude * leadCoefficient) * Math.sin(inverseTheta)),
+                AngleUnit.RADIANS, inverseTheta); // we store the direction of our vector just in case we need it later.
+
+        return leadCoord;
+    }
+
+
+    public double getMagnitude() {
+        return magnitude;
+    }
+
+    public double getVelocityDirectionDegrees() {
+        return Math.toDegrees(theta);
+    }
+
+}
+

@@ -2,65 +2,81 @@ package org.firstinspires.ftc.teamcode.Hardware;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
-import com.acmerobotics.dashboard.config.Config;
+//import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
-import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.Libraries.RGBLightController;
+import org.firstinspires.ftc.teamcode.Libraries.Turret;
 import org.firstinspires.ftc.teamcode.goBilda.GoBildaPinpointDriver;
 
-@Config
+//@Config
 public class HWProfile {
 
     public final double FEED_TIME_SECONDS = 0.20; //The feeder servos run this long when a shot is requested.
     public final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
     public final double FULL_SPEED = 1.0;
 
-    public final double FULL_DRIVE_SPEED = 0.6;
+    public final double LAUNCHER_LOW_VELOCITY = 1000;
 
-    /*
-     * When we control our launcher motor, we are using encoders. These allow the control system
-     * to read the current speed of the motor and apply more or less power to keep it at a constant
-     * velocity. Here we are setting the target, and minimum velocity that the launcher should run
-     * at. The minimum velocity is a threshold for determining when to fire.
-     */
-    public final double LAUNCHER_TARGET_VELOCITY = 1500;
-    public final double LAUNCHER_MIN_VELOCITY = 1200;
+    public final double LAUNCHER_MEDIUM_VELOCITY = 1400;
+    public final double LAUNCHER_HIGH_VELOCITY = 1700;
+
+    public final double HOOD_LOW_POSITION = 0;
+    public final double HOOD_MEDIUM_POSITION = 0.6;
+    public final double HOOD_HIGH_POSITION = 0.9;
 
     // Declare OpMode members.
     public DcMotor leftFrontDrive = null; // driveLF
     public DcMotor rightFrontDrive = null; // driveRF
     public DcMotor leftBackDrive = null; // driveLR
     public DcMotor rightBackDrive = null; // driveRR
-    public DcMotorEx launcher = null; // launcher
-    public CRServo leftFeeder = null; // leftFeeder
+    public DcMotorEx launcherR = null; // launcherR
+    public DcMotorEx launcherL = null; // launcherL
+    public DcMotor intakeMotor = null; // intakeMotor
+    public DcMotorEx turretRotationMotor = null; // trMotor
 
+    public Servo gateServo = null; // gate
+
+    public Servo hoodServoL = null; //hoodServoL
+    public Servo hoodServoR = null; //hoodServoR
+
+    public Servo RGBLight1 = null;
+    public Servo RGBLight2 = null;
+
+    public RGBLightController light1 = null;
+    public RGBLightController light2 = null;
+
+    public RevTouchSensor turretLimitSwitch = null; // turretLimitSwitch
 
     public GoBildaPinpointDriver pinpoint = null; // pinpoint
 
-    //public Limelight3A limelight = null; // limelight
-
+    public Limelight3A limelight = null; // limelight
 
     public ElapsedTime feederTimer = new ElapsedTime();
     public ElapsedTime pdTimer = new ElapsedTime();
 
+    public Turret turret = new Turret(this);
+
+    public static double turretkP = 25;
+    public static double turretkI = 0;
+    public static double turretkD = 2.5;
+    public static double turretkF = 5;
+    public static double turretTolerance = 10;
+
     HardwareMap hwMap =  null;
 
-    public HWProfile() {
+    public HWProfile() {}
 
-    }
     public void init(HardwareMap ahwMap, boolean TeleOp) {
 
         hwMap = ahwMap;
@@ -70,11 +86,24 @@ public class HWProfile {
         leftBackDrive = hwMap.get(DcMotor.class, "driveLR");
         rightBackDrive = hwMap.get(DcMotor.class, "driveRR");
 
+        launcherR = hwMap.get(DcMotorEx.class, "launcherR");
+        launcherL = hwMap.get(DcMotorEx.class, "launcherL");
 
-        launcher = hwMap.get(DcMotorEx.class, "launcher");
-        leftFeeder = hwMap.get(CRServo.class, "leftFeeder");
+        intakeMotor = hwMap.get(DcMotor.class, "intakeMotor");
+
+        turretRotationMotor = hwMap.get(DcMotorEx.class, "turretRotationMotor");
+
+        hoodServoL = hwMap.get(Servo.class, "hoodServoL");
+        hoodServoR = hwMap.get(Servo.class, "hoodServoR");
+
+        gateServo = hwMap.get(Servo.class, "gate");
+
+        turretLimitSwitch = hwMap.get(RevTouchSensor.class, "turretLimitSwitch");
 
         pinpoint = hwMap.get(GoBildaPinpointDriver.class,"pinpoint");
+
+        RGBLight1 = hwMap.get(Servo.class, "rgb1");
+        RGBLight2 = hwMap.get(Servo.class, "rgb2");
 
         //limelight = hwMap.get(Limelight3A.class, "limelight");
 
@@ -88,28 +117,147 @@ public class HWProfile {
         leftBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        launcherR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        launcherL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        turretRotationMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        if (!TeleOp)
+        {
+            turretRotationMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        }
+        turretRotationMotor.setPower(0);
+        turretRotationMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        turretRotationMotor.setVelocity(0);
 
         leftFrontDrive.setZeroPowerBehavior(BRAKE);
         rightFrontDrive.setZeroPowerBehavior(BRAKE);
         leftBackDrive.setZeroPowerBehavior(BRAKE);
         rightBackDrive.setZeroPowerBehavior(BRAKE);
-        launcher.setZeroPowerBehavior(BRAKE);
+        launcherR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        launcherL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        turretRotationMotor.setZeroPowerBehavior(BRAKE);
 
+        intakeMotor.setPower(0);
+        launcherR.setVelocity(0);
+        launcherL.setVelocity(0);
 
-        leftFeeder.setPower(STOP_SPEED);
+        launcherR.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300, 0, 0, 10));
+        launcherL.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300, 0, 0, 10));
 
-        launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300, 0, 0, 10));
+        intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
-        leftFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
+        launcherL.setDirection(DcMotorSimple.Direction.FORWARD);
+        launcherR.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        hoodServoL.setDirection(Servo.Direction.FORWARD);
+        hoodServoR.setDirection(Servo.Direction.REVERSE);
+
+        gateServo.setPosition(0.5);
+
+        if (!TeleOp)
+        {
+            hoodServoL.setPosition(1);
+            hoodServoR.setPosition(0);
+        }
+
+        light1 = new RGBLightController(RGBLight1);
+        light2 = new RGBLightController(RGBLight2);
+
+        turret.init();
 
         pinpoint.resetPosAndIMU();
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.FORWARD);
-        pinpoint.setOffsets(-10, -50);
+        pinpoint.setOffsets(76.2, -190.5); // x: 3in y: -7.5in
+        pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
         //limelight.setPollRateHz(100);
         //limelight.start();
         //limelight.pipelineSwitch(0);
+
+
+    }
+
+    public void initPedro(HardwareMap ahwMap, boolean TeleOp) {
+
+        hwMap = ahwMap;
+
+        launcherR = hwMap.get(DcMotorEx.class, "launcherR");
+        launcherL = hwMap.get(DcMotorEx.class, "launcherL");
+
+        intakeMotor = hwMap.get(DcMotor.class, "intakeMotor");
+
+        turretRotationMotor = hwMap.get(DcMotorEx.class, "turretRotationMotor");
+
+        hoodServoL = hwMap.get(Servo.class, "hoodServoL");
+        hoodServoR = hwMap.get(Servo.class, "hoodServoR");
+
+        gateServo = hwMap.get(Servo.class, "gate");
+
+        turretLimitSwitch = hwMap.get(RevTouchSensor.class, "turretLimitSwitch");
+
+        //pinpoint = hwMap.get(GoBildaPinpointDriver.class,"pinpoint");
+
+        RGBLight1 = hwMap.get(Servo.class, "rgb1");
+        RGBLight2 = hwMap.get(Servo.class, "rgb2");
+
+        //limelight = hwMap.get(Limelight3A.class, "limelight");
+
+        launcherR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        launcherL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        turretRotationMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        if (!TeleOp)
+        {
+            turretRotationMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        }
+
+        turretRotationMotor.setPower(0);
+        turretRotationMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        turretRotationMotor.setVelocity(0);
+
+
+        launcherR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        launcherL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        turretRotationMotor.setZeroPowerBehavior(BRAKE);
+
+        intakeMotor.setPower(0);
+        launcherR.setVelocity(0);
+        launcherL.setVelocity(0);
+
+        launcherR.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300, 0, 0, 10));
+        launcherL.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300, 0, 0, 10));
+
+        intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        launcherL.setDirection(DcMotorSimple.Direction.FORWARD);
+        launcherR.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        hoodServoL.setDirection(Servo.Direction.FORWARD);
+        hoodServoR.setDirection(Servo.Direction.REVERSE);
+
+        gateServo.setPosition(0.5);
+        turret.init();
+
+        if (!TeleOp)
+        {
+            hoodServoL.setPosition(1);
+            hoodServoR.setPosition(0);
+        }
+
+        light1 = new RGBLightController(RGBLight1);
+        light2 = new RGBLightController(RGBLight2);
+
+        /**
+         pinpoint.resetPosAndIMU();
+         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+         pinpoint.setOffsets(76.2, -190.5); // x: 3in y: -7.5in
+         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+         **/
+
+        //limelight.setPollRateHz(100);
+        //limelight.start();
+        //limelight.pipelineSwitch(0);
+
     }
 }
