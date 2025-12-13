@@ -19,16 +19,18 @@ public class Constants {
             .mass(10.20583) // Mass in kilograms.
             .forwardZeroPowerAcceleration(-29.16455519)
             .lateralZeroPowerAcceleration(-64.3027904)
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.04,0,0.005,0.05))
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.04,0,0.005,0.01))
             .headingPIDFCoefficients(new PIDFCoefficients(0.33,0,0.02,0.02))
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.003,0,0.0003,0,0.01));
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.003,0,0.00007,0,0.03));
 
-    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 0, 1);
+    public static PathConstraints pathConstraints = new PathConstraints(
+            0.99,
+            100,
+            1,
+            1);
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
-            .xVelocity(86.35606948972688)
-            .yVelocity(70.51315571942668)
             .rightFrontMotorName("driveRF")
             .rightRearMotorName("driveRR")
             .leftRearMotorName("driveLR")
@@ -36,11 +38,13 @@ public class Constants {
             .leftFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD);
+            .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
+            .xVelocity(87.82768477792816)
+            .yVelocity(69.22337521530513);
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(-7.5)
-            .strafePodX(3)
+            .forwardPodY(-3)
+            .strafePodX(-5.5)
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
