@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Subsystems;
+package org.firstinspires.ftc.teamcode.Robot.Subsystems;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -7,7 +7,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.goBilda.GoBildaPinpointDriver;
 
-public class Localization
+public class Pinpoint
 {
     private GoBildaPinpointDriver pinpoint = null;
 
@@ -28,6 +28,11 @@ public class Localization
         pinpoint.setPosition(position);
     }
 
+    public Pose2D getPosition()
+    {
+        return pinpoint.getPosition();
+    }
+
     // returns data for a velocity vector in polar coordinates and mm/s (r, theta)
     public double[] getVelocityVector()
     {
@@ -38,14 +43,19 @@ public class Localization
         return new double[]{magnitude, theta};
     }
 
-    public Pose2D getLeadPose(Pose2D pos)
+    public void update()
+    {
+        pinpoint.update();
+    }
+
+    public Pose2D getLeadPose(Pose2D startingGoalPos)
     {
         double[] velocityVector = getVelocityVector();
         double magnitude = velocityVector[0] * leadMagnitudeMultiplier;
         double theta = velocityVector[1];
         return new Pose2D(DistanceUnit.MM,
-                pos.getX(DistanceUnit.MM) + (magnitude * Math.cos(theta)),
-                pos.getY(DistanceUnit.MM) + (magnitude * Math.sin(theta)),
+                startingGoalPos.getX(DistanceUnit.MM) + (magnitude * Math.cos(theta)),
+                startingGoalPos.getY(DistanceUnit.MM) + (magnitude * Math.sin(theta)),
                 AngleUnit.RADIANS, 0);
     }
 

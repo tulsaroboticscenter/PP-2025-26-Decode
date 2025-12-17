@@ -1,7 +1,6 @@
-package org.firstinspires.ftc.teamcode.Subsystems;
+package org.firstinspires.ftc.teamcode.Robot.Subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -40,7 +39,7 @@ public class Intake
     {
         gateServo.setPosition(gateOpenPosition);
     }
-    public void closedGate()
+    public void closeGate()
     {
         gateServo.setPosition(gateClosedPosition);
     }

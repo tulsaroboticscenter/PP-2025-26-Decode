@@ -1,7 +1,8 @@
-package org.firstinspires.ftc.teamcode.Subsystems;
+package org.firstinspires.ftc.teamcode.Robot.Subsystems;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -36,8 +37,35 @@ public class Drivetrain
         rightBack.setZeroPowerBehavior(BRAKE);
     }
 
-    public void fieldcentricDrive()
-    {
+    double Y = 0;
+    double X = 0;
+    double rX = 0;
+    double rotX = 0;
+    double rotY = 0;
+    double denominator = 0;
+    double frontLeftPower = 0;
+    double backLeftPower = 0;
+    double frontRightPower = 0;
+    double backRightPower = 0;
 
+    public void fieldcentricDrive(OpMode opmode, double botHeading, double storedHeadingDegrees)
+    {
+        Y = opmode.gamepad1.left_stick_y;
+        X = opmode.gamepad1.left_stick_x;
+        rX = opmode.gamepad1.right_stick_x;
+
+        rotX = X * Math.cos(-botHeading) - Y * Math.sin(-botHeading);
+        rotY = X * Math.sin(-botHeading) + Y * Math.cos(-botHeading);
+
+        denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rX), 1);
+        frontLeftPower = (rotY + rotX + rX) / denominator;
+        backLeftPower = (rotY - rotX + rX) / denominator;
+        frontRightPower = (rotY - rotX - rX) / denominator;
+        backRightPower = (rotY + rotX - rX) / denominator;
+
+        leftFront.setPower(frontLeftPower);
+        leftBack.setPower(backLeftPower);
+        rightFront.setPower(frontRightPower);
+        rightBack.setPower(backRightPower);
     }
 }

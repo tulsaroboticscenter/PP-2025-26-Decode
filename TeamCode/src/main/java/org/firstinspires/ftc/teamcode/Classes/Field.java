@@ -10,16 +10,26 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 //@Config
 public class Field {
 
+    public enum Side
+    {
+        RED,
+        BLUE
+    }
+
     /**
 
      This file is a library of points of interest and start positions for reference in autonomous and TeleOp.
+     This Library also stores the last side and position to maintain localization from Auto to TeleOp.
 
      **/
 
+        public static Side lastAllianceSide = null;
+        public static Pose2D lastKnownPosition = null;
+
         // Points of Interest
 
-        public static final Pose2D blueGoal = new Pose2D(DistanceUnit.INCH, 0, 144, AngleUnit.DEGREES, 0);
-        public static final Pose2D redGoal = new Pose2D(DistanceUnit.INCH, 144, 144, AngleUnit.DEGREES, 0);
+        public static final Pose2D blueGoal = new Pose2D(DistanceUnit.INCH, 10, 140, AngleUnit.DEGREES, 0);
+        public static final Pose2D redGoal = new Pose2D(DistanceUnit.INCH, 134, 140, AngleUnit.DEGREES, 0);
         public static final Pose2D redHumanPlayerZone = new Pose2D(DistanceUnit.INCH, 18, -54, AngleUnit.DEGREES, 0);
         public static final Pose2D blueHumanPlayerZone = new Pose2D(DistanceUnit.INCH, 54, -54, AngleUnit.DEGREES, 0);
         public static final Pose2D redBase = new Pose2D(DistanceUnit.INCH, -21, -36, AngleUnit.DEGREES, 0);
@@ -39,6 +49,7 @@ public class Field {
 
         public static final Pose2D redTouchingGoalFacingToward = new Pose2D(DistanceUnit.INCH, 120, 120, AngleUnit.DEGREES, 36.678);
 
+        // Conversion methods for Pedro
         public static Pose toPedro(Pose2D pose2D)
         {
             return new Pose(pose2D.getX(DistanceUnit.INCH), pose2D.getY(DistanceUnit.INCH), pose2D.getHeading(AngleUnit.RADIANS));

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Subsystems;
+package org.firstinspires.ftc.teamcode.Robot.Subsystems;
 
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -13,4 +13,10 @@ public class Limelight
 
 
     }
+
+    public void setPipeline(int index)
+    {
+        limelight.pipelineSwitch(index);
+    }
+
 }

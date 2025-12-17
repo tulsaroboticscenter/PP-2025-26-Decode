@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Subsystems;
+package org.firstinspires.ftc.teamcode.Robot.Subsystems;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
@@ -9,13 +9,14 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Classes.PIDFController;
-import org.firstinspires.ftc.teamcode.Hardware.HWProfile;
-import org.firstinspires.ftc.teamcode.Libraries.Targeting;
+
+import java.awt.font.NumericShaper;
 
 public class Turret
 {
@@ -26,7 +27,13 @@ public class Turret
     private Servo hoodServoR = null;
     private RevTouchSensor turretLimitSwitch = null;
 
-    private PIDFController turretPID = new PIDFController(HWProfile.turretkP, HWProfile.turretkI, HWProfile.turretkD, HWProfile.turretkF, -1600, 1600);
+    public static double turretkP = 25;
+    public static double turretkI = 0;
+    public static double turretkD = 2.5;
+    public static double turretkF = 5;
+    public static double turretTolerance = 10;
+
+    private PIDFController turretPID = new PIDFController(turretkP, turretkI, turretkD, turretkF, -1600, 1600);
 
     private static double KpVal = 0.005;
     private static double KdVal = 0.005;
@@ -58,7 +65,17 @@ public class Turret
     public final double HOOD_MEDIUM_POSITION = 0.6;
     public final double HOOD_HIGH_POSITION = 0.9;
 
+    public double velocity = LAUNCHER_LOW_VELOCITY;
+    public double hoodTarget = HOOD_LOW_POSITION;
+    public boolean isFlywheelSpinning = false;
 
+    // Variables for quadratic equations (y = ax^2 + bx + c)
+    public double hoodA = -0.00005222578;
+    public double hoodB = 0.0187724131;
+    public double hoodC = 0.68522;
+    public double flywheelA = -0.0104966341;
+    public double flywheelB = 9.274162345;
+    public double flywheelC = 635.4612;
 
     public void init(HardwareMap hwMap, boolean TeleOp)
     {
@@ -94,16 +111,81 @@ public class Turret
             hoodServoL.setPosition(1);
             hoodServoR.setPosition(0);
         }
-        turretPID.setTolerance(HWProfile.turretTolerance);
+        turretPID.setTolerance(turretTolerance);
         turretPID.setTarget(0);
     }
 
+    public void initHood()
+    {
+        hoodServoL.setPosition(1);
+        hoodServoR.setPosition(0);
+    }
+
+    public void setHood(double position)
+    {
+        hoodServoL.setPosition(1 - position);
+        hoodServoR.setPosition(position);
+    }
+
+    public void setFlywheelVelocity(double velocity)
+    {
+        this.velocity = velocity;
+    }
+
+    public void incrementVelocity(double incrementValue)
+    {
+        velocity += incrementValue;
+    }
+
+    public void ToggleFlywheel()
+    {
+        isFlywheelSpinning = !isFlywheelSpinning;
+    }
+
+    public void spinUpFlywheel()
+    {
+        isFlywheelSpinning = true;
+    }
+
+    public void haltFlywheel()
+    {
+        isFlywheelSpinning = false;
+    }
 
     public void update()
     {
-        turretPID.setPIDFCoefficients(HWProfile.turretkP, HWProfile.turretkI, HWProfile.turretkD, HWProfile.turretkF);
-        turretPID.setTolerance(HWProfile.turretTolerance);
+        turretPID.setPIDFCoefficients(turretkP, turretkI, turretkD, turretkF);
+        turretPID.setTolerance(turretTolerance);
         turretRotationMotor.setVelocity(turretPID.calculate(turretRotationMotor.getCurrentPosition()));
+        if (isFlywheelSpinning)
+        {
+            launcherL.setVelocity(velocity);
+            launcherR.setVelocity(velocity);
+        }
+        else
+        {
+            launcherL.setVelocity(0);
+            launcherR.setVelocity(0);
+        }
+        setHood(hoodTarget);
+    }
+
+    public void updateFlywheelAndHood(Pose2D currentPosition, Pose2D goalPosition)
+    {
+        double distanceInches = getDistanceToTarget(currentPosition, goalPosition);
+        hoodTarget = ((hoodA * Math.pow(distanceInches, 2)) + (hoodB * distanceInches) + hoodC);
+        if (distanceInches > 179)
+        {
+            hoodTarget = 1;
+        }
+        Range.clip(hoodTarget, 0, 0.9);
+
+        velocity = ((flywheelA * Math.pow(distanceInches, 2)) + (flywheelB * distanceInches) + flywheelC);
+        if (distanceInches > 441)
+        {
+            velocity = 2684;
+        }
+        Range.clip(velocity, 600, 2000);
     }
 
     /**
@@ -129,6 +211,14 @@ public class Turret
     public void setTarget(int tickValue)
     {
         turretPID.setTarget(tickValue);
+    }
+
+    public double getDistanceToTarget(Pose2D currentPosition, Pose2D targetPosition)
+    {
+        double deltaY = targetPosition.getY(DistanceUnit.INCH) - currentPosition.getY(DistanceUnit.INCH);
+        double deltaX = targetPosition.getX(DistanceUnit.INCH) - currentPosition.getX(DistanceUnit.INCH);
+
+        return Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
     }
 
     public int HeadingToTurretTicks(double angle, AngleUnit angleunit) {
