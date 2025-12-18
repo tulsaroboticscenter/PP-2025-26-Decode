@@ -10,7 +10,13 @@ import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.Hardware.HWProfile;
+import org.firstinspires.ftc.teamcode.Libraries.MechOps;
+import org.firstinspires.ftc.teamcode.Libraries.Targeting;
+import org.firstinspires.ftc.teamcode.Libraries.TurretTargeting;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Autonomous(name = "RAAAAHHHH", group = "Autonomous")
@@ -19,7 +25,14 @@ public class TwelveArtifactPathing extends OpMode {
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
 
+    private Timer shooterTimer;
+
+    HWProfile robot = new HWProfile();
+    MechOps ops = new MechOps(robot, this);
+
     private int pathState;
+
+    public boolean shotsFired;
 
     private final Pose startPose = new Pose(23.7, 129.2, Math.toRadians(144));
     private final Pose scorePose = new Pose(59.9, 84.1, Math.toRadians(180));
@@ -83,13 +96,22 @@ public class TwelveArtifactPathing extends OpMode {
         switch (pathState) {
             case 0:
                 follower.followPath(scorePreload, true);
+                robot.turretRotationMotor.setTargetPosition(ops.turretDegreesToTicks(45));
+                ops.setLauncherVelocity(1500);
+                ops.setHoodPosition(0.6);
                 setPathState(1);
                 break;
 
             case 1:
                 if (!follower.isBusy()) {
-                    follower.followPath(intakeLine1, true);
-                    setPathState(2);
+                    shooterTimer.resetTimer();
+                    robot.intakeMotor.setPower(1);
+                    ops.openGate();
+
+                    if (shooterTimer.getElapsedTime() > 4000) {
+                        follower.followPath(intakeLine1, true);
+                        setPathState(2);
+                    }
                 }
                 break;
 
@@ -182,11 +204,20 @@ public class TwelveArtifactPathing extends OpMode {
     @Override
     public void init() {
         pathTimer = new Timer();
+        shooterTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
         follower = Constants.createFollower(hardwareMap);
         buildPaths();
         follower.setStartingPose(startPose);
+
+        robot.initPedro(hardwareMap, false);
+        robot.turretRotationMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.turretRotationMotor.setTargetPosition(0);
+        robot.turretRotationMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.turretRotationMotor.setPower(1);
+
+        shotsFired = false;
 
         telemetry.addData("path state", pathState);
         telemetry.addData("x", follower.getPose().getX());

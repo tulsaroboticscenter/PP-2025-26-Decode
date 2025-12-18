@@ -130,6 +130,11 @@ public class MechOps {
 
     }
 
+    public int turretDegreesToTicks (double angle) {
+        int ticks = (int) (angle * 1.913);
+        return ticks;
+    }
+
     public void writePosePedro (Pose2D Pose, String fileName)
     {
 

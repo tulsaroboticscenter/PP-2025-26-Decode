@@ -91,7 +91,7 @@ public class HWProfile {
 
         intakeMotor = hwMap.get(DcMotor.class, "intakeMotor");
 
-        turretRotationMotor = hwMap.get(DcMotorEx.class, "turretRotationMotor");
+        turretRotationMotor = hwMap.get(DcMotorEx.class, "trMotor");
 
         hoodServoL = hwMap.get(Servo.class, "hoodServoL");
         hoodServoR = hwMap.get(Servo.class, "hoodServoR");
@@ -187,7 +187,7 @@ public class HWProfile {
 
         intakeMotor = hwMap.get(DcMotor.class, "intakeMotor");
 
-        turretRotationMotor = hwMap.get(DcMotorEx.class, "turretRotationMotor");
+        turretRotationMotor = hwMap.get(DcMotorEx.class, "trMotor");
 
         hoodServoL = hwMap.get(Servo.class, "hoodServoL");
         hoodServoR = hwMap.get(Servo.class, "hoodServoR");
