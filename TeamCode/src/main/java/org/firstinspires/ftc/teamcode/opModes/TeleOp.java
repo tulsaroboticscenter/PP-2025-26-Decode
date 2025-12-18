@@ -7,9 +7,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Classes.Field;
+import org.firstinspires.ftc.teamcode.Classes.PoseUtils;
 import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
 import org.firstinspires.ftc.teamcode.Robot.HardwareManager;
 
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="TeleOp", group="Robot")
 public class TeleOp extends OpMode
 {
     private Field.Side side = null;
@@ -31,11 +33,12 @@ public class TeleOp extends OpMode
 
     boolean isTargeting = false;
     boolean isIntaking = false;
-    double storedHeading = 90.0;
+    double storedHeadingDegrees = 90.0;
     double botHeading = 0.0;
     Pose2D storedLocation;
     boolean loaded = false;
     Pose2D startingPosition = null;
+    double fieldCentricOffset = 0;
 
     @Override
     public void init()
@@ -44,6 +47,7 @@ public class TeleOp extends OpMode
         if (Field.lastKnownPosition != null)
         {
             storedLocation = Field.lastKnownPosition;
+            loaded = true;
             telemetry.addLine("Last known position found: " + storedLocation.getX(DistanceUnit.INCH) + ", " + storedLocation.getY(DistanceUnit.INCH) + ", " + storedLocation.getHeading(AngleUnit.DEGREES));
         }
         else
@@ -69,7 +73,8 @@ public class TeleOp extends OpMode
             goalPosition = Field.redGoal;
             telemetry.addLine("Last alliance side not found. Defaulting to Red.");
         }
-        storedHeading = storedLocation.getHeading(AngleUnit.DEGREES);
+        storedHeadingDegrees = storedLocation.getHeading(AngleUnit.DEGREES);
+        hw.pinpoint.setPosition(storedLocation);
 
         hw.lights.setLightMode(RGBLightController.LEDMode.WAKE);
 
@@ -81,18 +86,80 @@ public class TeleOp extends OpMode
         intakeToggleRuntime.reset();
         hoodToggleRuntime.reset();
         flywheelToggleRuntime.reset();
+        telemetry.update();
     }
+
+    boolean testing = false;
+    Field.Side testingSide = Field.Side.RED;
 
     @Override
     public void init_loop()
     {
         hw.updateTeleOp();
+        if (!testing)
+        {
+            if (loaded)
+            {
+                telemetry.addLine("Position found!");
+            }
+            else
+            {
+                telemetry.addLine("Position not found. Defaulted to Red Far Zone");
+            }
+            telemetry.addLine("Position: " + PoseUtils.poseToString(storedLocation, DistanceUnit.INCH, AngleUnit.DEGREES));
+        }
+        else
+        {
+
+            telemetry.addLine("Testing side: " + ((testingSide == Field.Side.RED) ? "Red" : "Blue"));
+            telemetry.addLine("Press [Square] to switch sides.");
+            telemetry.addLine("Robot will start at the far zone of the selected side at startup.");
+            if (gamepad1.xWasPressed())
+            {
+                // i love ternary operators
+                testingSide = ((testingSide == Field.Side.RED) ? Field.Side.BLUE : Field.Side.RED);
+            }
+        }
+        if (gamepad1.optionsWasPressed())
+        {
+            testing = !testing;
+        }
+
+        telemetry.addLine("Test Driving: " + testing);
+        telemetry.addLine("Press [option] to toggle test drive mode.");
     }
 
     @Override
     public void start()
     {
         hw.turret.initHood();
+        if (testing)
+        {
+            if (testingSide == Field.Side.RED)
+            {
+                storedLocation = Field.redSmallZone;
+                goalPosition = Field.redGoal;
+                fieldCentricOffset = -90;
+            }
+            else
+            {
+                storedLocation = Field.blueSmallZone;
+                goalPosition = Field.blueGoal;
+                fieldCentricOffset = 90;
+            }
+            storedHeadingDegrees = storedLocation.getHeading(AngleUnit.DEGREES);
+        }
+        else
+        {
+            if (goalPosition == Field.redGoal)
+            {
+                fieldCentricOffset = -90;
+            }
+            else
+            {
+                fieldCentricOffset = 90;
+            }
+        }
     }
 
     @Override
@@ -104,7 +171,7 @@ public class TeleOp extends OpMode
             hw.turret.updateFlywheelAndHood(hw.pinpoint.getPosition(), goalPosition);
             velocityAdjustmentRuntime.reset();
         }
-        hw.drivetrain.fieldcentricDrive(this, hw.pinpoint.getPosition().getHeading(AngleUnit.DEGREES), storedHeading);
+        hw.drivetrain.fieldcentricDrive(this, (hw.pinpoint.getPosition().getHeading(AngleUnit.RADIANS) - Math.toRadians(storedHeadingDegrees)) + Math.toRadians(fieldCentricOffset));
 
         if (isTargeting)
         {
@@ -151,6 +218,8 @@ public class TeleOp extends OpMode
             hw.turret.ToggleFlywheel();
         }
 
+        telemetry.addLine("Flywheel Target Velocity: " + hw.turret.getCurrentVelocity());
+        telemetry.addLine("Position: " + hw.pinpoint.getPosition().getX(DistanceUnit.INCH) + ", " + hw.pinpoint.getPosition().getY(DistanceUnit.INCH) + ", " + hw.pinpoint.getPosition().getHeading(AngleUnit.DEGREES));
         telemetry.addData("Distance to target:", hw.turret.getDistanceToTarget(hw.pinpoint.getPosition(), goalPosition));
     }
 }

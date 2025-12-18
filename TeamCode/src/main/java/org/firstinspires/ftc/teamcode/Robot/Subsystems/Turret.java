@@ -173,14 +173,14 @@ public class Turret
     public void updateFlywheelAndHood(Pose2D currentPosition, Pose2D goalPosition)
     {
         double distanceInches = getDistanceToTarget(currentPosition, goalPosition);
-        hoodTarget = ((hoodA * Math.pow(distanceInches, 2)) + (hoodB * distanceInches) + hoodC);
+        hoodTarget = ((hoodA * (distanceInches * distanceInches)) + (hoodB * distanceInches) + hoodC);
         if (distanceInches > 179)
         {
             hoodTarget = 1;
         }
         Range.clip(hoodTarget, 0, 0.9);
 
-        velocity = ((flywheelA * Math.pow(distanceInches, 2)) + (flywheelB * distanceInches) + flywheelC);
+        velocity = ((flywheelA * (distanceInches * distanceInches)) + (flywheelB * distanceInches) + flywheelC);
         if (distanceInches > 441)
         {
             velocity = 2684;
@@ -219,6 +219,11 @@ public class Turret
         double deltaX = targetPosition.getX(DistanceUnit.INCH) - currentPosition.getX(DistanceUnit.INCH);
 
         return Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+    }
+
+    public double getCurrentVelocity()
+    {
+        return velocity;
     }
 
     public int HeadingToTurretTicks(double angle, AngleUnit angleunit) {

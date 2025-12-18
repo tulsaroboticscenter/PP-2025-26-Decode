@@ -48,9 +48,9 @@ public class Drivetrain
     double frontRightPower = 0;
     double backRightPower = 0;
 
-    public void fieldcentricDrive(OpMode opmode, double botHeading, double storedHeadingDegrees)
+    public void fieldcentricDrive(OpMode opmode, double botHeading)
     {
-        Y = opmode.gamepad1.left_stick_y;
+        Y = -opmode.gamepad1.left_stick_y;
         X = opmode.gamepad1.left_stick_x;
         rX = opmode.gamepad1.right_stick_x;
 
