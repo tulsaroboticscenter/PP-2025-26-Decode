@@ -37,4 +37,9 @@ public class Lights
         light1.update();
         light2.update();
     }
+
+    public RGBLightController.LEDMode getLightMode()
+    {
+        return light1.getCurrentMode();
+    }
 }

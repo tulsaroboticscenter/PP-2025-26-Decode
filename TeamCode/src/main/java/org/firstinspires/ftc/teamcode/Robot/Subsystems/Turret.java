@@ -72,7 +72,7 @@ public class Turret
     // Variables for quadratic equations (y = ax^2 + bx + c)
     public double hoodA = -0.00005222578;
     public double hoodB = 0.0187724131;
-    public double hoodC = 0.68522;
+    public double hoodC = -0.68522;
     public double flywheelA = -0.0104966341;
     public double flywheelB = 9.274162345;
     public double flywheelC = 635.4612;
@@ -167,12 +167,14 @@ public class Turret
             launcherL.setVelocity(0);
             launcherR.setVelocity(0);
         }
-        setHood(hoodTarget);
+        hoodServoR.setPosition(hoodTarget);
+        hoodServoL.setPosition((1 - hoodTarget));
     }
 
+    double distanceInches = 0;
     public void updateFlywheelAndHood(Pose2D currentPosition, Pose2D goalPosition)
     {
-        double distanceInches = getDistanceToTarget(currentPosition, goalPosition);
+        distanceInches = getDistanceToTarget(currentPosition, goalPosition);
         hoodTarget = ((hoodA * (distanceInches * distanceInches)) + (hoodB * distanceInches) + hoodC);
         if (distanceInches > 179)
         {
@@ -226,6 +228,7 @@ public class Turret
         return velocity;
     }
 
+    public double getHoodTarget() {return hoodTarget;}
     public int HeadingToTurretTicks(double angle, AngleUnit angleunit) {
         if (clamped)
         {
@@ -273,6 +276,11 @@ public class Turret
         }
     }
 
+    public void zeroHood()
+    {
+        hoodServoR.setPosition(0);
+    }
+
     public static double getDegreesToTarget(Pose2D currentLocation, Pose2D targetLocation, boolean convertToRadians)
     {
         // Grabs change in Y and change in X to calculate slope to target
@@ -282,7 +290,6 @@ public class Turret
         // converts slope into heading to target in radians
         double targetRadians = Math.atan2(deltaY, deltaX);
         double targetDegrees = Math.toDegrees(targetRadians);
-
 
         double currentDegrees;
         if (reversePolarity)

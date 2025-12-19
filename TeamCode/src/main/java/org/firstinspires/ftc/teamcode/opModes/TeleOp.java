@@ -11,6 +11,8 @@ import org.firstinspires.ftc.teamcode.Classes.PoseUtils;
 import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
 import org.firstinspires.ftc.teamcode.Robot.HardwareManager;
 
+import java.util.Locale;
+
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="TeleOp", group="Robot")
 public class TeleOp extends OpMode
 {
@@ -31,7 +33,7 @@ public class TeleOp extends OpMode
 
 
 
-    boolean isTargeting = false;
+    private boolean isTargeting = false;
     boolean isIntaking = false;
     double storedHeadingDegrees = 90.0;
     double botHeading = 0.0;
@@ -117,6 +119,7 @@ public class TeleOp extends OpMode
             if (gamepad1.xWasPressed())
             {
                 // i love ternary operators
+                hw.lights.setLightColor((testingSide == Field.Side.RED) ? 0.611 : 0.28);
                 testingSide = ((testingSide == Field.Side.RED) ? Field.Side.BLUE : Field.Side.RED);
             }
         }
@@ -139,13 +142,13 @@ public class TeleOp extends OpMode
             {
                 storedLocation = Field.redSmallZone;
                 goalPosition = Field.redGoal;
-                fieldCentricOffset = -90;
+                fieldCentricOffset = 90;
             }
             else
             {
                 storedLocation = Field.blueSmallZone;
                 goalPosition = Field.blueGoal;
-                fieldCentricOffset = 90;
+                fieldCentricOffset = -90;
             }
             storedHeadingDegrees = storedLocation.getHeading(AngleUnit.DEGREES);
         }
@@ -153,41 +156,39 @@ public class TeleOp extends OpMode
         {
             if (goalPosition == Field.redGoal)
             {
-                fieldCentricOffset = -90;
+                fieldCentricOffset = 90;
             }
             else
             {
-                fieldCentricOffset = 90;
+                fieldCentricOffset = -90;
             }
         }
+        hw.pinpoint.setPosition(storedLocation);
     }
 
     @Override
     public void loop()
     {
+        // Update Methods
         hw.updateTeleOp();
+        hw.drivetrain.fieldcentricDrive(this, (hw.pinpoint.getPosition().getHeading(AngleUnit.RADIANS) - Math.toRadians(storedHeadingDegrees)) + Math.toRadians(fieldCentricOffset));
         if (velocityAdjustmentRuntime.seconds() > (1.0 / 50))
         {
             hw.turret.updateFlywheelAndHood(hw.pinpoint.getPosition(), goalPosition);
             velocityAdjustmentRuntime.reset();
         }
-        hw.drivetrain.fieldcentricDrive(this, (hw.pinpoint.getPosition().getHeading(AngleUnit.RADIANS) - Math.toRadians(storedHeadingDegrees)) + Math.toRadians(fieldCentricOffset));
 
         if (isTargeting)
         {
+            // if targeting is on, update the turret with the new target
             hw.turret.setTarget(hw.pinpoint.getPosition(), goalPosition);
         }
 
         if (gamepad1.yWasPressed())
         {
-            if (isTargeting)
-            {
-                hw.lights.setLightMode(RGBLightController.LEDMode.SOLID);
-            }
-            else
-            {
-                hw.lights.setLightMode(RGBLightController.LEDMode.FLASH);
-            }
+            // Switch Light Mode from solid to flashing, or from flashing to solid
+            hw.lights.setLightMode(((hw.lights.getLightMode() == RGBLightController.LEDMode.SOLID) ? RGBLightController.LEDMode.FLASH : RGBLightController.LEDMode.SOLID));
+            // Toggle targeting
             isTargeting = !isTargeting;
         }
 
@@ -218,8 +219,10 @@ public class TeleOp extends OpMode
             hw.turret.ToggleFlywheel();
         }
 
-        telemetry.addLine("Flywheel Target Velocity: " + hw.turret.getCurrentVelocity());
-        telemetry.addLine("Position: " + hw.pinpoint.getPosition().getX(DistanceUnit.INCH) + ", " + hw.pinpoint.getPosition().getY(DistanceUnit.INCH) + ", " + hw.pinpoint.getPosition().getHeading(AngleUnit.DEGREES));
+        telemetry.addLine("Targeting: " + isTargeting);
+        telemetry.addLine("Hood Target Position: " + String.format(Locale.US, "%.2f", hw.turret.getHoodTarget()));
+        telemetry.addLine("Flywheel Target Velocity: " + String.format(Locale.US, "%.2f", hw.turret.getCurrentVelocity()));
+        telemetry.addLine("Position: " + PoseUtils.poseToString(hw.pinpoint.getPosition(), DistanceUnit.INCH, AngleUnit.DEGREES));
         telemetry.addData("Distance to target:", hw.turret.getDistanceToTarget(hw.pinpoint.getPosition(), goalPosition));
     }
 }

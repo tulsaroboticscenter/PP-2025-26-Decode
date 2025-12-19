@@ -34,6 +34,11 @@ public class RGBLightController {
         color = newColor;
     }
 
+    public LEDMode getCurrentMode()
+    {
+        return currentMode;
+    }
+
     // Call this continuously in loop()
     public void update()
     {
