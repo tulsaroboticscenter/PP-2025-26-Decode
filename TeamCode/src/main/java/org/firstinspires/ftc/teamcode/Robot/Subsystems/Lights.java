@@ -42,4 +42,5 @@ public class Lights
     {
         return light1.getCurrentMode();
     }
+    public double getLightColor() {return light1.getCurrentColor();}
 }

@@ -18,7 +18,6 @@ public class PoseUtils
     }
 
     public static String poseToString(Pose pose, DistanceUnit distanceUnit, AngleUnit angleUnit)
-            throws IllegalArgumentException
     {
         // A regular Pose object contains x, y, and heading values that are in millimeters and radians.
         // The values need to be converted to the desired distance unit and angle unit.

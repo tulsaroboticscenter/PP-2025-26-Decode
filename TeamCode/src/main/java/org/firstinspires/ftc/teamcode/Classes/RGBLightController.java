@@ -3,6 +3,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class RGBLightController {
 
+    public static final double RED = 0.28;
+    public static final double BLUE = 0.611;
+
     private final Servo light;
     private LEDMode currentMode = LEDMode.SOLID;
     private double color = 0;
@@ -38,6 +41,7 @@ public class RGBLightController {
     {
         return currentMode;
     }
+    public double getCurrentColor() {return color;}
 
     // Call this continuously in loop()
     public void update()

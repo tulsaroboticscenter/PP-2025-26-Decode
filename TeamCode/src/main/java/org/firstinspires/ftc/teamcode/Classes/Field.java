@@ -16,6 +16,12 @@ public class Field {
         BLUE
     }
 
+    public enum StartingPosition
+    {
+        NEAR,
+        FAR
+    }
+
     /**
 
      This file is a library of points of interest and start positions for reference in autonomous and TeleOp.
