@@ -5,6 +5,7 @@ public class RGBLightController {
 
     public static final double RED = 0.28;
     public static final double BLUE = 0.611;
+    public static final double GREEN = 0.5;
 
     private final Servo light;
     private LEDMode currentMode = LEDMode.SOLID;
@@ -101,7 +102,6 @@ public class RGBLightController {
                     setMode(LEDMode.SOLID);
                 }
                 break;
-
         }
     }
 }

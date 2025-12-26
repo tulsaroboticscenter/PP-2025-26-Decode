@@ -15,8 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Classes.PIDFController;
-
-import java.awt.font.NumericShaper;
+import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
 
 public class Turret
 {
@@ -178,9 +177,40 @@ public class Turret
         hoodTarget = ((hoodA * (distanceInches * distanceInches)) + (hoodB * distanceInches) + hoodC);
         if (distanceInches > 179)
         {
-            hoodTarget = 1;
+            hoodTarget = 0.9;
         }
-        Range.clip(hoodTarget, 0, 0.9);
+        if (hoodTarget > 0.9)
+        {
+            hoodTarget = 0.9;
+        }
+        else if (hoodTarget < 0.01)
+        {
+            hoodTarget = 0.01;
+        }
+
+        velocity = ((flywheelA * (distanceInches * distanceInches)) + (flywheelB * distanceInches) + flywheelC);
+        if (distanceInches > 441)
+        {
+            velocity = 2684;
+        }
+        Range.clip(velocity, 600, 2000);
+    }
+    public void updateFlywheelAndHood(Pose currentPosition, Pose2D goalPosition)
+    {
+        distanceInches = getDistanceToTarget(currentPosition, goalPosition);
+        hoodTarget = ((hoodA * (distanceInches * distanceInches)) + (hoodB * distanceInches) + hoodC);
+        if (distanceInches > 179)
+        {
+            hoodTarget = 0.9;
+        }
+        if (hoodTarget > 0.9)
+        {
+            hoodTarget = 0.9;
+        }
+        else if (hoodTarget < 0.01)
+        {
+            hoodTarget = 0.01;
+        }
 
         velocity = ((flywheelA * (distanceInches * distanceInches)) + (flywheelB * distanceInches) + flywheelC);
         if (distanceInches > 441)
@@ -215,12 +245,35 @@ public class Turret
         turretPID.setTarget(tickValue);
     }
 
-    public double getDistanceToTarget(Pose2D currentPosition, Pose2D targetPosition)
+    public double getDistanceToTarget(Pose2D Pos1, Pose2D Pos2)
     {
-        double deltaY = targetPosition.getY(DistanceUnit.INCH) - currentPosition.getY(DistanceUnit.INCH);
-        double deltaX = targetPosition.getX(DistanceUnit.INCH) - currentPosition.getX(DistanceUnit.INCH);
+        double deltaY = Pos2.getY(DistanceUnit.INCH) - Pos1.getY(DistanceUnit.INCH);
+        double deltaX = Pos2.getX(DistanceUnit.INCH) - Pos1.getX(DistanceUnit.INCH);
 
         return Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+    }
+    public double getDistanceToTarget(Pose currentPosition, Pose2D targetPosition)
+    {
+        double deltaY = targetPosition.getY(DistanceUnit.INCH) - currentPosition.getY();
+        double deltaX = targetPosition.getX(DistanceUnit.INCH) - currentPosition.getX();
+
+        return Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+    }
+
+
+    public double getHueFromDistance(Pose2D currentPosition, Pose2D targetPosition)
+    {
+        double distanceInches = getDistanceToTarget(currentPosition, targetPosition);
+        double distanceRange = 150.0;
+        double hueRange = RGBLightController.GREEN - RGBLightController.RED;
+        double startingHue = RGBLightController.GREEN;
+
+        if (distanceInches > distanceRange)
+        {
+            distanceInches = distanceRange;
+        }
+
+        return startingHue - ((distanceInches / distanceRange) * hueRange);
     }
 
     public double getCurrentVelocity()
@@ -330,6 +383,12 @@ public class Turret
         {
             return degreesToTarget;
         }
+    }
+
+    public double getTurretHeadingDegrees(double robotHeadingDegrees)
+    {
+        double turretheading = turretRotationMotor.getCurrentPosition() * ticksToDegreesCoeffecient;
+        return robotHeadingDegrees + turretheading;
     }
 
 }

@@ -4,22 +4,31 @@ import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.Classes.Field;
+
+import java.io.File;
 
 public class Drivetrain
 {
-    private DcMotor leftFront = null;
-    private DcMotor rightFront = null;
-    private DcMotor leftBack = null;
-    private DcMotor rightBack = null;
+    private DcMotorEx leftFront = null;
+    private DcMotorEx rightFront = null;
+    private DcMotorEx leftBack = null;
+    private DcMotorEx rightBack = null;
 
     public void init(HardwareMap hwMap)
     {
-        leftFront = hwMap.get(DcMotor.class, "driveLF");
-        rightFront = hwMap.get(DcMotor.class, "driveRF");
-        leftBack = hwMap.get(DcMotor.class, "driveLR");
-        rightBack = hwMap.get(DcMotor.class, "driveRR");
+        leftFront = hwMap.get(DcMotorEx.class, "driveLF");
+        rightFront = hwMap.get(DcMotorEx.class, "driveRF");
+        leftBack = hwMap.get(DcMotorEx.class, "driveLR");
+        rightBack = hwMap.get(DcMotorEx.class, "driveRR");
 
         leftFront.setDirection(DcMotor.Direction.REVERSE);
         rightFront.setDirection(DcMotor.Direction.FORWARD);
@@ -48,14 +57,55 @@ public class Drivetrain
     double frontRightPower = 0;
     double backRightPower = 0;
 
-    public void fieldcentricDrive(OpMode opmode, double botHeading)
+    double offset = 0;
+
+    double heading = 0;
+
+    public void StrafeDrive(double drive, double turn, double strafe) {
+
+        double leftPower    = -Range.clip(drive - turn, -1, 1);
+        double rightPower   = -Range.clip(drive + turn, -1, 1);
+        double strafePower = Range.clip(-strafe, -1, 1);
+
+        leftFront.setPower(leftPower - strafePower);
+        leftBack.setPower(leftPower + strafePower);
+        rightFront.setPower(rightPower + strafePower);
+        rightBack.setPower(rightPower - strafePower);
+    }
+
+    public void robotCentricDrive(double forward, double strafe, double rotate)
+    {
+        double frontLeftPower = forward + strafe + rotate;
+        double backLeftPower = forward - strafe + rotate;
+        double frontRightPower = forward - strafe - rotate;
+        double backRightPower = forward + strafe - rotate;
+
+        double maxPower = 1.0;
+        double maxSpeed = 1.0;
+
+        maxPower = Math.max(maxPower, Math.abs(frontLeftPower));
+        maxPower = Math.max(maxPower, Math.abs(backLeftPower));
+        maxPower = Math.max(maxPower, Math.abs(frontRightPower));
+        maxPower = Math.max(maxPower, Math.abs(backRightPower));
+
+        leftFront.setPower(maxSpeed * (frontLeftPower / maxPower));
+        leftBack.setPower(maxSpeed * (backLeftPower / maxPower));
+        rightFront.setPower(maxSpeed * (frontRightPower / maxPower));
+        rightBack.setPower(maxSpeed * (backRightPower / maxPower));
+    }
+
+    public void fieldcentricDrive(OpMode opmode, double botHeadingRadians, double startingHeadingRadians, Field.Side side)
     {
         Y = -opmode.gamepad1.left_stick_y;
         X = opmode.gamepad1.left_stick_x;
         rX = opmode.gamepad1.right_stick_x;
 
-        rotX = X * Math.cos(-botHeading) - Y * Math.sin(-botHeading);
-        rotY = X * Math.sin(-botHeading) + Y * Math.cos(-botHeading);
+        heading = botHeadingRadians - startingHeadingRadians;
+
+        offset = ((side == Field.Side.RED) ? Math.toRadians(0) : Math.toRadians(180));
+
+        rotX = X * Math.cos(heading + offset) - Y * Math.sin(heading + offset);
+        rotY = X * Math.sin(heading + offset) + Y * Math.cos(heading + offset);
 
         denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rX), 1);
         frontLeftPower = (rotY + rotX + rX) / denominator;
@@ -67,5 +117,81 @@ public class Drivetrain
         leftBack.setPower(backLeftPower);
         rightFront.setPower(frontRightPower);
         rightBack.setPower(backRightPower);
+    }
+
+    public void fieldOrientedDrive(OpMode opmode, double currentHeadingRadians, double storedHeadingRadians, Field.Side side)
+    {
+        double forward = -opmode.gamepad1.left_stick_y;
+        double strafe = opmode.gamepad1.left_stick_x;
+        double rotate = opmode.gamepad1.right_stick_x;
+
+        double theta = Math.atan2(forward, strafe);
+        double r = Math.hypot(strafe, forward);
+
+        offset = ((side == Field.Side.RED) ? Math.toRadians(0) : Math.toRadians(179.9));
+        theta = AngleUnit.normalizeRadians((theta + offset) - currentHeadingRadians);
+
+        double newForward = r * Math.sin(theta);
+        double newStrafe = r * Math.cos(theta);
+
+
+        robotCentricDrive(newForward, newStrafe, rotate);
+    }
+    public void fieldOrientedDrive(OpMode opmode, Pose2D currentPosition, double storedHeadingRadians, Field.Side side)
+    {
+        double forward = -opmode.gamepad1.left_stick_y;
+        double strafe = opmode.gamepad1.left_stick_x;
+        double rotate = opmode.gamepad1.right_stick_x;
+
+        double currentHeadingRadians = currentPosition.getHeading(AngleUnit.RADIANS);
+
+        double theta = Math.atan2(forward, strafe);
+        double r = Math.hypot(strafe, forward);
+
+        offset = ((side == Field.Side.RED) ? Math.toRadians(0) : Math.toRadians(179.9));
+        theta = AngleUnit.normalizeRadians((theta + offset) - currentHeadingRadians);
+
+        double newForward = r * Math.sin(theta);
+        double newStrafe = r * Math.cos(theta);
+
+        robotCentricDrive(newForward, newStrafe, rotate);
+    }
+
+    public void playerCentricDrive(OpMode opmode, Pose2D currentPosition, Field.Side side)
+    {
+        double forward = -opmode.gamepad1.left_stick_y;
+        double strafe = opmode.gamepad1.left_stick_x;
+        double rotate = opmode.gamepad1.right_stick_x;
+
+        double currentHeadingRadians = currentPosition.getHeading(AngleUnit.RADIANS);
+
+        Pose2D playerLocation = ((side == Field.Side.RED) ? Field.redPlayer: Field.bluePlayer);
+
+        double deltaX = currentPosition.getX(DistanceUnit.INCH) - playerLocation.getX(DistanceUnit.INCH);
+        double deltaY = currentPosition.getY(DistanceUnit.INCH) - playerLocation.getY(DistanceUnit.INCH);
+
+        double playerTheta = Math.atan2(deltaY, deltaX);
+
+        double theta = Math.atan2(forward, strafe);
+        double r = Math.hypot(strafe, forward);
+
+        offset = ((side == Field.Side.RED) ? Math.toRadians(0) : Math.toRadians(179.9));
+        theta = AngleUnit.normalizeRadians(((theta + offset) + playerTheta) - currentHeadingRadians);
+
+        double newForward = r * Math.sin(theta);
+        double newStrafe = r * Math.cos(theta);
+
+        robotCentricDrive(newForward, newStrafe, rotate);
+    }
+
+
+    /**
+     *
+     * @return returns array of amps [leftFront, rightFront, leftRear, rightRear]
+     */
+    public double[] getCurrentAmps()
+    {
+        double[] amperages = {leftFront.getCurrent(CurrentUnit.AMPS), rightFront.getCurrent(CurrentUnit.AMPS), leftBack.getCurrent(CurrentUnit.AMPS), rightBack.getCurrent(CurrentUnit.AMPS)};
+        return amperages;
     }
 }

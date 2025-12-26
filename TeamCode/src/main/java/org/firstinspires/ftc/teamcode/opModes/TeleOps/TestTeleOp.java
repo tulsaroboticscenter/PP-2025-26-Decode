@@ -1,10 +1,9 @@
 package org.firstinspires.ftc.teamcode.opModes.TeleOps;
 
-import com.bylazar.lights.PanelsLights;
 import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -14,13 +13,15 @@ import org.firstinspires.ftc.teamcode.Classes.PoseUtils;
 import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
 import org.firstinspires.ftc.teamcode.Robot.HardwareManager;
 
-import com.bylazar.telemetry.PanelsTelemetry.*;
-
 import java.util.Locale;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="TeleOp", group="Robot")
-public class TeleOp extends OpMode
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="TestTeleOp", group="Robot")
+public class TestTeleOp extends OpMode
 {
+
+    TelemetryManager ptelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
+
+
     private Field.Side side = null;
     private HardwareManager hw = new HardwareManager();
     private Pose2D goalPosition = null;
@@ -45,8 +46,6 @@ public class TeleOp extends OpMode
     boolean loaded = false;
     Pose2D startingPosition = null;
     double fieldCentricOffset = 0;
-
-    double[] amperages = null;
 
     Field.Side startingSide = null;
 
@@ -183,15 +182,9 @@ public class TeleOp extends OpMode
         //hw.drivetrain.fieldcentricDrive(this, pos.getHeading(AngleUnit.RADIANS), Math.toRadians(storedHeadingDegrees), startingSide);
        // hw.drivetrain.StrafeDrive(gamepad1.left_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x);
 
-        //hw.drivetrain.fieldOrientedDrive(this, pos, storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
+        hw.drivetrain.fieldOrientedDrive(this, pos, storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
+        hw.lights.setLightColor(((hw.limelight.seesTarget()) ? RGBLightController.GREEN : RGBLightController.RED));
 
-        hw.drivetrain.playerCentricDrive(this, pos, startingSide);
-        hw.lights.setLightColor(hw.turret.getHueFromDistance(pos, goalPosition));
-        if (velocityAdjustmentRuntime.seconds() > (1.0 / 50))
-        {
-            hw.turret.updateFlywheelAndHood(pos, goalPosition);
-            velocityAdjustmentRuntime.reset();
-        }
 
         if (isTargeting)
         {
@@ -241,9 +234,14 @@ public class TeleOp extends OpMode
             gamepad1.rumbleBlips(4);
         }
 
+        double[] amperages = hw.drivetrain.getCurrentAmps();
 
-
-
+        ptelemetry.addData("LeftFront Draw (Amps)", amperages[0]);
+        ptelemetry.addData("RightFront Draw (Amps)", amperages[1]);
+        ptelemetry.addData("LeftRear Draw (Amps)", amperages[2]);
+        ptelemetry.addData("RightRear Draw (Amps)", amperages[3]);
+        ptelemetry.update();
+        telemetry.addLine("limelight robot position: " + PoseUtils.poseToString(hw.limelight.getRobotPosition(), DistanceUnit.INCH, AngleUnit.DEGREES));
         telemetry.addLine("Targeting: " + isTargeting);
         telemetry.addLine("Hood Target Position: " + String.format(Locale.US, "%.2f", hw.turret.getHoodTarget()));
         telemetry.addLine("Flywheel Target Velocity: " + String.format(Locale.US, "%.2f", hw.turret.getCurrentVelocity()));

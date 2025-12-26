@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
 import org.firstinspires.ftc.teamcode.Robot.HardwareManager;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Auto", group = "Autonomous")
+@Autonomous(name = "Auto", group = "Autonomous", preselectTeleOp = "TeleOp")
 public class Auto extends OpMode {
 
     private Follower follower;
@@ -37,6 +37,8 @@ public class Auto extends OpMode {
 
     public Pose2D goalPosition = null;
 
+    // BLUE NEAR
+
     private final Pose startPose = new Pose(23.7, 129.2, Math.toRadians(144));
     private final Pose scorePose = new Pose(59.9, 84.1, Math.toRadians(180));
     private final Pose intake1 = new Pose(16.3, 84.1, Math.toRadians(180));
@@ -47,6 +49,17 @@ public class Auto extends OpMode {
     private final Pose park = new Pose(59.7, 103.5);
 
     private PathChain scorePreload, intakeLine1, scoreLine1, lineupIntake2, intakeLine2, scoreLine2, lineupIntake3, intakeLine3, scoreLine3;
+
+    // RED NEAR
+
+    private final Pose redNearStartPose = new Pose(23.7, 129.2, Math.toRadians(144));
+    private final Pose redNearScorePose = new Pose(59.9, 84.1, Math.toRadians(180));
+    private final Pose redNearIntake1 = new Pose(16.3, 84.1, Math.toRadians(180));
+    private final Pose redNearPrepIntake2 = new Pose(42.8, 59.7, Math.toRadians(180));
+    private final Pose redNearIntake2 = new Pose(12.6, 59.5, Math.toRadians(180));
+    private final Pose redNearPrepIntake3 = new Pose(42.8, 35.8, Math.toRadians(180));
+    private final Pose redNearIntake3 = new Pose(12.6, 35.8, Math.toRadians(180));
+    private final Pose redNearPark = new Pose(59.7, 103.5);
 
     public void buildPaths() {
         scorePreload = follower.pathBuilder()
@@ -98,18 +111,21 @@ public class Auto extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                hw.turret.setTarget(follower.getPose(), goalPosition);
-                follower.followPath(scorePreload, true);
+                hw.turret.spinUpFlywheel();
+                follower.followPath(scorePreload, false);
+                shooterTimer.resetTimer();
                 setPathState(1);
                 break;
 
             case 1:
                 if (!follower.isBusy()) {
-                    shooterTimer.resetTimer();
-
+                    hw.intake.intake();
+                    hw.intake.openGate();
 
                     if (shooterTimer.getElapsedTime() > 4000) {
-                        follower.followPath(intakeLine1, true);
+                        hw.intake.closeGate();
+                        hw.turret.haltFlywheel();
+                        follower.followPath(intakeLine1, false);
                         setPathState(2);
                     }
                 }
@@ -117,56 +133,94 @@ public class Auto extends OpMode {
 
             case 2:
                 if (!follower.isBusy()) {
-                    follower.followPath(scoreLine1, true);
+                    hw.turret.spinUpFlywheel();
+                    follower.followPath(scoreLine1, false);
                     setPathState(3);
                 }
                 break;
 
             case 3:
+                if (follower.isBusy())
+                {
+                    shooterTimer.resetTimer();
+                }
                 if (!follower.isBusy()) {
-                    follower.followPath(lineupIntake2, true);
-                    setPathState(4);
+                    hw.intake.openGate();
+
+                    if (shooterTimer.getElapsedTime() > 4000)
+                    {
+                        hw.turret.haltFlywheel();
+                        hw.intake.closeGate();
+                        hw.intake.stop();
+                        follower.followPath(lineupIntake2, false);
+                        setPathState(4);
+                    }
                 }
                 break;
 
             case 4:
                 if (!follower.isBusy()) {
-                    follower.followPath(intakeLine2, true);
+                    hw.intake.intake();
+                    follower.followPath(intakeLine2, false);
                     setPathState(5);
                 }
                 break;
 
             case 5:
                 if (!follower.isBusy()) {
-                    follower.followPath(scoreLine2, true);
+                    hw.turret.spinUpFlywheel();
+                    follower.followPath(scoreLine2, false);
                     setPathState(6);
                 }
                 break;
 
             case 6:
+                if (follower.isBusy())
+                {
+                    shooterTimer.resetTimer();
+                }
                 if (!follower.isBusy()) {
-                    follower.followPath(lineupIntake3, true);
-                    setPathState(7);
+                    hw.intake.openGate();
+
+                    if (shooterTimer.getElapsedTime() > 4000)
+                    {
+                        hw.turret.haltFlywheel();
+                        hw.intake.closeGate();
+                        hw.intake.stop();
+                        follower.followPath(lineupIntake3, false);
+                        setPathState(7);
+                    }
                 }
                 break;
 
             case 7:
                 if (!follower.isBusy()) {
-                    follower.followPath(intakeLine3, true);
+                    hw.intake.intake();
+                    follower.followPath(intakeLine3, false);
                     setPathState(8);
                 }
                 break;
 
             case 8:
                 if (!follower.isBusy()) {
-                    follower.followPath(scoreLine3, true);
+                    hw.turret.spinUpFlywheel();
+                    follower.followPath(scoreLine3, false);
+                    shooterTimer.resetTimer();
                     setPathState(9);
                 }
                 break;
 
             case 9:
+                if (follower.isBusy())
+                {
+                    shooterTimer.resetTimer();
+                }
                 if (!follower.isBusy()) {
-                    setPathState(-1);
+                    hw.intake.openGate();
+                    if (shooterTimer.getElapsedTime() > 4000)
+                    {
+                        setPathState(-1);
+                    }
                 }
                 break;
         }
@@ -185,8 +239,14 @@ public class Auto extends OpMode {
         follower.update();
         autonomousPathUpdate();
 
+        hw.lights.update();
+        hw.turret.update();
+
+        hw.turret.setTarget(follower.getPose(), goalPosition);
+        hw.turret.updateFlywheelAndHood(follower.getPose(), goalPosition);
+
         // Constantly Save the Position
-        Field.lastKnownPosition = new Pose2D(DistanceUnit.MM, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.RADIANS, follower.getHeading());
+        Field.lastKnownPosition = new Pose2D(DistanceUnit.INCH, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.RADIANS, follower.getHeading());
 
         // Feedback to Driver Hub for debugging
         telemetry.addData("path state", pathState);
@@ -221,7 +281,7 @@ public class Auto extends OpMode {
 
         hw.initPedro(hardwareMap);
         hw.lights.setLightMode(RGBLightController.LEDMode.PULSE_WAKE);
-        hw.lights.setLightColor(RGBLightController.RED);
+        hw.lights.setLightColor(RGBLightController.BLUE);
 
         shotsFired = false;
 
@@ -237,6 +297,8 @@ public class Auto extends OpMode {
     @Override
     public void init_loop()
     {
+        hw.lights.update();
+        hw.turret.update();
         // THIS CURRENTLY DOES NOT DO ANYTHING. THIS AUTO WILL ONLY RUN THE CURRENTLY PROGRAMMED BRANCH
         if (gamepad1.squareWasPressed())
         {
