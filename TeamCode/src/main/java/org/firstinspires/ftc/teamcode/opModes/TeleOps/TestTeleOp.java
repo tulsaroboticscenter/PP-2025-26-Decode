@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opModes.TeleOps;
 
+import com.bylazar.panels.Panels;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -18,9 +19,7 @@ import java.util.Locale;
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="TestTeleOp", group="Robot")
 public class TestTeleOp extends OpMode
 {
-
     TelemetryManager ptelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-
 
     private Field.Side side = null;
     private HardwareManager hw = new HardwareManager();
@@ -36,7 +35,6 @@ public class TestTeleOp extends OpMode
     ElapsedTime hoodToggleRuntime = new ElapsedTime();
     ElapsedTime flywheelToggleRuntime = new ElapsedTime();
     ElapsedTime endgameTickRuntime = new ElapsedTime();
-
 
     private boolean isTargeting = false;
     boolean isIntaking = false;
@@ -236,11 +234,11 @@ public class TestTeleOp extends OpMode
 
         double[] amperages = hw.drivetrain.getCurrentAmps();
 
-        ptelemetry.addData("LeftFront Draw (Amps)", amperages[0]);
-        ptelemetry.addData("RightFront Draw (Amps)", amperages[1]);
-        ptelemetry.addData("LeftRear Draw (Amps)", amperages[2]);
-        ptelemetry.addData("RightRear Draw (Amps)", amperages[3]);
-        ptelemetry.update();
+        telemetry.addData("LeftFront Draw (Amps):", amperages[0]);
+        telemetry.addData("RightFront Draw (Amps):", amperages[1]);
+        telemetry.addData("LeftRear Draw (Amps):", amperages[2]);
+        telemetry.addData("RightRear Draw (Amps):", amperages[3]);
+
         telemetry.addLine("limelight robot position: " + PoseUtils.poseToString(hw.limelight.getRobotPosition(), DistanceUnit.INCH, AngleUnit.DEGREES));
         telemetry.addLine("Targeting: " + isTargeting);
         telemetry.addLine("Hood Target Position: " + String.format(Locale.US, "%.2f", hw.turret.getHoodTarget()));
@@ -248,5 +246,6 @@ public class TestTeleOp extends OpMode
         telemetry.addLine("Position: " + PoseUtils.poseToString(pos, DistanceUnit.INCH, AngleUnit.DEGREES));
         telemetry.addData("Distance to target:", hw.turret.getDistanceToTarget(pos, goalPosition));
         telemetry.addLine("Time Passed: " + String.format(Locale.US, "%.2f", totalRuntime.seconds()) + "s");
+        telemetry.update();
     }
 }
