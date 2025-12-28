@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode.Robot.Subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Intake
 {
-    private DcMotor intakeMotor = null;
+    public DcMotor intakeMotor = null;
     private Servo gateServo = null;
 
     private double gateOpenPosition = 0.8;

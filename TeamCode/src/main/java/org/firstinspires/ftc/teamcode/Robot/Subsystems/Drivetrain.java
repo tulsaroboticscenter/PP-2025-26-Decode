@@ -18,10 +18,10 @@ import java.io.File;
 
 public class Drivetrain
 {
-    private DcMotorEx leftFront = null;
-    private DcMotorEx rightFront = null;
-    private DcMotorEx leftBack = null;
-    private DcMotorEx rightBack = null;
+    public DcMotorEx leftFront = null;
+    public DcMotorEx rightFront = null;
+    public DcMotorEx leftBack = null;
+    public DcMotorEx rightBack = null;
 
     public void init(HardwareMap hwMap)
     {

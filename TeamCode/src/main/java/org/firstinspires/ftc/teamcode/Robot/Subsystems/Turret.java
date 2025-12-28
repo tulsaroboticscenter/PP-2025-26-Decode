@@ -19,9 +19,9 @@ import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
 
 public class Turret
 {
-    private DcMotorEx turretRotationMotor = null; // trMotor
-    private DcMotorEx launcherL = null;
-    private DcMotorEx launcherR = null;
+    public DcMotorEx turretRotationMotor = null; // trMotor
+    public DcMotorEx launcherL = null;
+    public DcMotorEx launcherR = null;
     private Servo hoodServoL = null;
     private Servo hoodServoR = null;
     private RevTouchSensor turretLimitSwitch = null;
