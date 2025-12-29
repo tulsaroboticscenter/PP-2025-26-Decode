@@ -1,12 +1,12 @@
 package org.firstinspires.ftc.teamcode.opModes.TeleOps;
 
-import com.bylazar.lights.PanelsLights;
 import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Classes.Field;
@@ -14,13 +14,13 @@ import org.firstinspires.ftc.teamcode.Classes.PoseUtils;
 import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
 import org.firstinspires.ftc.teamcode.Robot.HardwareManager;
 
-import com.bylazar.telemetry.PanelsTelemetry.*;
-
 import java.util.Locale;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="TeleOp", group="Robot")
-public class TeleOp extends OpMode
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Gather Data", group="Robot")
+public class DataGatheringTeleOp extends OpMode
 {
+    TelemetryManager ptelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
+
     private Field.Side side = null;
     private HardwareManager hw = new HardwareManager();
     private Pose2D goalPosition = null;
@@ -36,7 +36,6 @@ public class TeleOp extends OpMode
     ElapsedTime flywheelToggleRuntime = new ElapsedTime();
     ElapsedTime endgameTickRuntime = new ElapsedTime();
 
-
     private boolean isTargeting = false;
     boolean isIntaking = false;
     double storedHeadingDegrees = 90.0;
@@ -45,8 +44,6 @@ public class TeleOp extends OpMode
     boolean loaded = false;
     Pose2D startingPosition = null;
     double fieldCentricOffset = 0;
-
-    double[] amperages = null;
 
     Field.Side startingSide = null;
 
@@ -184,28 +181,7 @@ public class TeleOp extends OpMode
        // hw.drivetrain.StrafeDrive(gamepad1.left_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x);
 
         hw.drivetrain.fieldOrientedDrive(this, pos, storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
-
-        //hw.drivetrain.playerCentricDrive(this, pos, startingSide);
-        hw.lights.setLightColor(hw.turret.getHueFromDistance(pos, goalPosition));
-        if (velocityAdjustmentRuntime.seconds() > (1.0 / 50))
-        {
-            hw.turret.updateFlywheelAndHood(pos, goalPosition);
-            velocityAdjustmentRuntime.reset();
-        }
-
-        if (isTargeting)
-        {
-            // if targeting is on, update the turret with the new target
-            hw.turret.setTarget(pos, goalPosition);
-        }
-
-        if (gamepad1.yWasPressed())
-        {
-            // Switch Light Mode from solid to flashing, or from flashing to solid
-            hw.lights.setLightMode(((hw.lights.getLightMode() == RGBLightController.LEDMode.SOLID) ? RGBLightController.LEDMode.FLASH : RGBLightController.LEDMode.SOLID));
-            // Toggle targeting
-            isTargeting = !isTargeting;
-        }
+        hw.lights.setLightColor(((hw.limelight.seesTarget()) ? RGBLightController.GREEN : RGBLightController.RED));
 
         // Right Trigger (Firing)
         if (gamepad1.right_trigger > 0.2) {
@@ -236,21 +212,41 @@ public class TeleOp extends OpMode
 
         if (gamepad1.optionsWasPressed())
         {
-
+            hw.pinpoint.resetPosition(startingSide);
         }
 
-        if (totalRuntime.seconds() > 100 && !endgame)
+        if (gamepad1.shareWasPressed())
         {
-            endgame = true;
-            gamepad1.setLedColor(1, 1, 1, 1000000000);
-            gamepad1.rumbleBlips(4);
+            hw.pinpoint.setPosition(Field.center);
         }
 
-        telemetry.addLine("Targeting: " + isTargeting);
+        if (gamepad1.dpadRightWasPressed())
+        {
+            hw.turret.incrementHoodTarget(0.05);
+        }
+        if (gamepad1.dpadLeftWasPressed())
+        {
+            hw.turret.incrementHoodTarget(-0.05);
+        }
+
+        if (velocityAdjustmentRuntime.seconds() > 0.2)
+        {
+            if (gamepad1.dpad_up)
+            {
+                hw.turret.incrementVelocity(50.0);
+                velocityAdjustmentRuntime.reset();
+            }
+            else if (gamepad1.dpad_down)
+            {
+                hw.turret.incrementVelocity(-50.0);
+                velocityAdjustmentRuntime.reset();
+            }
+        }
+
         telemetry.addLine("Hood Target Position: " + String.format(Locale.US, "%.2f", hw.turret.getHoodTarget()));
         telemetry.addLine("Flywheel Target Velocity: " + String.format(Locale.US, "%.2f", hw.turret.getCurrentVelocity()));
-        telemetry.addLine("Position: " + PoseUtils.poseToString(pos, DistanceUnit.INCH, AngleUnit.DEGREES));
+        telemetry.addLine();
         telemetry.addData("Distance to target:", hw.turret.getDistanceToTarget(pos, goalPosition));
-        telemetry.addLine("Time Passed: " + String.format(Locale.US, "%.2f", totalRuntime.seconds()) + "s");
+        telemetry.update();
     }
 }

@@ -1,15 +1,18 @@
 package org.firstinspires.ftc.teamcode.Robot.Subsystems;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.Classes.Field;
 import org.firstinspires.ftc.teamcode.goBilda.GoBildaPinpointDriver;
 
 public class Pinpoint
 {
-    private GoBildaPinpointDriver pinpoint = null;
+    public GoBildaPinpointDriver pinpoint = null;
 
     public static double leadMagnitudeMultiplier = 1;
 
@@ -17,6 +20,11 @@ public class Pinpoint
     {
         pinpoint = hwMap.get(GoBildaPinpointDriver.class, "pinpoint");
 
+        pinpoint.recalibrateIMU();
+        while (!(pinpoint.getDeviceStatus() == GoBildaPinpointDriver.DeviceStatus.READY))
+        {
+            // Do nothing
+        }
         pinpoint.resetPosAndIMU();
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         pinpoint.setOffsets(76.2, -190.5); // x: 3in y: -7.5in
@@ -57,6 +65,11 @@ public class Pinpoint
                 startingGoalPos.getX(DistanceUnit.MM) + (magnitude * Math.cos(theta)),
                 startingGoalPos.getY(DistanceUnit.MM) + (magnitude * Math.sin(theta)),
                 AngleUnit.RADIANS, 0);
+    }
+
+    public void resetPosition(Field.Side side)
+    {
+        pinpoint.setPosition((side == Field.Side.BLUE) ? Field.blueTouchingGoalFacingToward : Field.redTouchingGoalFacingToward);
     }
 
 

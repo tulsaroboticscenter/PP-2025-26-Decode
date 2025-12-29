@@ -135,6 +135,18 @@ public class Turret
     {
         velocity += incrementValue;
     }
+    public void incrementHoodTarget(double incrementValue)
+    {
+        hoodTarget += incrementValue;
+        if (hoodTarget > 1)
+        {
+            hoodTarget = 1;
+        }
+        else if (hoodTarget < 0)
+        {
+            hoodTarget = 0;
+        }
+    }
 
     public void ToggleFlywheel()
     {
@@ -168,6 +180,11 @@ public class Turret
         }
         hoodServoR.setPosition(hoodTarget);
         hoodServoL.setPosition((1 - hoodTarget));
+    }
+
+    public void setHoodTarget(double target)
+    {
+        hoodTarget = target;
     }
 
     double distanceInches = 0;

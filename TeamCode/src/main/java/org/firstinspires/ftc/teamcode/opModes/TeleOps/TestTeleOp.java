@@ -233,6 +233,7 @@ public class TestTeleOp extends OpMode
             gamepad1.rumbleBlips(4);
         }
 
+        /**
         double[] amperages = hw.drivetrain.getCurrentAmps();
 
         telemetry.addData("LeftFront Draw (Amps):", amperages[0]);
@@ -241,26 +242,28 @@ public class TestTeleOp extends OpMode
         telemetry.addData("RightRear Draw (Amps):", amperages[3]);
 
         telemetry.addLine();
+         **/
+
         //I put the add lines for when you look at the drive station for aesthetics and so it can be more easily readable,
         // you can remove those if you wanted to
 
 
-//        telemetry.addData("LeftFront Current", hw.drivetrain.leftFront.getCurrent(CurrentUnit.AMPS));
-//        telemetry.addData("RightFront Current", hw.drivetrain.rightFront.getCurrent(CurrentUnit.AMPS));
-//        telemetry.addData("LeftBack Current", hw.drivetrain.leftBack.getCurrent(CurrentUnit.AMPS));
-//        telemetry.addData("RightBack Current", hw.drivetrain.rightBack.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("LeftFront Current", hw.drivetrain.leftFront.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("RightFront Current", hw.drivetrain.rightFront.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("LeftBack Current", hw.drivetrain.leftBack.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("RightBack Current", hw.drivetrain.rightBack.getCurrent(CurrentUnit.AMPS));
 
-//        telemetry.addLine();
+        telemetry.addLine();
 
         //Intake would not work as it is set to DCMotor not DCMotorEx, I did not want to mess with it as it could cause issues
 
-//        telemetry.addData("Intake Current", hw.intake.intakeMotor.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("Intake Current", hw.intake.intakeMotor.getCurrent(CurrentUnit.AMPS));
 
-//        telemetry.addLine();
+        telemetry.addLine();
 
-//        telemetry.addData("Shooter Left Current", hw.turret.launcherL.getCurrent(CurrentUnit.AMPS));
-//        telemetry.addData("Shooter Right Current", hw.turret.launcherR.getCurrent(CurrentUnit.AMPS));
-//        telemetry.addData("Turret Rotation Current", hw.turret.turretRotationMotor.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("Shooter Left Current", hw.turret.launcherL.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("Shooter Right Current", hw.turret.launcherR.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("Turret Rotation Current", hw.turret.turretRotationMotor.getCurrent(CurrentUnit.AMPS));
 
 
         telemetry.addLine();

@@ -40,7 +40,7 @@ public class Field {
         public static final Pose2D blueHumanPlayerZone = new Pose2D(DistanceUnit.INCH, 54, -54, AngleUnit.DEGREES, 0);
         public static final Pose2D redBase = new Pose2D(DistanceUnit.INCH, -21, -36, AngleUnit.DEGREES, 0);
         public static final Pose2D blueBase = new Pose2D(DistanceUnit.INCH, 21, -36, AngleUnit.DEGREES, 0);
-        public static final Pose2D center = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
+        public static final Pose2D center = new Pose2D(DistanceUnit.INCH, 72, 72, AngleUnit.DEGREES, 0);
 
 
         public static final Pose2D bluePlayer = new Pose2D(DistanceUnit.INCH, 168, 48, AngleUnit.DEGREES, 180);

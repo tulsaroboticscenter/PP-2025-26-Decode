@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class Intake
 {
-    public DcMotor intakeMotor = null;
+    public DcMotorEx intakeMotor = null;
     private Servo gateServo = null;
 
     private double gateOpenPosition = 0.8;
@@ -15,8 +15,8 @@ public class Intake
 
     public void init(HardwareMap hwMap)
     {
-        intakeMotor = hwMap.get(DcMotor.class, "intakeMotor");
-        intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intakeMotor = hwMap.get(DcMotorEx.class, "intakeMotor");
+        intakeMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intakeMotor.setPower(0);
 
