@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot.Subsystems;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
+import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.FLOAT;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.configurables.annotations.Sorter;
@@ -31,13 +32,15 @@ public class Turret
     private RevTouchSensor turretLimitSwitch = null;
 
     @Sorter(sort = 0)
-    public static double turretkP = 25;
+    public static double turretkP = 0;
+    // 
+
     @Sorter(sort = 1)
     public static double turretkI = 0;
     @Sorter(sort = 2)
-    public static double turretkD = 2.5;
+    public static double turretkD = 0;
     @Sorter(sort = 3)
-    public static double turretkF = 0.30;
+    public static double turretkF = 0;
     @Sorter(sort = 4)
     public static double turretTolerance = 0;
 
@@ -103,7 +106,7 @@ public class Turret
         turretRotationMotor.setPower(0);
         turretRotationMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         turretRotationMotor.setVelocity(0);
-        turretRotationMotor.setZeroPowerBehavior(BRAKE);
+        turretRotationMotor.setZeroPowerBehavior(FLOAT);
 
         launcherR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         launcherL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);

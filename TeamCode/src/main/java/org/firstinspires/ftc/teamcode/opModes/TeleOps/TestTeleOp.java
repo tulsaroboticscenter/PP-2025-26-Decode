@@ -226,6 +226,11 @@ public class TestTeleOp extends OpMode
             hw.turret.ToggleFlywheel();
         }
 
+        if (gamepad1.shareWasPressed())
+        {
+            hw.pinpoint.pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0));
+        }
+
         if (totalRuntime.seconds() > 100 && !endgame)
         {
             endgame = true;
@@ -268,6 +273,7 @@ public class TestTeleOp extends OpMode
         ptelemetry.addData("Pinpoint Frequency", hw.pinpoint.pinpoint.getFrequency());
         ptelemetry.addData("X Encoder Raw", hw.pinpoint.pinpoint.getEncoderX());
         ptelemetry.addData("Y Encoder Raw", hw.pinpoint.pinpoint.getEncoderY());
+        ptelemetry.addData("Heading", hw.pinpoint.pinpoint.getHeading());
 
         ptelemetry.update();
         //telemetry.addLine();
