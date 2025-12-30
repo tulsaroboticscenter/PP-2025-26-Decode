@@ -248,32 +248,31 @@ public class TestTeleOp extends OpMode
         // you can remove those if you wanted to
 
 
-        telemetry.addData("LeftFront Current", hw.drivetrain.leftFront.getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("RightFront Current", hw.drivetrain.rightFront.getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("LeftBack Current", hw.drivetrain.leftBack.getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("RightBack Current", hw.drivetrain.rightBack.getCurrent(CurrentUnit.AMPS));
+        ptelemetry.addData("LeftFront Current", hw.drivetrain.leftFront.getCurrent(CurrentUnit.AMPS));
+        ptelemetry.addData("RightFront Current", hw.drivetrain.rightFront.getCurrent(CurrentUnit.AMPS));
+        ptelemetry.addData("LeftBack Current", hw.drivetrain.leftBack.getCurrent(CurrentUnit.AMPS));
+        ptelemetry.addData("RightBack Current", hw.drivetrain.rightBack.getCurrent(CurrentUnit.AMPS));
 
-        telemetry.addLine();
+        ptelemetry.addLine("");
 
         //Intake would not work as it is set to DCMotor not DCMotorEx, I did not want to mess with it as it could cause issues
 
-        telemetry.addData("Intake Current", hw.intake.intakeMotor.getCurrent(CurrentUnit.AMPS));
+        ptelemetry.addData("Intake Current", hw.intake.intakeMotor.getCurrent(CurrentUnit.AMPS));
 
-        telemetry.addLine();
+        ptelemetry.addLine("");
 
-        telemetry.addData("Shooter Left Current", hw.turret.launcherL.getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("Shooter Right Current", hw.turret.launcherR.getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("Turret Rotation Current", hw.turret.turretRotationMotor.getCurrent(CurrentUnit.AMPS));
+        ptelemetry.addData("Shooter Left Current", hw.turret.launcherL.getCurrent(CurrentUnit.AMPS));
+        ptelemetry.addData("Shooter Right Current", hw.turret.launcherR.getCurrent(CurrentUnit.AMPS));
+        ptelemetry.addData("Turret Rotation Current", hw.turret.turretRotationMotor.getCurrent(CurrentUnit.AMPS));
 
+        ptelemetry.addData("Pinpoint Frequency", hw.pinpoint.pinpoint.getFrequency());
+        ptelemetry.addData("X Encoder Raw", hw.pinpoint.pinpoint.getEncoderX());
+        ptelemetry.addData("Y Encoder Raw", hw.pinpoint.pinpoint.getEncoderY());
 
-        telemetry.addLine();
+        ptelemetry.update();
+        //telemetry.addLine();
 
-        telemetry.addData("Pinpoint Position", hw.pinpoint.getPosition());
-
-
-        telemetry.addLine();
-
-        telemetry.addLine("limelight robot position: " + PoseUtils.poseToString(hw.limelight.getRobotPosition(), DistanceUnit.INCH, AngleUnit.DEGREES));
+        //telemetry.addLine("limelight robot position: " + PoseUtils.poseToString(hw.limelight.getRobotPosition(), DistanceUnit.INCH, AngleUnit.DEGREES));
         telemetry.addLine("Targeting: " + isTargeting);
         telemetry.addLine("Hood Target Position: " + String.format(Locale.US, "%.2f", hw.turret.getHoodTarget()));
         telemetry.addLine("Flywheel Target Velocity: " + String.format(Locale.US, "%.2f", hw.turret.getCurrentVelocity()));

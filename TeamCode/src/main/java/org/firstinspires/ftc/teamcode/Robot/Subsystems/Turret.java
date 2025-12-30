@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.Robot.Subsystems;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
+import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.configurables.annotations.Sorter;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -17,6 +19,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Classes.PIDFController;
 import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
 
+
+@Configurable
 public class Turret
 {
     public DcMotorEx turretRotationMotor = null; // trMotor
@@ -26,16 +30,18 @@ public class Turret
     private Servo hoodServoR = null;
     private RevTouchSensor turretLimitSwitch = null;
 
+    @Sorter(sort = 0)
     public static double turretkP = 25;
+    @Sorter(sort = 1)
     public static double turretkI = 0;
+    @Sorter(sort = 2)
     public static double turretkD = 2.5;
-    public static double turretkF = 5;
-    public static double turretTolerance = 10;
+    @Sorter(sort = 3)
+    public static double turretkF = 0.30;
+    @Sorter(sort = 4)
+    public static double turretTolerance = 0;
 
     private PIDFController turretPID = new PIDFController(turretkP, turretkI, turretkD, turretkF, -1600, 1600);
-
-    private static double KpVal = 0.005;
-    private static double KdVal = 0.005;
     private double previousDegreesToTarget = 0.0;
 
     public double turretPPR = 145.1;

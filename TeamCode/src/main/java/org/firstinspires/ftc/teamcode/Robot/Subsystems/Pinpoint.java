@@ -20,15 +20,15 @@ public class Pinpoint
     {
         pinpoint = hwMap.get(GoBildaPinpointDriver.class, "pinpoint");
 
-        pinpoint.recalibrateIMU();
-        while (!(pinpoint.getDeviceStatus() == GoBildaPinpointDriver.DeviceStatus.READY))
-        {
+        //while (!(pinpoint.getDeviceStatus() == GoBildaPinpointDriver.DeviceStatus.READY))
+        //{
             // Do nothing
-        }
+        //}
         pinpoint.resetPosAndIMU();
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         pinpoint.setOffsets(76.2, -190.5); // x: 3in y: -7.5in
         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        pinpoint.recalibrateIMU();
     }
 
     public void setPosition(Pose2D position)
