@@ -32,13 +32,13 @@ public class Turret
     private RevTouchSensor turretLimitSwitch = null;
 
     @Sorter(sort = 0)
-    public static double turretkP = 0;
+    public static double turretkP = 10.0;
     // 
 
     @Sorter(sort = 1)
-    public static double turretkI = 0;
+    public static double turretkI = 5;
     @Sorter(sort = 2)
-    public static double turretkD = 0;
+    public static double turretkD = 1.5;
     @Sorter(sort = 3)
     public static double turretkF = 0;
     @Sorter(sort = 4)
@@ -78,12 +78,12 @@ public class Turret
     public boolean isFlywheelSpinning = false;
 
     // Variables for quadratic equations (y = ax^2 + bx + c)
-    public double hoodA = -0.00005222578;
-    public double hoodB = 0.0187724131;
-    public double hoodC = -0.68522;
-    public double flywheelA = -0.0104966341;
-    public double flywheelB = 9.274162345;
-    public double flywheelC = 635.4612;
+    public double hoodA = -0.0000000977291;
+    public double hoodB = 0.000975809;
+    public double hoodC = -0.871057;
+    public double flywheelA = 0.0853293;
+    public double flywheelB = -4.60833;
+    public double flywheelC = 1041.9647;
 
     public void init(HardwareMap hwMap, boolean TeleOp)
     {
@@ -199,20 +199,8 @@ public class Turret
     double distanceInches = 0;
     public void updateFlywheelAndHood(Pose2D currentPosition, Pose2D goalPosition)
     {
+        double tempTarget = 0;
         distanceInches = getDistanceToTarget(currentPosition, goalPosition);
-        hoodTarget = ((hoodA * (distanceInches * distanceInches)) + (hoodB * distanceInches) + hoodC);
-        if (distanceInches > 179)
-        {
-            hoodTarget = 0.9;
-        }
-        if (hoodTarget > 0.9)
-        {
-            hoodTarget = 0.9;
-        }
-        else if (hoodTarget < 0.01)
-        {
-            hoodTarget = 0.01;
-        }
 
         velocity = ((flywheelA * (distanceInches * distanceInches)) + (flywheelB * distanceInches) + flywheelC);
         if (distanceInches > 441)
@@ -220,23 +208,26 @@ public class Turret
             velocity = 2684;
         }
         Range.clip(velocity, 600, 2000);
+
+        tempTarget = ((hoodA * (velocity * velocity)) + (hoodB * velocity) + hoodC);
+        if (tempTarget > 0.9)
+        {
+            hoodTarget = 0.9;
+        }
+        else if (tempTarget < 0.01)
+        {
+            hoodTarget = 0.01;
+        }
+        else
+        {
+            hoodTarget = tempTarget;
+        }
+        hoodTarget = Range.clip(hoodTarget, 0.01, 0.9);
     }
     public void updateFlywheelAndHood(Pose currentPosition, Pose2D goalPosition)
     {
+        double tempTarget = 0;
         distanceInches = getDistanceToTarget(currentPosition, goalPosition);
-        hoodTarget = ((hoodA * (distanceInches * distanceInches)) + (hoodB * distanceInches) + hoodC);
-        if (distanceInches > 179)
-        {
-            hoodTarget = 0.9;
-        }
-        if (hoodTarget > 0.9)
-        {
-            hoodTarget = 0.9;
-        }
-        else if (hoodTarget < 0.01)
-        {
-            hoodTarget = 0.01;
-        }
 
         velocity = ((flywheelA * (distanceInches * distanceInches)) + (flywheelB * distanceInches) + flywheelC);
         if (distanceInches > 441)
@@ -244,6 +235,21 @@ public class Turret
             velocity = 2684;
         }
         Range.clip(velocity, 600, 2000);
+
+        tempTarget = ((hoodA * (velocity * velocity)) + (hoodB * velocity) + hoodC);
+        if (tempTarget > 0.9)
+        {
+            hoodTarget = 0.9;
+        }
+        else if (tempTarget < 0.01)
+        {
+            hoodTarget = 0.01;
+        }
+        else
+        {
+            hoodTarget = tempTarget;
+        }
+        hoodTarget = Range.clip(hoodTarget, 0.01, 0.9);
     }
 
     /**

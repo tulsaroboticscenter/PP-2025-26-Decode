@@ -243,10 +243,24 @@ public class DataGatheringTeleOp extends OpMode
             }
         }
 
+        ptelemetry.addData("Target Flywheel Velocity", hw.turret.velocity);
+        ptelemetry.addData("Left Flywheel Motor Velocity", hw.turret.launcherL.getVelocity());
+        ptelemetry.addData("Right Flywheel Motor Velocity", hw.turret.launcherR.getVelocity());
+
+        ptelemetry.addData("Left Flywheel Current Draw (Amps)", hw.turret.launcherL.getCurrent(CurrentUnit.AMPS));
+        ptelemetry.addData("Right Flywheel Current Draw (Amps)", hw.turret.launcherR.getCurrent(CurrentUnit.AMPS));
+
+        ptelemetry.update();
+
+        telemetry.addData("Target Flywheel Velocity", hw.turret.velocity);
+        telemetry.addData("Left Flywheel Motor Velocity", hw.turret.launcherL.getVelocity());
+        telemetry.addData("Right Flywheel Motor Velocity", hw.turret.launcherR.getVelocity());
+
         telemetry.addLine("Hood Target Position: " + String.format(Locale.US, "%.2f", hw.turret.getHoodTarget()));
         telemetry.addLine("Flywheel Target Velocity: " + String.format(Locale.US, "%.2f", hw.turret.getCurrentVelocity()));
         telemetry.addLine();
         telemetry.addData("Distance to target:", hw.turret.getDistanceToTarget(pos, goalPosition));
+        telemetry.addLine("Position" + PoseUtils.poseToString(pos, DistanceUnit.INCH, AngleUnit.DEGREES));
         telemetry.update();
     }
 }

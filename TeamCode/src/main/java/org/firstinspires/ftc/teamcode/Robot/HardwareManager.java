@@ -51,7 +51,4 @@ public class HardwareManager {
         lights.update();
 
     }
-
-
-
 }
