@@ -2,11 +2,13 @@ package org.firstinspires.ftc.teamcode.opModes.TeleOps;
 
 import com.bylazar.lights.PanelsLights;
 import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Classes.Field;
@@ -21,6 +23,8 @@ import java.util.Locale;
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="TeleOp", group="Robot")
 public class TeleOp extends OpMode
 {
+
+    TelemetryManager ptelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
     private Field.Side side = null;
     private HardwareManager hw = new HardwareManager();
     private Pose2D goalPosition = null;
@@ -245,11 +249,49 @@ public class TeleOp extends OpMode
             gamepad1.rumbleBlips(4);
         }
 
+        ptelemetry.addData("Target Flywheel Velocity", hw.turret.velocity);
+        ptelemetry.addData("Left Flywheel Motor Velocity", hw.turret.launcherL.getVelocity());
+        ptelemetry.addData("Right Flywheel Motor Velocity", hw.turret.launcherR.getVelocity());
+
+        ptelemetry.addData("Left Flywheel Current Draw (Amps)", hw.turret.launcherL.getCurrent(CurrentUnit.AMPS));
+        ptelemetry.addData("Right Flywheel Current Draw (Amps)", hw.turret.launcherR.getCurrent(CurrentUnit.AMPS));
+
+        ptelemetry.addLine("");
+
+        ptelemetry.addData("LeftFront Current", hw.drivetrain.leftFront.getCurrent(CurrentUnit.AMPS));
+        ptelemetry.addData("RightFront Current", hw.drivetrain.rightFront.getCurrent(CurrentUnit.AMPS));
+        ptelemetry.addData("LeftBack Current", hw.drivetrain.leftBack.getCurrent(CurrentUnit.AMPS));
+        ptelemetry.addData("RightBack Current", hw.drivetrain.rightBack.getCurrent(CurrentUnit.AMPS));
+
+        ptelemetry.addData("Hood Target", hw.turret.hoodTarget);
+
+        ptelemetry.addLine("");
+
+        //Intake would not work as it is set to DCMotor not DCMotorEx, I did not want to mess with it as it could cause issues
+
+        ptelemetry.addData("Intake Current", hw.intake.intakeMotor.getCurrent(CurrentUnit.AMPS));
+
+        ptelemetry.addLine("");
+
+        ptelemetry.addData("Shooter Left Current", hw.turret.launcherL.getCurrent(CurrentUnit.AMPS));
+        ptelemetry.addData("Shooter Right Current", hw.turret.launcherR.getCurrent(CurrentUnit.AMPS));
+        ptelemetry.addData("Turret Rotation Current", hw.turret.turretRotationMotor.getCurrent(CurrentUnit.AMPS));
+
+        ptelemetry.addData("Pinpoint Frequency", hw.pinpoint.pinpoint.getFrequency());
+        ptelemetry.addData("X Encoder Raw", hw.pinpoint.pinpoint.getEncoderX());
+        ptelemetry.addData("Y Encoder Raw", hw.pinpoint.pinpoint.getEncoderY());
+        ptelemetry.addData("Heading", hw.pinpoint.pinpoint.getHeading());
+
+        ptelemetry.update();
+        //telemetry.addLine();
+
+        //telemetry.addLine("limelight robot position: " + PoseUtils.poseToString(hw.limelight.getRobotPosition(), DistanceUnit.INCH, AngleUnit.DEGREES));
         telemetry.addLine("Targeting: " + isTargeting);
         telemetry.addLine("Hood Target Position: " + String.format(Locale.US, "%.2f", hw.turret.getHoodTarget()));
         telemetry.addLine("Flywheel Target Velocity: " + String.format(Locale.US, "%.2f", hw.turret.getCurrentVelocity()));
         telemetry.addLine("Position: " + PoseUtils.poseToString(pos, DistanceUnit.INCH, AngleUnit.DEGREES));
         telemetry.addData("Distance to target:", hw.turret.getDistanceToTarget(pos, goalPosition));
         telemetry.addLine("Time Passed: " + String.format(Locale.US, "%.2f", totalRuntime.seconds()) + "s");
+        telemetry.update();
     }
 }
