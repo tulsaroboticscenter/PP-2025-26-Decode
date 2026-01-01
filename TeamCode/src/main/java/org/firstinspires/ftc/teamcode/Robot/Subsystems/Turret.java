@@ -44,7 +44,7 @@ public class Turret
     private PIDFController turretPID = new PIDFController(turretkP, turretkI, turretkD, turretkF, -1600, 1600);
     private double previousDegreesToTarget = 0.0;
 
-    public double turretPPR = 145.1;
+    public double turretPPR = 384.5;
     public double turretGearRatio = 4.75;
     public double ticksPerTurretRevolution = turretPPR * turretGearRatio;
     public double ticksToDegreesCoeffecient = 360 / ticksPerTurretRevolution;

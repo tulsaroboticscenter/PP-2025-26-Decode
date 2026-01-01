@@ -148,7 +148,6 @@ public class TeleOp extends OpMode
     @Override
     public void start()
     {
-        hw.turret.initHood();
         if (testing)
         {
             if (testingSide == Field.Side.RED)
