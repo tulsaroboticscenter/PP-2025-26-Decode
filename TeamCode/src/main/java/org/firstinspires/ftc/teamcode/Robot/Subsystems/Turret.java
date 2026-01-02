@@ -18,6 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Classes.PIDFController;
+import org.firstinspires.ftc.teamcode.Classes.PoseUtils;
 import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
 
 
@@ -32,19 +33,19 @@ public class Turret
     private RevTouchSensor turretLimitSwitch = null;
 
     @Sorter(sort = 0)
-    public static double turretkP = 10.0;
+    public static double turretkP = 10;
     // 
 
     @Sorter(sort = 1)
-    public static double turretkI = 5;
+    public static double turretkI = 0;
     @Sorter(sort = 2)
-    public static double turretkD = 1.5;
+    public static double turretkD = 0.25;
     @Sorter(sort = 3)
     public static double turretkF = 0;
     @Sorter(sort = 4)
     public static double turretTolerance = 0;
 
-    private PIDFController turretPID = new PIDFController(turretkP, turretkI, turretkD, turretkF, -1600, 1600);
+    private PIDFController turretPID = new PIDFController(turretkP, turretkI, turretkD, turretkF, -2500, 2500);
     private double previousDegreesToTarget = 0.0;
 
     public double turretPPR = 384.5;
@@ -65,6 +66,12 @@ public class Turret
 
     public static boolean reversePolarity = false;
 
+    public boolean isLeading = true;
+    private Pose2D lastLeadPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0);
+
+    @Sorter(sort = 5)
+    public static double leadMagnitudeMultiplier = 1;
+
     public final double LAUNCHER_LOW_VELOCITY = 1000;
     public final double LAUNCHER_MEDIUM_VELOCITY = 1400;
     public final double LAUNCHER_HIGH_VELOCITY = 1700;
@@ -84,6 +91,10 @@ public class Turret
     public double flywheelA = 0.0853293;
     public double flywheelB = -4.60833;
     public double flywheelC = 1041.9647;
+
+    private Pose2D currentPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0);
+    private Pose2D targetPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0);
+
 
     public void init(HardwareMap hwMap, boolean TeleOp)
     {
@@ -118,6 +129,11 @@ public class Turret
         {
             hoodServoL.setPosition(1);
             hoodServoR.setPosition(0);
+        }
+        else
+        {
+            hoodServoL.setPosition(hoodServoL.getPosition());
+            hoodServoR.setPosition(hoodServoR.getPosition());
         }
         turretPID.setTolerance(turretTolerance);
         turretPID.setTarget(0);
@@ -172,11 +188,33 @@ public class Turret
         isFlywheelSpinning = false;
     }
 
+    public Pose2D getLeadPose(Pose2D goalPose, double velX, double velY)
+    {
+        double magnitude = Math.sqrt(Math.pow(velX, 2) + Math.pow(velY, 2));
+        double theta = Math.atan2(velY, velX);
+
+        if (theta > 0)
+        {
+            theta -= Math.PI;
+        }
+        else if (theta < 0)
+        {
+            theta += Math.PI;
+        }
+
+        magnitude *= leadMagnitudeMultiplier;
+        return new Pose2D(DistanceUnit.MM,
+                goalPose.getX(DistanceUnit.MM) + (magnitude * Math.cos(theta)),
+                goalPose.getY(DistanceUnit.MM) + (magnitude * Math.sin(theta)),
+                AngleUnit.RADIANS, 0);
+    }
+
     public void update()
     {
         turretPID.setPIDFCoefficients(turretkP, turretkI, turretkD, turretkF);
         turretPID.setTolerance(turretTolerance);
         turretRotationMotor.setVelocity(turretPID.calculate(turretRotationMotor.getCurrentPosition()));
+
         if (isFlywheelSpinning)
         {
             launcherL.setVelocity(velocity);
@@ -200,7 +238,14 @@ public class Turret
     public void updateFlywheelAndHood(Pose2D currentPosition, Pose2D goalPosition)
     {
         double tempTarget = 0;
-        distanceInches = getDistanceToTarget(currentPosition, goalPosition);
+        if (isLeading)
+        {
+            distanceInches = getDistanceToTarget(currentPosition, lastLeadPose);
+        }
+        else
+        {
+            distanceInches = getDistanceToTarget(currentPosition, goalPosition);
+        }
 
         velocity = ((flywheelA * (distanceInches * distanceInches)) + (flywheelB * distanceInches) + flywheelC);
         if (distanceInches > 441)
@@ -259,22 +304,34 @@ public class Turret
      */
     public void setTarget(Pose2D currentPosition, Pose2D targetPosition)
     {
+        currentPose = currentPosition;
+        targetPose = targetPosition;
         turretPID.setTarget(HeadingToTurretTicks(getDegreesToTarget(currentPosition, targetPosition, false), AngleUnit.DEGREES));
     }
     public void setTarget(Pose currentPosition, Pose2D targetPosition)
     {
         Pose2D currentPose2D = new Pose2D(DistanceUnit.INCH, currentPosition.getX(), currentPosition.getY(), AngleUnit.RADIANS, currentPosition.getHeading());
+        currentPose = currentPose2D;
+        targetPose = targetPosition;
         turretPID.setTarget(HeadingToTurretTicks(getDegreesToTarget(currentPose2D, targetPosition, false), AngleUnit.DEGREES));
     }
     public void setTarget(Pose currentPosition, Pose targetPosition)
     {
         Pose2D currentPose2D = new Pose2D(DistanceUnit.INCH, currentPosition.getX(), currentPosition.getY(), AngleUnit.RADIANS, currentPosition.getHeading());
         Pose2D targetPose2D = new Pose2D(DistanceUnit.INCH, targetPosition.getX(), targetPosition.getY(), AngleUnit.RADIANS, targetPosition.getHeading());
+        currentPose = currentPose2D;
+        targetPose = targetPose2D;
         turretPID.setTarget(HeadingToTurretTicks(getDegreesToTarget(currentPose2D, targetPose2D, false), AngleUnit.DEGREES));
     }
     public void setTarget(int tickValue)
     {
         turretPID.setTarget(tickValue);
+    }
+
+    public void setLeadTarget(Pose2D currentPosition, Pose2D targetPosition, double velocityX, double velocityY)
+    {
+        lastLeadPose = getLeadPose(targetPosition, velocityX, velocityY);
+        turretPID.setTarget(HeadingToTurretTicks(getDegreesToTarget(currentPosition, lastLeadPose, false), AngleUnit.DEGREES));
     }
 
     public double getDistanceToTarget(Pose2D Pos1, Pose2D Pos2)
@@ -291,7 +348,6 @@ public class Turret
 
         return Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
     }
-
 
     public double getHueFromDistance(Pose2D currentPosition, Pose2D targetPosition)
     {

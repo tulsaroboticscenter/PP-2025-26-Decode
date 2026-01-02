@@ -26,7 +26,7 @@ public class TeleOp extends OpMode
 
     TelemetryManager ptelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
     private Field.Side side = null;
-    private HardwareManager hw = new HardwareManager();
+    private HardwareManager hw = new HardwareManager(hardwareMap);
     private Pose2D goalPosition = null;
 
     // Initializes ElapsedTimes. One for total runtime of the program and the others set up for toggles.
@@ -115,7 +115,7 @@ public class TeleOp extends OpMode
     @Override
     public void init_loop()
     {
-        hw.updateTeleOp();
+        hw.updateInitTeleOp();
         if (!testing)
         {
             if (loaded)
@@ -199,7 +199,7 @@ public class TeleOp extends OpMode
         if (isTargeting)
         {
             // if targeting is on, update the turret with the new target
-            hw.turret.setTarget(pos, goalPosition);
+            hw.turret.setLeadTarget(pos, goalPosition, hw.pinpoint.getVelX(), hw.pinpoint.getVelY());
         }
 
         if (gamepad1.yWasPressed())
@@ -208,6 +208,7 @@ public class TeleOp extends OpMode
             hw.lights.setLightMode(((hw.lights.getLightMode() == RGBLightController.LEDMode.SOLID) ? RGBLightController.LEDMode.FLASH : RGBLightController.LEDMode.SOLID));
             // Toggle targeting
             isTargeting = !isTargeting;
+            hw.turret.isLeading = !hw.turret.isLeading;
         }
 
         // Right Trigger (Firing)
@@ -239,7 +240,7 @@ public class TeleOp extends OpMode
 
         if (gamepad1.optionsWasPressed())
         {
-
+            hw.pinpoint.pinpoint.setPosition(Field.center);
         }
 
         if (totalRuntime.seconds() > 100 && !endgame)
@@ -248,6 +249,8 @@ public class TeleOp extends OpMode
             gamepad1.setLedColor(1, 1, 1, 1000000000);
             gamepad1.rumbleBlips(4);
         }
+
+        ptelemetry.setUpdateInterval(5);
 
         ptelemetry.addData("Target Flywheel Velocity", hw.turret.velocity);
         ptelemetry.addData("Left Flywheel Motor Velocity", hw.turret.launcherL.getVelocity());
@@ -281,6 +284,8 @@ public class TeleOp extends OpMode
         ptelemetry.addData("X Encoder Raw", hw.pinpoint.pinpoint.getEncoderX());
         ptelemetry.addData("Y Encoder Raw", hw.pinpoint.pinpoint.getEncoderY());
         ptelemetry.addData("Heading", hw.pinpoint.pinpoint.getHeading());
+
+        //ptelemetry.addData("Total Draw", hw.controlHub.getCurrent(CurrentUnit.AMPS));
 
         ptelemetry.update();
         //telemetry.addLine();

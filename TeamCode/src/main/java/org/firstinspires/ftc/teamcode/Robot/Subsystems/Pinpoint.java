@@ -51,6 +51,15 @@ public class Pinpoint
         return new double[]{magnitude, theta};
     }
 
+    public double getVelX()
+    {
+        return pinpoint.getVelX();
+    }
+    public double getVelY()
+    {
+        return pinpoint.getVelY();
+    }
+
     public void update()
     {
         pinpoint.update();

@@ -23,7 +23,7 @@ public class TestTeleOp extends OpMode
     TelemetryManager ptelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
     private Field.Side side = null;
-    private HardwareManager hw = new HardwareManager();
+    private HardwareManager hw = new HardwareManager(hardwareMap);
     private Pose2D goalPosition = null;
 
     // Initializes ElapsedTimes. One for total runtime of the program and the others set up for toggles.

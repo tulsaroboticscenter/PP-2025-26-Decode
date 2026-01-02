@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Robot.HardwareManager;
 public class ZeroHood extends OpMode
 {
 
-    private HardwareManager hw = new HardwareManager();
+    private HardwareManager hw = new HardwareManager(hardwareMap);
 
     @Override
     public void init() {

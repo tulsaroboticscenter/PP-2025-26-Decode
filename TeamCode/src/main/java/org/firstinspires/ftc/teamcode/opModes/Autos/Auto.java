@@ -27,7 +27,7 @@ public class Auto extends OpMode {
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
 
-    private HardwareManager hw = new HardwareManager();
+    private HardwareManager hw = new HardwareManager(hardwareMap);
 
     private Timer shooterTimer;
 
