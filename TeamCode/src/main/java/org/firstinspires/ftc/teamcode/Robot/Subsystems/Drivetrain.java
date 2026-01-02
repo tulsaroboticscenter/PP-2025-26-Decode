@@ -61,16 +61,17 @@ public class Drivetrain
 
     double heading = 0;
 
-    public void StrafeDrive(double drive, double turn, double strafe) {
+    public double drivePower = 1;
 
-        double leftPower    = -Range.clip(drive - turn, -1, 1);
-        double rightPower   = -Range.clip(drive + turn, -1, 1);
-        double strafePower = Range.clip(-strafe, -1, 1);
+    public static double SLOW_DRIVING_SPEED = 0.75;
 
-        leftFront.setPower(leftPower - strafePower);
-        leftBack.setPower(leftPower + strafePower);
-        rightFront.setPower(rightPower + strafePower);
-        rightBack.setPower(rightPower - strafePower);
+    public void slowDown()
+    {
+        drivePower = SLOW_DRIVING_SPEED;
+    }
+    public void speedUp()
+    {
+        drivePower = 1;
     }
 
     public void robotCentricDrive(double forward, double strafe, double rotate)
@@ -81,17 +82,16 @@ public class Drivetrain
         double backRightPower = forward + strafe - rotate;
 
         double maxPower = 1.0;
-        double maxSpeed = 1.0;
 
         maxPower = Math.max(maxPower, Math.abs(frontLeftPower));
         maxPower = Math.max(maxPower, Math.abs(backLeftPower));
         maxPower = Math.max(maxPower, Math.abs(frontRightPower));
         maxPower = Math.max(maxPower, Math.abs(backRightPower));
 
-        leftFront.setPower(maxSpeed * (frontLeftPower / maxPower));
-        leftBack.setPower(maxSpeed * (backLeftPower / maxPower));
-        rightFront.setPower(maxSpeed * (frontRightPower / maxPower));
-        rightBack.setPower(maxSpeed * (backRightPower / maxPower));
+        leftFront.setPower(drivePower * (frontLeftPower / maxPower));
+        leftBack.setPower(drivePower * (backLeftPower / maxPower));
+        rightFront.setPower(drivePower * (frontRightPower / maxPower));
+        rightBack.setPower(drivePower * (backRightPower / maxPower));
     }
 
     public void fieldcentricDrive(OpMode opmode, double botHeadingRadians, double startingHeadingRadians, Field.Side side)

@@ -152,6 +152,7 @@ public class TeleOp extends OpMode
     @Override
     public void start()
     {
+        hw.turret.spinUpFlywheel();
         if (testing)
         {
             if (testingSide == Field.Side.RED)
@@ -182,15 +183,10 @@ public class TeleOp extends OpMode
         // Update Methods
         hw.updateTeleOp();
 
-        //hw.drivetrain.fieldcentricDrive(this, (pos.getHeading(AngleUnit.RADIANS) - Math.toRadians(storedHeadingDegrees)) + Math.toRadians(fieldCentricOffset));
-        //hw.drivetrain.fieldcentricDrive(this, pos.getHeading(AngleUnit.RADIANS), Math.toRadians(storedHeadingDegrees), startingSide);
-       // hw.drivetrain.StrafeDrive(gamepad1.left_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x);
-
         hw.drivetrain.fieldOrientedDrive(this, pos, storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
 
-        //hw.drivetrain.playerCentricDrive(this, pos, startingSide);
         hw.lights.setLightColor(hw.turret.getHueFromDistance(pos, goalPosition));
-        if (velocityAdjustmentRuntime.seconds() > (1.0 / 50))
+        if (velocityAdjustmentRuntime.seconds() > (1.0 / 150))
         {
             hw.turret.updateFlywheelAndHood(pos, goalPosition);
             velocityAdjustmentRuntime.reset();
@@ -199,7 +195,7 @@ public class TeleOp extends OpMode
         if (isTargeting)
         {
             // if targeting is on, update the turret with the new target
-            hw.turret.setLeadTarget(pos, goalPosition, hw.pinpoint.getVelX(), hw.pinpoint.getVelY());
+            hw.turret.setTarget(pos, goalPosition);
         }
 
         if (gamepad1.yWasPressed())
@@ -233,9 +229,13 @@ public class TeleOp extends OpMode
             isIntaking = !isIntaking;
         }
 
-        if (gamepad1.xWasPressed())
+        if (gamepad1.x)
         {
-            hw.turret.ToggleFlywheel();
+            hw.drivetrain.slowDown();
+        }
+        else
+        {
+            hw.drivetrain.speedUp();
         }
 
         if (gamepad1.optionsWasPressed())
@@ -250,7 +250,7 @@ public class TeleOp extends OpMode
             gamepad1.rumbleBlips(4);
         }
 
-        ptelemetry.setUpdateInterval(5);
+        ptelemetry.setUpdateInterval(15);
 
         ptelemetry.addData("Target Flywheel Velocity", hw.turret.velocity);
         ptelemetry.addData("Left Flywheel Motor Velocity", hw.turret.launcherL.getVelocity());

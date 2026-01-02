@@ -46,6 +46,22 @@ public class Turret
     public static double turretTolerance = 0;
 
     private PIDFController turretPID = new PIDFController(turretkP, turretkI, turretkD, turretkF, -2500, 2500);
+
+
+    // These are values for an un-implemented flywheel PID controller that we might use in the future
+    @Sorter(sort = 6)
+    public static double flywheelkP = 0;
+    @Sorter(sort = 7)
+    public static double flywheelkI = 0;
+    @Sorter(sort = 8)
+    public static double flywheelkD = 0;
+    @Sorter(sort = 9)
+    public static double flywheelkF = 0;
+    @Sorter(sort = 10)
+    public static double flywheelTolerance = 0;
+
+    private PIDFController flywheelPID = new PIDFController(flywheelkP, flywheelkI, flywheelkD, flywheelkF, 0, 2000);
+
     private double previousDegreesToTarget = 0.0;
 
     public double turretPPR = 384.5;
@@ -66,7 +82,7 @@ public class Turret
 
     public static boolean reversePolarity = false;
 
-    public boolean isLeading = true;
+    public boolean isLeading = false;
     private Pose2D lastLeadPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0);
 
     @Sorter(sort = 5)
@@ -85,12 +101,15 @@ public class Turret
     public boolean isFlywheelSpinning = false;
 
     // Variables for quadratic equations (y = ax^2 + bx + c)
-    public double hoodA = -0.0000000977291;
-    public double hoodB = 0.000975809;
-    public double hoodC = -0.871057;
-    public double flywheelA = 0.0853293;
-    public double flywheelB = -4.60833;
-    public double flywheelC = 1041.9647;
+    public double hoodA = -6.08045e-9;
+    public double hoodB = 0.0000238999;
+    public double hoodC = -0.029511;
+    public double hoodD = 11.69338;
+
+    public double flywheelA = 0.00014303;
+    public double flywheelB = -0.061377;
+    public double flywheelC = 12.39763;
+    public double flywheelD = 593.94042;
 
     private Pose2D currentPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0);
     private Pose2D targetPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0);
@@ -247,14 +266,16 @@ public class Turret
             distanceInches = getDistanceToTarget(currentPosition, goalPosition);
         }
 
-        velocity = ((flywheelA * (distanceInches * distanceInches)) + (flywheelB * distanceInches) + flywheelC);
+        velocity = ((flywheelA * Math.pow(distanceInches, 3)) + (flywheelB * Math.pow(distanceInches, 2)) + (flywheelC * distanceInches) + flywheelD);
         if (distanceInches > 441)
         {
             velocity = 2684;
         }
-        Range.clip(velocity, 600, 2000);
+        Range.clip(velocity, 600, 1900);
 
-        tempTarget = ((hoodA * (velocity * velocity)) + (hoodB * velocity) + hoodC);
+        double averageVelocity = (launcherL.getVelocity() + launcherR.getVelocity()) / 2;
+
+        tempTarget = ((hoodA * Math.pow(averageVelocity, 3)) + (hoodB * Math.pow(averageVelocity, 2)) + (hoodC * averageVelocity) + hoodD);
         if (tempTarget > 0.9)
         {
             hoodTarget = 0.9;
@@ -272,16 +293,25 @@ public class Turret
     public void updateFlywheelAndHood(Pose currentPosition, Pose2D goalPosition)
     {
         double tempTarget = 0;
-        distanceInches = getDistanceToTarget(currentPosition, goalPosition);
+        if (isLeading)
+        {
+            distanceInches = getDistanceToTarget(currentPosition, lastLeadPose);
+        }
+        else
+        {
+            distanceInches = getDistanceToTarget(currentPosition, goalPosition);
+        }
 
-        velocity = ((flywheelA * (distanceInches * distanceInches)) + (flywheelB * distanceInches) + flywheelC);
+        velocity = ((flywheelA * Math.pow(distanceInches, 3)) + (flywheelB * Math.pow(distanceInches, 2)) + flywheelC);
         if (distanceInches > 441)
         {
             velocity = 2684;
         }
         Range.clip(velocity, 600, 2000);
 
-        tempTarget = ((hoodA * (velocity * velocity)) + (hoodB * velocity) + hoodC);
+        double averageVelocity = (launcherL.getVelocity() + launcherR.getVelocity()) / 2;
+
+        tempTarget = ((hoodA * Math.pow(averageVelocity, 3)) + (hoodB * Math.pow(averageVelocity, 2)) + (hoodC * averageVelocity) + hoodD);
         if (tempTarget > 0.9)
         {
             hoodTarget = 0.9;
