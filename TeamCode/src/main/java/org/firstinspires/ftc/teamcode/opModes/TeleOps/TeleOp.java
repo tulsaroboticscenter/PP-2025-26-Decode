@@ -268,6 +268,8 @@ public class TeleOp extends OpMode
 
         ptelemetry.addData("Hood Target", hw.turret.hoodTarget);
 
+        ptelemetry.addData("Turret Rotation", hw.turret.turretRotationMotor.getCurrentPosition());
+
         ptelemetry.addLine("");
 
         //Intake would not work as it is set to DCMotor not DCMotorEx, I did not want to mess with it as it could cause issues

@@ -49,18 +49,18 @@ public class Turret
 
 
     // These are values for an un-implemented flywheel PID controller that we might use in the future
-    @Sorter(sort = 6)
-    public static double flywheelkP = 0;
-    @Sorter(sort = 7)
-    public static double flywheelkI = 0;
-    @Sorter(sort = 8)
-    public static double flywheelkD = 0;
-    @Sorter(sort = 9)
-    public static double flywheelkF = 0;
-    @Sorter(sort = 10)
-    public static double flywheelTolerance = 0;
-
-    private PIDFController flywheelPID = new PIDFController(flywheelkP, flywheelkI, flywheelkD, flywheelkF, 0, 2000);
+//    @Sorter(sort = 6)
+//    public static double flywheelkP = 0;
+//    @Sorter(sort = 7)
+//    public static double flywheelkI = 0;
+//    @Sorter(sort = 8)
+//    public static double flywheelkD = 0;
+//    @Sorter(sort = 9)
+//    public static double flywheelkF = 0;
+//    @Sorter(sort = 10)
+//    public static double flywheelTolerance = 0;
+//
+//    private PIDFController flywheelPID = new PIDFController(flywheelkP, flywheelkI, flywheelkD, flywheelkF, 0, 2000);
 
     private double previousDegreesToTarget = 0.0;
 
