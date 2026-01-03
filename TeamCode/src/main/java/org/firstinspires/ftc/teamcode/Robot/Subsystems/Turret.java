@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Robot.Subsystems;
 
-import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.FLOAT;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -18,7 +17,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Classes.PIDFController;
-import org.firstinspires.ftc.teamcode.Classes.PoseUtils;
 import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
 
 
@@ -391,7 +389,7 @@ public class Turret
             distanceInches = distanceRange;
         }
 
-        return startingHue - ((distanceInches / distanceRange) * hueRange);
+        return Range.clip((startingHue - ((distanceInches / distanceRange) * hueRange)), 0, 1);
     }
 
     public double getCurrentVelocity()
@@ -503,10 +501,15 @@ public class Turret
         }
     }
 
-    public double getTurretHeadingDegrees(double robotHeadingDegrees)
+    public double getGlobalTurretHeadingDegrees(double robotHeadingDegrees)
     {
         double turretheading = turretRotationMotor.getCurrentPosition() * ticksToDegreesCoeffecient;
         return robotHeadingDegrees + turretheading;
+    }
+
+    public double getLocalTurretHeadingDegrees()
+    {
+        return turretRotationMotor.getCurrentPosition() * ticksToDegreesCoeffecient;
     }
 
 }

@@ -36,9 +36,6 @@ public class TeleOp extends OpMode
     ElapsedTime velocityAdjustmentRuntime = new ElapsedTime();
     ElapsedTime robotLeadRuntime = new ElapsedTime();
     ElapsedTime intakeToggleRuntime = new ElapsedTime();
-    ElapsedTime hoodToggleRuntime = new ElapsedTime();
-    ElapsedTime flywheelToggleRuntime = new ElapsedTime();
-    ElapsedTime endgameTickRuntime = new ElapsedTime();
 
 
     private boolean isTargeting = false;
@@ -48,9 +45,6 @@ public class TeleOp extends OpMode
     Pose2D storedLocation;
     boolean loaded = false;
     Pose2D startingPosition = null;
-    double fieldCentricOffset = 0;
-
-    double[] amperages = null;
 
     Field.Side startingSide = null;
 
@@ -104,8 +98,6 @@ public class TeleOp extends OpMode
         velocityAdjustmentRuntime.reset();
         robotLeadRuntime.reset();
         intakeToggleRuntime.reset();
-        hoodToggleRuntime.reset();
-        flywheelToggleRuntime.reset();
         telemetry.update();
     }
 
@@ -204,7 +196,7 @@ public class TeleOp extends OpMode
             hw.lights.setLightMode(((hw.lights.getLightMode() == RGBLightController.LEDMode.SOLID) ? RGBLightController.LEDMode.FLASH : RGBLightController.LEDMode.SOLID));
             // Toggle targeting
             isTargeting = !isTargeting;
-            hw.turret.isLeading = !hw.turret.isLeading;
+            //hw.turret.isLeading = !hw.turret.isLeading;
         }
 
         // Right Trigger (Firing)

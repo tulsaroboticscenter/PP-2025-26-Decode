@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Classes;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
 
 public class RGBLightController {
 
@@ -49,6 +50,8 @@ public class RGBLightController {
     {
         long t = System.currentTimeMillis() - modeStartTime;
 
+        color = Range.clip(color, 0, 1);
+
         switch (currentMode)
         {
             case SOLID:
@@ -58,6 +61,7 @@ public class RGBLightController {
             case PULSE:
                 // slow breathing effect (0.3-0.7)
                 double pulse = 0.5 + 0.22 * Math.sin(t / 300.0);
+                pulse = Range.clip(pulse, 0, 1);
                 light.setPosition(pulse);
                 break;
 

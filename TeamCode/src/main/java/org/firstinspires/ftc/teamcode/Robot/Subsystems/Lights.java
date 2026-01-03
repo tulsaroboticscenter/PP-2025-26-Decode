@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Robot.Subsystems;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
 
@@ -29,8 +30,8 @@ public class Lights
     }
     public void setLightColor(double color)
     {
-        light1.setColor(color);
-        light2.setColor(color);
+        light1.setColor(Range.clip(color, 0, 1));
+        light2.setColor(Range.clip(color, 0, 1));
     }
     public void update()
     {

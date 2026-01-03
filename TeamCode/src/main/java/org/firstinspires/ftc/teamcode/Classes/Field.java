@@ -33,7 +33,6 @@ public class Field {
         public static Pose2D lastKnownPosition = null;
 
         // Points of Interest
-
         public static final Pose2D blueGoal = new Pose2D(DistanceUnit.INCH, 10, 130, AngleUnit.DEGREES, 0);
         public static final Pose2D redGoal = new Pose2D(DistanceUnit.INCH, 134, 130, AngleUnit.DEGREES, 0);
         public static final Pose2D redHumanPlayerZone = new Pose2D(DistanceUnit.INCH, 18, -54, AngleUnit.DEGREES, 0);

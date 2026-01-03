@@ -1,10 +1,8 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
-import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Robot.Subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.Robot.Subsystems.Intake;
 import org.firstinspires.ftc.teamcode.Robot.Subsystems.Lights;
@@ -53,13 +51,13 @@ public class HardwareManager {
         turret.update();
         lights.update();
         pinpoint.update();
-        limelight.update(turret.getTurretHeadingDegrees(pinpoint.getPosition().getHeading(AngleUnit.DEGREES)));
+        limelight.update(turret.getGlobalTurretHeadingDegrees(pinpoint.getPosition().getHeading(AngleUnit.DEGREES)));
     }
     public void updateInitTeleOp()
     {
         lights.update();
         pinpoint.update();
-        limelight.update(turret.getTurretHeadingDegrees(pinpoint.getPosition().getHeading(AngleUnit.DEGREES)));
+        limelight.update(turret.getGlobalTurretHeadingDegrees(pinpoint.getPosition().getHeading(AngleUnit.DEGREES)));
     }
 
     public void updatePedro()

@@ -32,7 +32,7 @@ public class Limelight
 
     public void update(double turretYawDegrees)
     {
-        limelight.updateRobotOrientation(turretYawDegrees + 90);
+        limelight.updateRobotOrientation(turretYawDegrees);
         latestResult = limelight.getLatestResult();
         latestStatus = limelight.getStatus();
 
@@ -66,10 +66,8 @@ public class Limelight
         return seesTarget;
     }
 
-    public Pose2D getRobotPosition()
+    public Pose2D getRobotPosition(double turretYawDegrees)
     {
-        return new Pose2D(DistanceUnit.METER, botPose.getPosition().y, -botPose.getPosition().x, AngleUnit.DEGREES, botPose.getOrientation().getYaw(AngleUnit.DEGREES));
+        return new Pose2D(DistanceUnit.METER, botPose.getPosition().y, -botPose.getPosition().x, AngleUnit.DEGREES, botPose.getOrientation().getYaw(AngleUnit.DEGREES) - turretYawDegrees);
     }
-
-
 }
