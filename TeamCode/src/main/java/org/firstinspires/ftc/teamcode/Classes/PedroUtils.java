@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.Classes;
 
 import com.pedropathing.geometry.Pose;
 
-public class PedroPoses
+public class PedroUtils
 {
 
     /**
@@ -37,5 +37,8 @@ public class PedroPoses
                     new Pose(12.6, 35.8, Math.toRadians(180)),      // intake3
                     new Pose(59.7, 103.5)                           // park
             };
+
+
+
 
 }

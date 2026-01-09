@@ -199,8 +199,6 @@ public class TeleOpV2 extends OpMode
             }
         }
 
-
-
         // Endgame Warning
         if (totalRuntime.seconds() > 100 && !endgame)
         {

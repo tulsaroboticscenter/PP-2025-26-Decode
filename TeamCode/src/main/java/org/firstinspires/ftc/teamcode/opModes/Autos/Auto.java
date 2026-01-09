@@ -37,7 +37,7 @@ public class Auto extends OpMode {
 
     public Pose2D goalPosition = null;
 
-    // BLUE NEAR
+    // BLUE NEAR POSES (Tested. Works)
 
     private final Pose startPose = new Pose(23.7, 129.2, Math.toRadians(144));
     private final Pose scorePose = new Pose(59.9, 84.1, Math.toRadians(180));
@@ -50,18 +50,20 @@ public class Auto extends OpMode {
 
     private PathChain scorePreload, intakeLine1, scoreLine1, lineupIntake2, intakeLine2, scoreLine2, lineupIntake3, intakeLine3, scoreLine3;
 
-    // RED NEAR
+    // RED NEAR POSES (Not implemented or tested yet)
 
-    private final Pose redNearStartPose = new Pose(23.7, 129.2, Math.toRadians(144));
-    private final Pose redNearScorePose = new Pose(59.9, 84.1, Math.toRadians(180));
-    private final Pose redNearIntake1 = new Pose(16.3, 84.1, Math.toRadians(180));
-    private final Pose redNearPrepIntake2 = new Pose(42.8, 59.7, Math.toRadians(180));
-    private final Pose redNearIntake2 = new Pose(12.6, 59.5, Math.toRadians(180));
-    private final Pose redNearPrepIntake3 = new Pose(42.8, 35.8, Math.toRadians(180));
-    private final Pose redNearIntake3 = new Pose(12.6, 35.8, Math.toRadians(180));
-    private final Pose redNearPark = new Pose(59.7, 103.5);
+    private final Pose redNearStartPose = new Pose(120.3, 129.2, Math.toRadians(36));
+    private final Pose redNearScorePose = new Pose(84.1, 84.1, Math.toRadians(0));
+    private final Pose redNearIntake1 = new Pose(127.7, 84.1, Math.toRadians(0));
+    private final Pose redNearPrepIntake2 = new Pose(101.2, 59.7, Math.toRadians(0));
+    private final Pose redNearIntake2 = new Pose(131.4, 59.5, Math.toRadians(0));
+    private final Pose redNearPrepIntake3 = new Pose(101.2, 35.8, Math.toRadians(0));
+    private final Pose redNearIntake3 = new Pose(131.4, 35.8, Math.toRadians(0));
+    private final Pose redNearPark = new Pose(84.3, 103.5);
 
-    public void buildPaths() {
+    private PathChain redNearScorePreload, redNearIntakeLine1, redNearScoreLine1, redNearLineupIntake2, redNearIntakeLine2, redNearScoreLine2, redNearLineupIntake3, redNearIntakeLine3, redNearScoreLine3;
+
+    public void buildPathsBlueNear() {
         scorePreload = follower.pathBuilder()
                 .addPath(new BezierLine(startPose, scorePose))
                 .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
@@ -276,7 +278,7 @@ public class Auto extends OpMode {
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
         follower = Constants.createFollower(hardwareMap);
-        buildPaths();
+        buildPathsBlueNear();
         follower.setStartingPose(startPose);
 
         hw.initPedro(hardwareMap);
