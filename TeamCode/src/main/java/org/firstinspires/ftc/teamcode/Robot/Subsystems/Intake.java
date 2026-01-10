@@ -28,6 +28,10 @@ public class Intake
     {
         intakeMotor.setPower(1);
     }
+
+    public void partialIntake() {
+        intakeMotor.setPower(0.5);
+    }
     public void outtake()
     {
         intakeMotor.setPower(-1);

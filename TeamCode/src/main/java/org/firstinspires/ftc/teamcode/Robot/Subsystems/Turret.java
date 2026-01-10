@@ -26,8 +26,8 @@ public class Turret
     public DcMotorEx turretRotationMotor = null; // trMotor
     public DcMotorEx launcherL = null;
     public DcMotorEx launcherR = null;
-    private Servo hoodServoL = null;
-    private Servo hoodServoR = null;
+    public Servo hoodServoL = null;
+    public Servo hoodServoR = null;
     private RevTouchSensor turretLimitSwitch = null;
 
     @Sorter(sort = 0)
@@ -88,6 +88,7 @@ public class Turret
 
     public final double LAUNCHER_LOW_VELOCITY = 1000;
     public final double LAUNCHER_MEDIUM_VELOCITY = 1400;
+    public final double LAUNCHER_MEDIUM_VELOCITY_AUTO = 1600;
     public final double LAUNCHER_HIGH_VELOCITY = 1700;
 
     public final double HOOD_LOW_POSITION = 0;
@@ -146,6 +147,8 @@ public class Turret
         {
             hoodServoL.setPosition(1);
             hoodServoR.setPosition(0);
+//            launcherL.setDirection(DcMotorSimple.Direction.REVERSE);
+//            launcherR.setDirection(DcMotorSimple.Direction.FORWARD);
         }
         else
         {
