@@ -88,7 +88,7 @@ public class Turret
 
     public final double LAUNCHER_LOW_VELOCITY = 1000;
     public final double LAUNCHER_MEDIUM_VELOCITY = 1400;
-    public final double LAUNCHER_MEDIUM_VELOCITY_AUTO = 1600;
+    public final double LAUNCHER_MEDIUM_VELOCITY_AUTO = 2000;
     public final double LAUNCHER_HIGH_VELOCITY = 1700;
 
     public final double HOOD_LOW_POSITION = 0;

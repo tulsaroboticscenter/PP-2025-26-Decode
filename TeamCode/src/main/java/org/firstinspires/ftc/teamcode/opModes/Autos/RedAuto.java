@@ -38,12 +38,12 @@ public class RedAuto extends OpMode {
     // RED NEAR POSES (Not implemented or tested yet)
 
     private final Pose redNearStartPose = new Pose(120.3, 129.2, Math.toRadians(36));
-    private final Pose redNearScorePose = new Pose(93, 84.1, Math.toRadians(90));
-    private final Pose redNearIntake1 = new Pose(127.7, 84.1, Math.toRadians(90));
-    private final Pose redNearPrepIntake2 = new Pose(101.2, 59.7, Math.toRadians(90));
-    private final Pose redNearIntake2 = new Pose(131.4, 59.5, Math.toRadians(90));
-    private final Pose redNearPrepIntake3 = new Pose(101.2, 35.8, Math.toRadians(90));
-    private final Pose redNearIntake3 = new Pose(131.4, 35.8, Math.toRadians(90));
+    private final Pose redNearScorePose = new Pose(85, 84.1, Math.toRadians(0));
+    private final Pose redNearIntake1 = new Pose(120.7, 84.1, Math.toRadians(0));
+    private final Pose redNearPrepIntake2 = new Pose(101.2, 59.7, Math.toRadians(0));
+    private final Pose redNearIntake2 = new Pose(125.4, 59.5, Math.toRadians(0));
+    private final Pose redNearPrepIntake3 = new Pose(101.2, 35.8, Math.toRadians(0));
+    private final Pose redNearIntake3 = new Pose(125.4, 35.8, Math.toRadians(0));
     private final Pose redNearPark = new Pose(84.3, 103.5);
 
 
@@ -59,42 +59,42 @@ public class RedAuto extends OpMode {
 
         redNearIntakeLine1 = follower.pathBuilder()
                 .addPath(new BezierLine(redNearScorePose, redNearIntake1))
-                .setConstantHeadingInterpolation(Math.toRadians(90))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         redNearScoreLine1 = follower.pathBuilder()
                 .addPath(new BezierLine(redNearIntake1, redNearScorePose))
-                .setConstantHeadingInterpolation(Math.toRadians(90))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         redNearLineupIntake2 = follower.pathBuilder()
                 .addPath(new BezierLine(redNearScorePose, redNearPrepIntake2))
-                .setConstantHeadingInterpolation(Math.toRadians(90))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         redNearIntakeLine2 = follower.pathBuilder()
                 .addPath(new BezierLine(redNearPrepIntake2, redNearIntake2))
-                .setConstantHeadingInterpolation(Math.toRadians(90))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         redNearScoreLine2 = follower.pathBuilder()
                 .addPath(new BezierLine(redNearIntake2, redNearScorePose))
-                .setConstantHeadingInterpolation(Math.toRadians(90))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         redNearLineupIntake3 = follower.pathBuilder()
                 .addPath(new BezierLine(redNearScorePose, redNearPrepIntake3))
-                .setConstantHeadingInterpolation(Math.toRadians(90))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         redNearIntakeLine3 = follower.pathBuilder()
                 .addPath(new BezierLine(redNearPrepIntake3, redNearIntake3))
-                .setConstantHeadingInterpolation(Math.toRadians(90))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         redNearScoreLine3 = follower.pathBuilder()
                 .addPath(new BezierLine(redNearIntake3, redNearPark))
-                .setConstantHeadingInterpolation(Math.toRadians(90))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
     }
 
@@ -108,10 +108,10 @@ public class RedAuto extends OpMode {
                 //hw.turret.setHood(hw.turret.HOOD_MEDIUM_POSITION);
                 //hw.turret.hoodServoL.setPosition(hw.turret.HOOD_MEDIUM_POSITION);
                 hw.turret.hoodServoR.setPosition(1 - hw.turret.HOOD_MEDIUM_POSITION);
-                hw.intake.partialIntake();
+                hw.intake.intake();
                 telemetry.addLine("spinning up flywheel-completed");
 
-                follower.followPath(redNearScorePreload, false);
+                follower.followPath(redNearScorePreload, true);
                 shooterTimer.resetTimer();
                 setPathState(1);
                 break;
@@ -126,7 +126,7 @@ public class RedAuto extends OpMode {
                         hw.intake.closeGate();
                         hw.intake.intake();
                         //hw.turret.haltFlywheel();
-                        follower.followPath(redNearIntakeLine1, false);
+                        follower.followPath(redNearIntakeLine1, true);
                         setPathState(2);
                     }
 
@@ -145,15 +145,15 @@ public class RedAuto extends OpMode {
                     //hw.turret.setHood(hw.turret.HOOD_MEDIUM_POSITION);
                     //hw.turret.hoodServoL.setPosition(hw.turret.HOOD_MEDIUM_POSITION);
                     hw.turret.hoodServoR.setPosition(1 - hw.turret.HOOD_MEDIUM_POSITION);
-                    hw.intake.partialIntake();
-                    follower.followPath(redNearScoreLine1, false);
+                    hw.intake.intake();
+                    follower.followPath(redNearScoreLine1, true);
                     setPathState(3);
                 }
                 break;
 
             case 3:
                 if (follower.isBusy())
-                    hw.intake.partialIntake();
+                    hw.intake.intake();
                 hw.intake.closeGate();
             {
 
@@ -167,7 +167,7 @@ public class RedAuto extends OpMode {
                     //hw.turret.haltFlywheel();
                     hw.intake.closeGate();
                     hw.intake.stop();
-                    follower.followPath(redNearLineupIntake2, false);
+                    follower.followPath(redNearLineupIntake2, true);
                     setPathState(4);
                 }
             }
@@ -179,7 +179,7 @@ public class RedAuto extends OpMode {
             case 4:
                 if (!follower.isBusy()) {
                     hw.intake.intake();
-                    follower.followPath(redNearIntakeLine2, false);
+                    follower.followPath(redNearIntakeLine2, true);
                     setPathState(5);
                 }
                 break;
@@ -187,7 +187,7 @@ public class RedAuto extends OpMode {
             case 5:
                 if (!follower.isBusy()) {
                     hw.turret.spinUpFlywheel();
-                    follower.followPath(redNearScoreLine2, false);
+                    follower.followPath(redNearScoreLine2, true);
                     setPathState(6);
                 }
                 break;
@@ -205,7 +205,7 @@ public class RedAuto extends OpMode {
                         //hw.turret.haltFlywheel();
                         hw.intake.closeGate();
                         hw.intake.stop();
-                        follower.followPath(redNearLineupIntake3, false);
+                        follower.followPath(redNearLineupIntake3, true);
                         setPathState(7);
                     }
                 }
@@ -214,7 +214,7 @@ public class RedAuto extends OpMode {
             case 7:
                 if (!follower.isBusy()) {
                     hw.intake.intake();
-                    follower.followPath(redNearIntakeLine3, false);
+                    follower.followPath(redNearIntakeLine3, true);
                     setPathState(8);
                 }
                 break;
@@ -222,7 +222,7 @@ public class RedAuto extends OpMode {
             case 8:
                 if (!follower.isBusy()) {
                     hw.turret.spinUpFlywheel();
-                    follower.followPath(redNearScoreLine3, false);
+                    follower.followPath(redNearScoreLine3, true);
                     shooterTimer.resetTimer();
                     setPathState(9);
                 }
@@ -240,24 +240,6 @@ public class RedAuto extends OpMode {
                         setPathState(-1);
                     }
                 }
-                break;
-
-
-            case 99:
-                hw.turret.isFlywheelSpinning = true;
-                //hw.turret.setFlywheelVelocity(hw.turret.LAUNCHER_HIGH_VELOCITY);
-                hw.turret.launcherL.setVelocity(hw.turret.LAUNCHER_MEDIUM_VELOCITY);
-                hw.turret.launcherR.setVelocity(hw.turret.LAUNCHER_MEDIUM_VELOCITY);
-                hw.turret.setHood(hw.turret.HOOD_MEDIUM_POSITION);
-                telemetry.addLine("spinning up flywheel-completed");
-
-                //follower.followPath(scorePreload, false);
-                shooterTimer.resetTimer();
-                setPathState(100);
-                break;
-
-            case 100:
-                telemetry.addLine("spinning up flywheel-completed");
                 break;
         }
     }
