@@ -11,7 +11,7 @@ public class Intake
     private Servo gateServo = null;
 
     private double gateOpenPosition = 0.8;
-    private double gateClosedPosition = 0.5;
+    private double gateClosedPosition = 0.4;
 
     public void init(HardwareMap hwMap)
     {
@@ -28,9 +28,8 @@ public class Intake
     {
         intakeMotor.setPower(1);
     }
-
     public void partialIntake() {
-        intakeMotor.setPower(0.5);
+        intakeMotor.setPower(0.8);
     }
     public void outtake()
     {
