@@ -100,15 +100,14 @@ public class Turret
     public boolean isFlywheelSpinning = false;
 
     // Variables for quadratic equations (y = ax^2 + bx + c)
-    public double hoodA = -6.08045e-9;
-    public double hoodB = 0.0000238999;
-    public double hoodC = -0.029511;
-    public double hoodD = 11.69338;
+    public double hoodA = -1.64755e-9;
+    public double hoodB = 0.00000884717;
+    public double hoodC = -0.0149551;
+    public double hoodD = 8.113;
 
-    public double flywheelA = 0.00014303;
-    public double flywheelB = -0.061377;
-    public double flywheelC = 12.39763;
-    public double flywheelD = 593.94042;
+    public double flywheelA = 0.0583698;
+    public double flywheelB = -1.93979;
+    public double flywheelC = 1416.08533;
 
     private Pose2D currentPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0);
     private Pose2D targetPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0);
@@ -161,8 +160,8 @@ public class Turret
 
     public void initHood()
     {
-        hoodServoL.setPosition(1);
         hoodServoR.setPosition(0);
+        hoodServoL.setPosition(1);
     }
 
     public void setHood(double position)
@@ -267,12 +266,12 @@ public class Turret
             distanceInches = getDistanceToTarget(currentPosition, goalPosition);
         }
 
-        velocity = ((flywheelA * Math.pow(distanceInches, 3)) + (flywheelB * Math.pow(distanceInches, 2)) + (flywheelC * distanceInches) + flywheelD);
+        velocity = ((flywheelA * Math.pow(distanceInches, 2)) + (flywheelB * distanceInches) + flywheelC);
         if (distanceInches > 441)
         {
             velocity = 2684;
         }
-        Range.clip(velocity, 600, 1900);
+        Range.clip(velocity, 600, 2500);
 
         double averageVelocity = (launcherL.getVelocity() + launcherR.getVelocity()) / 2;
 
