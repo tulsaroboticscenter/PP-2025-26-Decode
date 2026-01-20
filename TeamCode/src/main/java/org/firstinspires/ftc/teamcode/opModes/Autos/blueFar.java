@@ -35,31 +35,13 @@ public class blueFar extends OpMode {
     public Pose2D goalPosition = null;
 
     private final Pose startPose = new Pose(60, 9, Math.toRadians(90));
-    private final Pose scorePose = new Pose(59.9, 84.1, Math.toRadians(180));
-    private final Pose intake1 = new Pose(20, 84.1, Math.toRadians(180));
-    private final Pose prepIntake2 = new Pose(42.8, 59.7, Math.toRadians(180));
-    private final Pose intake2 = new Pose(19, 59.5, Math.toRadians(180));
-    private final Pose prepIntake3 = new Pose(48, 37, Math.toRadians(180));
-    private final Pose intake3 = new Pose(17, 35.8, Math.toRadians(180));
-    private final Pose park = new Pose(19.058, 106.796, Math.toRadians(-90));
+    private final Pose park = new Pose(36, 10, Math.toRadians(90));
 
 
     private PathChain parkPath, intakeCurve1, scoreLine1, intakeCurve2, scoreLine2, intakeCurve3, scoreLine3;
 
 
     public void buildPaths() {
-        switch (numOfSpikes)
-        {
-            case 3:
-
-            case 2:
-
-            case 1:
-
-            case 0:
-
-            default:
-        }
         intakeCurve1 = follower.pathBuilder().addPath(
                         new BezierCurve(
                                 new Pose(59.883, 8.932),
@@ -123,13 +105,12 @@ public class blueFar extends OpMode {
                 .setReversed()
                 .build();
     }
-    }
 
     public void Park()
     {
         parkPath = follower.pathBuilder()
                 .addPath(new BezierLine(follower.getPose(), park))
-                .setConstantHeadingInterpolation(Math.toRadians(-90))
+                .setConstantHeadingInterpolation(park.getHeading())
                 .build();
 
         follower.followPath(parkPath);
@@ -140,10 +121,6 @@ public class blueFar extends OpMode {
             // Back up to shoot
             case 0:
                 hw.turret.spinUpFlywheel();
-                hw.intake.intake();
-                telemetry.addLine("spinning up flywheel-completed");
-
-                follower.followPath(scorePreload, true);
                 shooterTimer.resetTimer();
                 setPathState(1);
                 break;
@@ -152,8 +129,11 @@ public class blueFar extends OpMode {
             case 1:
                 if (!follower.isBusy())
                 {
-                    hw.intake.intake();
-                    hw.intake.openGate();
+                    if (shooterTimer.getElapsedTime() > 1000)
+                    {
+                        hw.intake.intake();
+                        hw.intake.openGate();
+                    }
 
                     if (shooterTimer.getElapsedTime() > 4000)
                     {
@@ -162,13 +142,13 @@ public class blueFar extends OpMode {
                         // Check if we go to the next spike
                         if (numOfSpikes > 0)
                         {
-                            follower.followPath(intakeLine1, true);
+                            follower.followPath(intakeCurve1, true);
                             setPathState(2);
                         }
                         else
                         {
                             Park();
-                            setPathState(10);
+                            setPathState(8);
                         }
                     }
                 }
@@ -194,20 +174,20 @@ public class blueFar extends OpMode {
 
                     hw.intake.openGate();
 
-                    if (shooterTimer.getElapsedTime() > 4000)
+                    if (shooterTimer.getElapsedTime() > 3000)
                     {
                         hw.intake.closeGate();
-                        hw.intake.stop();
+                        hw.intake.intake();
                         // Check if we go to the next spike
                         if (numOfSpikes > 1)
                         {
-                            follower.followPath(lineupIntake2, true);
+                            follower.followPath(intakeCurve2, true);
                             setPathState(4);
                         }
                         else
                         {
                             Park();
-                            setPathState(10);
+                            setPathState(8);
                         }
                     }
                 }
@@ -219,23 +199,15 @@ public class blueFar extends OpMode {
                 // Intake again
             case 4:
                 if (!follower.isBusy()) {
-                    hw.intake.intake();
-                    follower.followPath(intakeLine2, true);
+                    hw.intake.stop();
+                    follower.followPath(scoreLine2, true);
+                    shooterTimer.resetTimer();
                     setPathState(5);
                 }
                 break;
 
-                // Go back
-            case 5:
-                if (!follower.isBusy()) {
-                    hw.turret.spinUpFlywheel();
-                    follower.followPath(scoreLine2, true);
-                    setPathState(6);
-                }
-                break;
-
                 // Shoot
-            case 6:
+            case 5:
                 if (follower.isBusy())
                 {
                     shooterTimer.resetTimer();
@@ -243,46 +215,37 @@ public class blueFar extends OpMode {
                 if (!follower.isBusy()) {
                     hw.intake.openGate();
 
-                    if (shooterTimer.getElapsedTime() > 4000)
+                    if (shooterTimer.getElapsedTime() > 3000)
                     {
                         hw.intake.closeGate();
                         hw.intake.stop();
                         // Check if we go to the next spike
                         if (numOfSpikes > 2)
                         {
-                            follower.followPath(lineupIntake3, true);
-                            setPathState(7);
+                            follower.followPath(intakeCurve3, true);
+                            setPathState(6);
                         }
                         else
                         {
                             Park();
-                            setPathState(10);
+                            setPathState(8);
                         }
                     }
                 }
                 break;
 
-                // Intake again
-            case 7:
-                if (!follower.isBusy()) {
-                    hw.intake.intake();
-                    follower.followPath(intakeLine3, true);
-                    setPathState(8);
-                }
-                break;
-
                 // Go back
-            case 8:
+            case 6:
                 if (!follower.isBusy()) {
                     hw.turret.spinUpFlywheel();
                     follower.followPath(scoreLine3, true);
                     shooterTimer.resetTimer();
-                    setPathState(9);
+                    setPathState(7);
                 }
                 break;
 
                 // Shoot
-            case 9:
+            case 7:
                 if (follower.isBusy())
                 {
                     shooterTimer.resetTimer();
@@ -292,13 +255,13 @@ public class blueFar extends OpMode {
                     if (shooterTimer.getElapsedTime() > 4000)
                     {
                         Park();
-                        setPathState(10);
+                        setPathState(8);
                     }
                 }
                 break;
 
                 // Park
-            case 10:
+            case 8:
                 if (!follower.isBusy())
                 {
                     setPathState(-1);
