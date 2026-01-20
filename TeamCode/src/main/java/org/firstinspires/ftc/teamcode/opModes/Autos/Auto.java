@@ -8,6 +8,7 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -19,6 +20,7 @@ import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
 import org.firstinspires.ftc.teamcode.Robot.HardwareManager;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
+@Disabled
 @Autonomous(name = "Auto", group = "Autonomous", preselectTeleOp = "TeleOp")
 public class Auto extends OpMode {
 
@@ -48,7 +50,7 @@ public class Auto extends OpMode {
 
     private PathChain scorePreload, intakeLine1, scoreLine1, lineupIntake2, intakeLine2, scoreLine2, lineupIntake3, intakeLine3, scoreLine3;
 
-    // RED NEAR POSES (Not implemented or tested yet)
+    // RED NEAR POSES
 
     private final Pose redNearStartPose = new Pose(120.3, 129.2, Math.toRadians(36));
     private final Pose redNearScorePose = new Pose(93, 84.1, Math.toRadians(90));

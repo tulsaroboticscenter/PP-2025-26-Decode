@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -22,6 +23,9 @@ public class Drivetrain
     public DcMotorEx rightFront = null;
     public DcMotorEx leftBack = null;
     public DcMotorEx rightBack = null;
+
+    public Servo park1 = null;
+    public Servo park2 = null;
 
     public void init(HardwareMap hwMap)
     {
@@ -44,6 +48,12 @@ public class Drivetrain
         rightFront.setZeroPowerBehavior(BRAKE);
         leftBack.setZeroPowerBehavior(BRAKE);
         rightBack.setZeroPowerBehavior(BRAKE);
+
+        park1 = hwMap.get(Servo.class, "park1");
+        park2 = hwMap.get(Servo.class, "park2");
+
+        park1.setPosition(0 + startingParkPosition);
+        park2.setPosition(1 - startingParkPosition);
     }
 
     double Y = 0;
@@ -56,6 +66,11 @@ public class Drivetrain
     double backLeftPower = 0;
     double frontRightPower = 0;
     double backRightPower = 0;
+
+    public boolean parked = false;
+
+    public double parkRange = 0.5;
+    public double startingParkPosition = 0.05;
 
     double offset = 0;
 
@@ -182,6 +197,34 @@ public class Drivetrain
         double newStrafe = r * Math.cos(theta);
 
         robotCentricDrive(newForward, newStrafe, rotate);
+    }
+
+    public void park()
+    {
+        parked = true;
+        park1.setPosition((0 + startingParkPosition) + parkRange);
+        park2.setPosition((1 - startingParkPosition) - parkRange);
+    }
+    public void unpark()
+    {
+        parked = false;
+        park1.setPosition(0 + startingParkPosition);
+        park2.setPosition(1 - startingParkPosition);
+    }
+
+    public void togglePark()
+    {
+        if (parked)
+        {
+            park1.setPosition(0 + startingParkPosition);
+            park2.setPosition(1 - startingParkPosition);
+        }
+        else
+        {
+            park1.setPosition((0 + startingParkPosition) + parkRange);
+            park2.setPosition((1 - startingParkPosition) - parkRange);
+        }
+        parked = !parked;
     }
 
 

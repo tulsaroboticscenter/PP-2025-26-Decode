@@ -221,6 +221,11 @@ public class TeleOp extends OpMode
             isIntaking = !isIntaking;
         }
 
+        if (gamepad1.rightBumperWasPressed())
+        {
+            hw.drivetrain.togglePark();
+        }
+
         if (gamepad1.x)
         {
             hw.drivetrain.slowDown();
@@ -241,6 +246,8 @@ public class TeleOp extends OpMode
             gamepad1.setLedColor(1, 1, 1, 1000000000);
             gamepad1.rumbleBlips(4);
         }
+
+
 
         ptelemetry.setUpdateInterval(15);
 
@@ -286,6 +293,7 @@ public class TeleOp extends OpMode
 
         //telemetry.addLine("limelight robot position: " + PoseUtils.poseToString(hw.limelight.getRobotPosition(), DistanceUnit.INCH, AngleUnit.DEGREES));
         telemetry.addLine("Targeting: " + isTargeting);
+        telemetry.addLine("Parked: " + hw.drivetrain.parked);
         telemetry.addLine("Hood Target Position: " + String.format(Locale.US, "%.2f", hw.turret.getHoodTarget()));
         telemetry.addLine("Flywheel Target Velocity: " + String.format(Locale.US, "%.2f", hw.turret.getCurrentVelocity()));
         telemetry.addLine("Position: " + PoseUtils.poseToString(pos, DistanceUnit.INCH, AngleUnit.DEGREES));
