@@ -237,7 +237,7 @@ public class blueFar extends OpMode {
                 // Go back
             case 6:
                 if (!follower.isBusy()) {
-                    hw.turret.spinUpFlywheel();
+                    //hw.turret.spinUpFlywheel();
                     follower.followPath(scoreLine3, true);
                     shooterTimer.resetTimer();
                     setPathState(7);
@@ -287,7 +287,8 @@ public class blueFar extends OpMode {
         hw.turret.update();
 
         hw.turret.setTarget(follower.getPose(), goalPosition);
-        hw.turret.updateFlywheelAndHood(follower.getPose(), goalPosition);
+//        hw.turret.updateFlywheelAndHood(follower.getPose(), goalPosition);
+        hw.turret.manuallySetFlywheelAndHood(2200, 0.9);
 
         // Constantly save the last known position
         Field.lastKnownPosition = new Pose2D(DistanceUnit.INCH, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.RADIANS, follower.getHeading());
@@ -331,6 +332,7 @@ public class blueFar extends OpMode {
         hw.initPedro(hardwareMap);
         hw.lights.setLightMode(RGBLightController.LEDMode.PULSE_WAKE);
         hw.lights.setLightColor(RGBLightController.RED);
+        hw.intake.closeGate();
 
         shotsFired = false;
 

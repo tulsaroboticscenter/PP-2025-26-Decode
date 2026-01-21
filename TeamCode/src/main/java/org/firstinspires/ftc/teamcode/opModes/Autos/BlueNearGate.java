@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opModes.Autos;
 
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
@@ -17,8 +18,8 @@ import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
 import org.firstinspires.ftc.teamcode.Robot.HardwareManager;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Blue Near", group = "Autonomous", preselectTeleOp = "TeleOp")
-public class BlueNear extends OpMode {
+@Autonomous(name = "Blue Near Gate", group = "Autonomous", preselectTeleOp = "TeleOp")
+public class BlueNearGate extends OpMode {
 
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
@@ -35,7 +36,9 @@ public class BlueNear extends OpMode {
 
     private final Pose startPose = new Pose(26.33, 132.117, Math.toRadians(-126.678));
     private final Pose scorePose = new Pose(57.9, 84.1, Math.toRadians(180));
-    private final Pose intake1 = new Pose(23, 84.1, Math.toRadians(180));
+    private final Pose intake1 = new Pose(25, 84.1, Math.toRadians(180));
+    private final Pose clearGate = new Pose(14.4, 75.2, Math.toRadians(90));
+    private final Pose gateControlPoint = new Pose(30, 69.1);
     private final Pose prepIntake2 = new Pose(42.8, 59.7, Math.toRadians(180));
     private final Pose intake2 = new Pose(20, 59.5, Math.toRadians(180));
     private final Pose prepIntake3 = new Pose(48, 40, Math.toRadians(180));
@@ -43,7 +46,7 @@ public class BlueNear extends OpMode {
     private final Pose park = new Pose(29.058, 85.796, Math.toRadians(-90));
 
 
-    private PathChain scorePreload, parkPath, intakeLine1, scoreLine1, lineupIntake2, intakeLine2, scoreLine2, lineupIntake3, intakeLine3, scoreLine3;
+    private PathChain scorePreload, parkPath, intakeLine1, scoreLine1, lineupIntake2, intakeLine2, scoreLine2, lineupIntake3, intakeLine3, scoreLine3, clearGatePath;
 
 
     public void buildPaths() {
@@ -58,7 +61,6 @@ public class BlueNear extends OpMode {
         scoreLine3 = follower.pathBuilder()
                 .addPath(new BezierLine(intake3, scorePose))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
-                .setVelocityConstraint(.5)
                 .build();
         lineupIntake2 = follower.pathBuilder()
                 .addPath(new BezierLine(scorePose, prepIntake2))
@@ -71,21 +73,22 @@ public class BlueNear extends OpMode {
         scoreLine2 = follower.pathBuilder()
                 .addPath(new BezierLine(intake2, scorePose))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
-                .setVelocityConstraint(.5)
                 .build();
         intakeLine1 = follower.pathBuilder()
                 .addPath(new BezierLine(scorePose, intake1))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
+        clearGatePath = follower.pathBuilder()
+                .addPath(new BezierCurve(intake1, gateControlPoint, clearGate))
+                .setConstantHeadingInterpolation(intake1.getHeading())
+                .build();
         scoreLine1 = follower.pathBuilder()
                 .addPath(new BezierLine(intake1, scorePose))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
-                .setVelocityConstraint(.5)
                 .build();
         scorePreload = follower.pathBuilder()
                 .addPath(new BezierLine(startPose, scorePose))
                 .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
-                .setVelocityConstraint(.5)
                 .build();
     }
 
@@ -144,18 +147,24 @@ public class BlueNear extends OpMode {
                 }
                 break;
 
-                // Go back to shooting line
             case 2:
+                if (!follower.isBusy()) {
+                    follower.followPath(clearGatePath, true);
+                    setPathState(3);
+                }
+
+                // Go back to shooting line
+            case 3:
                 if (!follower.isBusy()) {
                     hw.intake.closeGate();
                     hw.intake.intake();
                     follower.followPath(scoreLine1, true);
-                    setPathState(3);
+                    setPathState(4);
                 }
                 break;
 
                 // Shoot
-            case 3:
+            case 4:
                 if (!follower.isBusy()) {
 
                     if(shooterTimer.getElapsedTime() > 1000 && shooterTimer.getElapsedTime() < 2000){
@@ -169,7 +178,7 @@ public class BlueNear extends OpMode {
                         if (numOfSpikes > 1)
                         {
                             follower.followPath(lineupIntake2, true);
-                            setPathState(4);
+                            setPathState(5);
                         }
                         else
                         {
@@ -184,25 +193,25 @@ public class BlueNear extends OpMode {
                 break;
 
                 // Intake 2nd line
-            case 4:
+            case 5:
                 if (!follower.isBusy()) {
                     hw.intake.intake();
                     follower.followPath(intakeLine2, true);
-                    setPathState(5);
-                }
-                break;
-
-                // Go to shoot
-            case 5:
-                if (!follower.isBusy()) {
-                    hw.turret.spinUpFlywheel();
-                    follower.followPath(scoreLine2, true);
                     setPathState(6);
                 }
                 break;
 
-                // Shoot
+                // Go to shoot
             case 6:
+                if (!follower.isBusy()) {
+                    hw.turret.spinUpFlywheel();
+                    follower.followPath(scoreLine2, true);
+                    setPathState(7);
+                }
+                break;
+
+                // Shoot
+            case 7:
                 if (!follower.isBusy()) {
                     if(shooterTimer.getElapsedTime() > 1000 && shooterTimer.getElapsedTime() < 2000){
                         hw.intake.openGate();
@@ -215,7 +224,7 @@ public class BlueNear extends OpMode {
                         if (numOfSpikes > 2)
                         {
                             follower.followPath(lineupIntake3, true);
-                            setPathState(7);
+                            setPathState(8);
                         }
                         else
                         {
@@ -230,26 +239,26 @@ public class BlueNear extends OpMode {
                 break;
 
                 // Intake 3rd line
-            case 7:
+            case 8:
                 if (!follower.isBusy()) {
                     hw.intake.intake();
                     follower.followPath(intakeLine3, true);
-                    setPathState(8);
-                }
-                break;
-
-                // Go back to shoot
-            case 8:
-                if (!follower.isBusy()) {
-                    hw.turret.spinUpFlywheel();
-                    follower.followPath(scoreLine3, true);
-                    shooterTimer.resetTimer();
                     setPathState(9);
                 }
                 break;
 
-                // Shoot
+                // Go back to shoot
             case 9:
+                if (!follower.isBusy()) {
+                    hw.turret.spinUpFlywheel();
+                    follower.followPath(scoreLine3, true);
+                    shooterTimer.resetTimer();
+                    setPathState(10);
+                }
+                break;
+
+                // Shoot
+            case 10:
                 if (follower.isBusy())
                 {
                     shooterTimer.resetTimer();
@@ -260,13 +269,13 @@ public class BlueNear extends OpMode {
                     {
                         hw.intake.closeGate();
                         Park();
-                        setPathState(10);
+                        setPathState(11);
                     }
                 }
                 break;
 
                 // Park
-            case 10:
+            case 11:
                 hw.intake.closeGate();
                 if (!follower.isBusy())
                 {

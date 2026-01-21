@@ -36,11 +36,11 @@ public class RedNear extends OpMode {
     private final Pose startPose = new Pose(117.670, 132.117, Math.toRadians(-53.322));
     private final Pose scorePose = new Pose(85, 84.1, Math.toRadians(0));
     private final Pose intake1 = new Pose(120.7, 84.1, Math.toRadians(0));
-    private final Pose prepIntake2 = new Pose(101.2, 59.7, Math.toRadians(0));
+    private final Pose prepIntake2 = new Pose(95.2, 59.7, Math.toRadians(0));
     private final Pose intake2 = new Pose(125.4, 59.5, Math.toRadians(0));
-    private final Pose prepIntake3 = new Pose(101.2, 35.8, Math.toRadians(0));
+    private final Pose prepIntake3 = new Pose(95.2, 35.8, Math.toRadians(0));
     private final Pose intake3 = new Pose(125.4, 35.8, Math.toRadians(0));
-    private final Pose park = new Pose(124.942, 106.796, Math.toRadians(-90));
+    private final Pose park = new Pose(110.942, 90, Math.toRadians(-90));
 
 
     private PathChain scorePreload, parkPath, intakeLine1, scoreLine1, lineupIntake2, intakeLine2, scoreLine2, lineupIntake3, intakeLine3, scoreLine3;
@@ -61,7 +61,7 @@ public class RedNear extends OpMode {
                         .build();
 
                 scoreLine3 = follower.pathBuilder()
-                        .addPath(new BezierLine(intake3, park))
+                        .addPath(new BezierLine(intake3, scorePose))
                         .setConstantHeadingInterpolation(Math.toRadians(0))
                         .build();
 
@@ -132,7 +132,7 @@ public class RedNear extends OpMode {
                     hw.intake.intake();
                     hw.intake.openGate();
 
-                    if (shooterTimer.getElapsedTime() > 4000)
+                    if (shooterTimer.getElapsedTime() > 3000)
                     {
                         hw.intake.closeGate();
                         hw.intake.intake();
@@ -171,7 +171,7 @@ public class RedNear extends OpMode {
 
                     hw.intake.openGate();
 
-                    if (shooterTimer.getElapsedTime() > 4000)
+                    if (shooterTimer.getElapsedTime() > 3000)
                     {
                         hw.intake.closeGate();
                         hw.intake.stop();
@@ -220,7 +220,7 @@ public class RedNear extends OpMode {
                 if (!follower.isBusy()) {
                     hw.intake.openGate();
 
-                    if (shooterTimer.getElapsedTime() > 4000)
+                    if (shooterTimer.getElapsedTime() > 3000)
                     {
                         hw.intake.closeGate();
                         hw.intake.stop();
@@ -266,7 +266,7 @@ public class RedNear extends OpMode {
                 }
                 if (!follower.isBusy()) {
                     hw.intake.openGate();
-                    if (shooterTimer.getElapsedTime() > 4000)
+                    if (shooterTimer.getElapsedTime() > 3000)
                     {
                         Park();
                         setPathState(10);
@@ -301,7 +301,7 @@ public class RedNear extends OpMode {
         hw.turret.update();
 
         hw.turret.setTarget(follower.getPose(), goalPosition);
-        hw.turret.updateFlywheelAndHood(follower.getPose(), goalPosition);
+        hw.turret.manuallySetFlywheelAndHood(1450, 0.8);
 
         // Constantly save the last known position
         Field.lastKnownPosition = new Pose2D(DistanceUnit.INCH, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.RADIANS, follower.getHeading());
@@ -340,11 +340,13 @@ public class RedNear extends OpMode {
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
         follower = Constants.createFollower(hardwareMap);
-        buildPaths();
         follower.setStartingPose(startPose);
+        buildPaths();
         hw.initPedro(hardwareMap);
         hw.lights.setLightMode(RGBLightController.LEDMode.PULSE_WAKE);
         hw.lights.setLightColor(RGBLightController.RED);
+
+        hw.intake.closeGate();
 
         shotsFired = false;
 
@@ -374,7 +376,7 @@ public class RedNear extends OpMode {
         {
             numOfSpikes--;
         }
-
+        telemetry.addData("Current Location", follower.getPose());
         telemetry.addLine("Side: " + ((currentSide == Field.Side.RED) ? "Red" : "Blue"));
         telemetry.addLine("Starting Position: " + ((currentStartingPosition == Field.StartingPosition.NEAR) ? "Near" : "Far"));
     }

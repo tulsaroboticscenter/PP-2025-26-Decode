@@ -200,6 +200,7 @@ public class DataGatheringTeleOp extends OpMode
             }
         }
 
+
         if (gamepad1.aWasPressed())
         {
             isIntaking = !isIntaking;

@@ -269,7 +269,7 @@ public class Turret
         velocity = ((flywheelA * Math.pow(distanceInches, 2)) + (flywheelB * distanceInches) + flywheelC);
         if (distanceInches > 441)
         {
-            velocity = 2684;
+            velocity = 2200;
         }
         Range.clip(velocity, 600, 2500);
 
@@ -290,6 +290,24 @@ public class Turret
         }
         hoodTarget = Range.clip(hoodTarget, 0.01, 0.9);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public void updateFlywheelAndHood(Pose currentPosition, Pose2D goalPosition)
     {
         double tempTarget = 0;
@@ -305,7 +323,7 @@ public class Turret
         velocity = ((flywheelA * Math.pow(distanceInches, 3)) + (flywheelB * Math.pow(distanceInches, 2)) + flywheelC);
         if (distanceInches > 441)
         {
-            velocity = 2684;
+            velocity = 2200;
         }
         Range.clip(velocity, 600, 2000);
 
@@ -324,6 +342,47 @@ public class Turret
         {
             hoodTarget = tempTarget;
         }
+        hoodTarget = Range.clip(hoodTarget, 0.01, 0.9);
+    }
+
+
+    public void manuallySetFlywheelAndHood(double velocity, double hoodTarget)
+    {
+//        double tempTarget = 0;
+//        if (isLeading)
+//        {
+//            distanceInches = getDistanceToTarget(currentPosition, lastLeadPose);
+//        }
+//        else
+//        {
+//            distanceInches = getDistanceToTarget(currentPosition, goalPosition) - fudgeFactor;
+//        }
+
+//        velocity = ((flywheelA * Math.pow(distanceInches, 3)) + (flywheelB * Math.pow(distanceInches, 2)) + flywheelC);
+//        if (distanceInches > 441)
+//        {
+//            velocity = 2684;
+//        }
+
+        this.velocity = velocity;
+        Range.clip(velocity, 600, 2000);
+
+//        double averageVelocity = (launcherL.getVelocity() + launcherR.getVelocity()) / 2;
+
+//        tempTarget = ((hoodA * Math.pow(averageVelocity, 3)) + (hoodB * Math.pow(averageVelocity, 2)) + (hoodC * averageVelocity) + hoodD);
+//        if (tempTarget > 0.9)
+//        {
+//            hoodTarget = 0.9;
+//        }
+//        else if (tempTarget < 0.01)
+//        {
+//            hoodTarget = 0.01;
+//        }
+//        else
+//        {
+//            hoodTarget = tempTarget;
+//        }
+        this.hoodTarget = hoodTarget;
         hoodTarget = Range.clip(hoodTarget, 0.01, 0.9);
     }
 
