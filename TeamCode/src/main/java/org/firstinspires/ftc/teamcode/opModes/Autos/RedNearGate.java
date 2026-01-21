@@ -18,8 +18,8 @@ import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
 import org.firstinspires.ftc.teamcode.Robot.HardwareManager;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Blue Near Gate", group = "Autonomous", preselectTeleOp = "TeleOp")
-public class BlueNearGate extends OpMode {
+@Autonomous(name = "Red Near Gate", group = "Autonomous", preselectTeleOp = "TeleOp")
+public class RedNearGate extends OpMode {
 
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
@@ -34,62 +34,80 @@ public class BlueNearGate extends OpMode {
 
     public Pose2D goalPosition = null;
 
-    private final Pose startPose = new Pose(26.33, 132.117, Math.toRadians(-126.678));
-    private final Pose scorePose = new Pose(57.9, 84.1, Math.toRadians(180));
-    private final Pose intake1 = new Pose(25, 84.1, Math.toRadians(180));
-    private final Pose clearGate = new Pose(16, 75.2, Math.toRadians(90));
-    private final Pose gateControlPoint = new Pose(30, 69.1);
-    private final Pose prepIntake2 = new Pose(42.8, 59.7, Math.toRadians(180));
-    private final Pose intake2 = new Pose(20, 59.5, Math.toRadians(180));
-    private final Pose prepIntake3 = new Pose(48, 40, Math.toRadians(180));
-    private final Pose intake3 = new Pose(20, 35.8, Math.toRadians(180));
-    private final Pose park = new Pose(29.058, 85.796, Math.toRadians(-90));
+    private final Pose startPose = new Pose(117.670, 132.117, Math.toRadians(-53.322));
+    private final Pose scorePose = new Pose(85, 84.1, Math.toRadians(0));
+    private final Pose intake1 = new Pose(120.7, 84.1, Math.toRadians(0));
+    private final Pose clearGate = new Pose(119, 75.2, Math.toRadians(0));
+    private final Pose gateControlPoint = new Pose(115, 69.1);
+    private final Pose prepIntake2 = new Pose(95.2, 59.7, Math.toRadians(0));
+    private final Pose intake2 = new Pose(125.4, 59.5, Math.toRadians(0));
+    private final Pose prepIntake3 = new Pose(95.2, 35.8, Math.toRadians(0));
+    private final Pose intake3 = new Pose(125.4, 35.8, Math.toRadians(0));
+    private final Pose park = new Pose(110.942, 90, Math.toRadians(-90));
 
 
     private PathChain scorePreload, parkPath, intakeLine1, scoreLine1, lineupIntake2, intakeLine2, scoreLine2, lineupIntake3, intakeLine3, scoreLine3, clearGatePath;
 
 
     public void buildPaths() {
-        lineupIntake3 = follower.pathBuilder()
-                .addPath(new BezierLine(scorePose, prepIntake3))
-                .setConstantHeadingInterpolation(Math.toRadians(180))
-                .build();
-        intakeLine3 = follower.pathBuilder()
-                .addPath(new BezierLine(prepIntake3, intake3))
-                .setConstantHeadingInterpolation(Math.toRadians(180))
-                .build();
-        scoreLine3 = follower.pathBuilder()
-                .addPath(new BezierLine(intake3, scorePose))
-                .setConstantHeadingInterpolation(Math.toRadians(180))
-                .build();
-        lineupIntake2 = follower.pathBuilder()
-                .addPath(new BezierLine(scorePose, prepIntake2))
-                .setConstantHeadingInterpolation(Math.toRadians(180))
-                .build();
-        intakeLine2 = follower.pathBuilder()
-                .addPath(new BezierLine(prepIntake2, intake2))
-                .setConstantHeadingInterpolation(Math.toRadians(180))
-                .build();
-        scoreLine2 = follower.pathBuilder()
-                .addPath(new BezierLine(intake2, scorePose))
-                .setConstantHeadingInterpolation(Math.toRadians(180))
-                .build();
-        intakeLine1 = follower.pathBuilder()
-                .addPath(new BezierLine(scorePose, intake1))
-                .setConstantHeadingInterpolation(Math.toRadians(180))
-                .build();
-        clearGatePath = follower.pathBuilder()
-                .addPath(new BezierCurve(intake1, gateControlPoint, clearGate))
-                .setConstantHeadingInterpolation(intake1.getHeading())
-                .build();
-        scoreLine1 = follower.pathBuilder()
-                .addPath(new BezierLine(intake1, scorePose))
-                .setConstantHeadingInterpolation(Math.toRadians(180))
-                .build();
-        scorePreload = follower.pathBuilder()
-                .addPath(new BezierLine(startPose, scorePose))
-                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
-                .build();
+        switch (numOfSpikes)
+        {
+            case 3:
+                lineupIntake3 = follower.pathBuilder()
+                        .addPath(new BezierLine(scorePose, prepIntake3))
+                        .setConstantHeadingInterpolation(Math.toRadians(0))
+                        .build();
+
+                intakeLine3 = follower.pathBuilder()
+                        .addPath(new BezierLine(prepIntake3, intake3))
+                        .setConstantHeadingInterpolation(Math.toRadians(0))
+                        .build();
+
+                scoreLine3 = follower.pathBuilder()
+                        .addPath(new BezierLine(intake3, scorePose))
+                        .setConstantHeadingInterpolation(Math.toRadians(0))
+                        .build();
+
+            case 2:
+                lineupIntake2 = follower.pathBuilder()
+                        .addPath(new BezierLine(scorePose, prepIntake2))
+                        .setConstantHeadingInterpolation(Math.toRadians(0))
+                        .build();
+
+                intakeLine2 = follower.pathBuilder()
+                        .addPath(new BezierLine(prepIntake2, intake2))
+                        .setConstantHeadingInterpolation(Math.toRadians(0))
+                        .build();
+
+                scoreLine2 = follower.pathBuilder()
+                        .addPath(new BezierLine(intake2, scorePose))
+                        .setConstantHeadingInterpolation(Math.toRadians(0))
+                        .build();
+
+            case 1:
+                intakeLine1 = follower.pathBuilder()
+                        .addPath(new BezierLine(scorePose, intake1))
+                        .setConstantHeadingInterpolation(Math.toRadians(0))
+                        .build();
+
+                clearGatePath = follower.pathBuilder()
+                        .addPath(new BezierCurve(intake1, gateControlPoint, clearGate))
+                        .setConstantHeadingInterpolation(clearGate.getHeading())
+                        .build();
+
+                scoreLine1 = follower.pathBuilder()
+                        .addPath(new BezierLine(intake1, scorePose))
+                        .setConstantHeadingInterpolation(Math.toRadians(0))
+                        .build();
+
+            case 0:
+                scorePreload = follower.pathBuilder()
+                        .addPath(new BezierLine(startPose, scorePose))
+                        .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
+                        .build();
+
+            default:
+        }
     }
 
     public void Park()
@@ -115,16 +133,14 @@ public class BlueNearGate extends OpMode {
                 setPathState(1);
                 break;
 
-                // Shoot and Intake first line
+                // Intake
             case 1:
                 if (!follower.isBusy())
                 {
                     hw.intake.intake();
+                    hw.intake.openGate();
 
-                    if(shooterTimer.getElapsedTime() > 1000 && shooterTimer.getElapsedTime() < 2000){
-                        // let's wait to do anything to see if the shooter can adjust its position
-                        hw.intake.openGate();
-                    } else if (shooterTimer.getElapsedTime() > 4000)
+                    if (shooterTimer.getElapsedTime() > 3000)
                     {
                         hw.intake.closeGate();
                         hw.intake.intake();
@@ -137,7 +153,7 @@ public class BlueNearGate extends OpMode {
                         else
                         {
                             Park();
-                            setPathState(10);
+                            setPathState(11);
                         }
                     }
                 }
@@ -150,8 +166,7 @@ public class BlueNearGate extends OpMode {
                 //clear gate
             case 2:
                 if (!follower.isBusy()) {
-                    follower.followPath(clearGatePath, true);
-                    setPathState(3);
+                    follower.followPath(clearGatePath);
                 }
 
                 // Go back to shooting line
@@ -168,10 +183,9 @@ public class BlueNearGate extends OpMode {
             case 4:
                 if (!follower.isBusy()) {
 
-                    if(shooterTimer.getElapsedTime() > 1000 && shooterTimer.getElapsedTime() < 2000){
-                        hw.intake.openGate();
+                    hw.intake.openGate();
 
-                    } else if (shooterTimer.getElapsedTime() > 4000)
+                    if (shooterTimer.getElapsedTime() > 3000)
                     {
                         hw.intake.closeGate();
                         hw.intake.stop();
@@ -184,7 +198,7 @@ public class BlueNearGate extends OpMode {
                         else
                         {
                             Park();
-                            setPathState(10);
+                            setPathState(11);
                         }
                     }
                 }
@@ -193,7 +207,7 @@ public class BlueNearGate extends OpMode {
                 }
                 break;
 
-                // Intake 2nd line
+                // Intake again
             case 5:
                 if (!follower.isBusy()) {
                     hw.intake.intake();
@@ -202,7 +216,7 @@ public class BlueNearGate extends OpMode {
                 }
                 break;
 
-                // Go to shoot
+                // Go back
             case 6:
                 if (!follower.isBusy()) {
                     hw.turret.spinUpFlywheel();
@@ -213,11 +227,14 @@ public class BlueNearGate extends OpMode {
 
                 // Shoot
             case 7:
+                if (follower.isBusy())
+                {
+                    shooterTimer.resetTimer();
+                }
                 if (!follower.isBusy()) {
-                    if(shooterTimer.getElapsedTime() > 1000 && shooterTimer.getElapsedTime() < 2000){
-                        hw.intake.openGate();
+                    hw.intake.openGate();
 
-                    } else if (shooterTimer.getElapsedTime() > 3000)
+                    if (shooterTimer.getElapsedTime() > 3000)
                     {
                         hw.intake.closeGate();
                         hw.intake.stop();
@@ -230,16 +247,13 @@ public class BlueNearGate extends OpMode {
                         else
                         {
                             Park();
-                            setPathState(10);
+                            setPathState(11);
                         }
                     }
-                } else {
-                    shooterTimer.resetTimer();
-
                 }
                 break;
 
-                // Intake 3rd line
+                // Intake again
             case 8:
                 if (!follower.isBusy()) {
                     hw.intake.intake();
@@ -248,7 +262,7 @@ public class BlueNearGate extends OpMode {
                 }
                 break;
 
-                // Go back to shoot
+                // Go back
             case 9:
                 if (!follower.isBusy()) {
                     hw.turret.spinUpFlywheel();
@@ -266,9 +280,8 @@ public class BlueNearGate extends OpMode {
                 }
                 if (!follower.isBusy()) {
                     hw.intake.openGate();
-                    if (shooterTimer.getElapsedTime() > 4000)
+                    if (shooterTimer.getElapsedTime() > 3000)
                     {
-                        hw.intake.closeGate();
                         Park();
                         setPathState(11);
                     }
@@ -277,7 +290,6 @@ public class BlueNearGate extends OpMode {
 
                 // Park
             case 11:
-                hw.intake.closeGate();
                 if (!follower.isBusy())
                 {
                     setPathState(-1);
@@ -303,7 +315,7 @@ public class BlueNearGate extends OpMode {
         hw.turret.update();
 
         hw.turret.setTarget(follower.getPose(), goalPosition);
-        hw.turret.manuallySetFlywheelAndHood(1550, 0.8);
+        hw.turret.manuallySetFlywheelAndHood(1450, 0.8);
 
         // Constantly save the last known position
         Field.lastKnownPosition = new Pose2D(DistanceUnit.INCH, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.RADIANS, follower.getHeading());
@@ -312,8 +324,6 @@ public class BlueNearGate extends OpMode {
         telemetry.addData("path state", pathState);
         telemetry.addLine("Position: " + PoseUtils.poseToString(follower.getPose(), DistanceUnit.INCH, AngleUnit.DEGREES));
         telemetry.addData("Distance to target:", hw.turret.getDistanceToTarget(follower.getPose(), goalPosition));
-        telemetry.addData("target flywheel velocity", hw.turret.velocity);
-        telemetry.addData("current flywheel velocity", hw.turret.launcherL.getVelocity());
         telemetry.update();
 
         if (pathState == -1)
@@ -329,10 +339,10 @@ public class BlueNearGate extends OpMode {
     {
         opmodeTimer.resetTimer();
         setPathState(0);
-        goalPosition = Field.blueGoal;
+        goalPosition = Field.redGoal;
 
         // Save the selected alliance side, so TeleOp can read it and automatically load the goal position.
-        Field.lastAllianceSide = Field.Side.BLUE;
+        Field.lastAllianceSide = Field.Side.RED;
     }
 
     /** This method is called once at the init of the OpMode. **/
@@ -344,8 +354,8 @@ public class BlueNearGate extends OpMode {
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
         follower = Constants.createFollower(hardwareMap);
-        buildPaths();
         follower.setStartingPose(startPose);
+        buildPaths();
         hw.initPedro(hardwareMap);
         hw.lights.setLightMode(RGBLightController.LEDMode.PULSE_WAKE);
         hw.lights.setLightColor(RGBLightController.RED);
@@ -361,7 +371,7 @@ public class BlueNearGate extends OpMode {
         telemetry.update();
     }
 
-    private Field.Side currentSide = Field.Side.BLUE;
+    private Field.Side currentSide = Field.Side.RED;
     private Field.StartingPosition currentStartingPosition = Field.StartingPosition.NEAR;
     private int numOfSpikes = 3;
     @Override
@@ -380,7 +390,7 @@ public class BlueNearGate extends OpMode {
         {
             numOfSpikes--;
         }
-
+        telemetry.addData("Current Location", follower.getPose());
         telemetry.addLine("Side: " + ((currentSide == Field.Side.RED) ? "Red" : "Blue"));
         telemetry.addLine("Starting Position: " + ((currentStartingPosition == Field.StartingPosition.NEAR) ? "Near" : "Far"));
     }
