@@ -40,6 +40,7 @@ public class TeleOp extends OpMode
 
     private boolean isTargeting = false;
     boolean isIntaking = false;
+    boolean isParking = false;
     double storedHeadingDegrees = 90.0;
     double botHeading = 0.0;
     Pose2D storedLocation;
@@ -184,7 +185,11 @@ public class TeleOp extends OpMode
             velocityAdjustmentRuntime.reset();
         }
 
-        if (isTargeting)
+        if (isParking)
+        {
+            hw.turret.setTarget(0);
+        }
+        else if (isTargeting)
         {
             // if targeting is on, update the turret with the new target
             hw.turret.setTarget(pos, goalPosition);
@@ -223,6 +228,7 @@ public class TeleOp extends OpMode
 
         if (gamepad1.rightBumperWasPressed())
         {
+            isParking = !isParking;
             hw.drivetrain.togglePark();
         }
 

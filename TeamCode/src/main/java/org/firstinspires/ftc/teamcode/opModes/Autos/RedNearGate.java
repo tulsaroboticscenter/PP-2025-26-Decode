@@ -167,6 +167,7 @@ public class RedNearGate extends OpMode {
             case 2:
                 if (!follower.isBusy()) {
                     follower.followPath(clearGatePath);
+                    setPathState(3);
                 }
 
                 // Go back to shooting line

@@ -45,21 +45,6 @@ public class Turret
 
     private PIDFController turretPID = new PIDFController(turretkP, turretkI, turretkD, turretkF, -2500, 2500);
 
-
-    // These are values for an un-implemented flywheel PID controller that we might use in the future
-//    @Sorter(sort = 6)
-//    public static double flywheelkP = 0;
-//    @Sorter(sort = 7)
-//    public static double flywheelkI = 0;
-//    @Sorter(sort = 8)
-//    public static double flywheelkD = 0;
-//    @Sorter(sort = 9)
-//    public static double flywheelkF = 0;
-//    @Sorter(sort = 10)
-//    public static double flywheelTolerance = 0;
-//
-//    private PIDFController flywheelPID = new PIDFController(flywheelkP, flywheelkI, flywheelkD, flywheelkF, 0, 2000);
-
     private double previousDegreesToTarget = 0.0;
 
     public double turretPPR = 384.5;
@@ -99,15 +84,17 @@ public class Turret
     public double hoodTarget = HOOD_LOW_POSITION;
     public boolean isFlywheelSpinning = false;
 
-    // Variables for quadratic equations (y = ax^2 + bx + c)
-    public double hoodA = -1.64755e-9;
-    public double hoodB = 0.00000884717;
-    public double hoodC = -0.0149551;
-    public double hoodD = 8.113;
+    // Variables for regressions
+    public double hoodA = 1.72354e-9;
+    public double hoodB = -0.0000100528;
+    public double hoodC = 0.0193934;
+    public double hoodD = -11.77608;
 
-    public double flywheelA = 0.0583698;
-    public double flywheelB = -1.93979;
-    public double flywheelC = 1416.08533;
+    public double flywheelA = -0.000030599;
+    public double flywheelB = 0.0124228;
+    public double flywheelC = -1.81284;
+    public double flywheelD = 117.75304;
+    public double flywheelE = -1359.02861;
 
     private Pose2D currentPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0);
     private Pose2D targetPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0);
@@ -266,14 +253,20 @@ public class Turret
             distanceInches = getDistanceToTarget(currentPosition, goalPosition);
         }
 
-        velocity = ((flywheelA * Math.pow(distanceInches, 2)) + (flywheelB * distanceInches) + flywheelC);
-        if (distanceInches > 441)
-        {
-            velocity = 2200;
-        }
+
+        // THIS is where you compute your regression for the flywheel. Adjust this to match the equation you came up with
+
+        // Quadratic Example: ((flywheelA * Math.pow(distanceInches, 2)) + (flywheelB * distanceInches) + flywheelC)
+
+        velocity = ((flywheelA * Math.pow(distanceInches, 4)) + (flywheelB * Math.pow(distanceInches, 3)) + (flywheelC * Math.pow(distanceInches, 2)) + (flywheelD * distanceInches) + flywheelE);
         Range.clip(velocity, 600, 2500);
 
         double averageVelocity = (launcherL.getVelocity() + launcherR.getVelocity()) / 2;
+
+
+        // THIS is where you compute your regression for the hood. Note that x is now the flywheel velocity, not the distance.
+
+        // Cubic Example: ((hoodA * Math.pow(averageVelocity, 3)) + (hoodB * Math.pow(averageVelocity, 2)) + (hoodC * averageVelocity) + hoodD)
 
         tempTarget = ((hoodA * Math.pow(averageVelocity, 3)) + (hoodB * Math.pow(averageVelocity, 2)) + (hoodC * averageVelocity) + hoodD);
         if (tempTarget > 0.9)
@@ -290,23 +283,6 @@ public class Turret
         }
         hoodTarget = Range.clip(hoodTarget, 0.01, 0.9);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     public void updateFlywheelAndHood(Pose currentPosition, Pose2D goalPosition)
     {

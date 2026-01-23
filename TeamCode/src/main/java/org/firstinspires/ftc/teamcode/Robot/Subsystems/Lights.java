@@ -5,11 +5,14 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
+import org.firstinspires.ftc.teamcode.goBilda.Prism.GoBildaPrismDriver;
 
 public class Lights
 {
     private Servo rgb1 = null;
     private Servo rgb2 = null;
+
+    //private GoBildaPrismDriver prism = null;
 
     private RGBLightController light1 = null;
     private RGBLightController light2 = null;
@@ -18,6 +21,9 @@ public class Lights
     {
         rgb1 = hwMap.get(Servo.class, "rgb1");
         rgb2 = hwMap.get(Servo.class, "rgb2");
+
+        //prism = hwMap.get(GoBildaPrismDriver.class, "prism");
+        //prism.setStripLength(6);
 
         light1 = new RGBLightController(rgb1);
         light2 = new RGBLightController(rgb2);
@@ -37,6 +43,11 @@ public class Lights
     {
         light1.update();
         light2.update();
+    }
+
+    public void runlight()
+    {
+
     }
 
     public RGBLightController.LEDMode getLightMode()
