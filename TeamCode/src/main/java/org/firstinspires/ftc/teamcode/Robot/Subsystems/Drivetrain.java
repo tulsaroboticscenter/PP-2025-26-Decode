@@ -69,7 +69,10 @@ public class Drivetrain
 
     public boolean parked = false;
 
+
+    // Parking values
     public double parkRange = 0.5;
+    public double mobileParkRange = 0.35;
     public double startingParkPosition = 0.05;
 
     double offset = 0;
@@ -204,6 +207,12 @@ public class Drivetrain
         parked = true;
         park1.setPosition((0 + startingParkPosition) + parkRange);
         park2.setPosition((1 - startingParkPosition) - parkRange);
+    }
+    public void mobilePark()
+    {
+        parked = true;
+        park1.setPosition((0 + startingParkPosition) + mobileParkRange);
+        park2.setPosition((1 - startingParkPosition) - mobileParkRange);
     }
     public void unpark()
     {

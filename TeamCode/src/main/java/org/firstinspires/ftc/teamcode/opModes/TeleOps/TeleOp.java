@@ -49,6 +49,14 @@ public class TeleOp extends OpMode
 
     Field.Side startingSide = null;
 
+    enum parkStatus {
+        NOT_PARKED,
+        MOBILE_PARKED,
+        FULL_PARKED
+    }
+
+    parkStatus ParkStatus = parkStatus.NOT_PARKED;
+
     boolean endgame = false;
 
     @Override
@@ -178,16 +186,18 @@ public class TeleOp extends OpMode
 
         hw.drivetrain.fieldOrientedDrive(this, pos, storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
 
-        hw.lights.setLightColor(hw.turret.getHueFromDistance(pos, goalPosition));
-        if (velocityAdjustmentRuntime.seconds() > (1.0 / 150))
+        //hw.lights.setLightColor(hw.turret.getHueFromDistance(pos, goalPosition));
+        if (velocityAdjustmentRuntime.seconds() > (1.0 / 150) && !isParking)
         {
             hw.turret.updateFlywheelAndHood(pos, goalPosition);
             velocityAdjustmentRuntime.reset();
         }
 
+
         if (isParking)
         {
-            hw.turret.setTarget(0);
+            hw.turret.setTarget(hw.turret.HeadingToTurretTicks(-90, AngleUnit.DEGREES));
+            hw.turret.manuallySetFlywheelAndHood(0, 0);
         }
         else if (isTargeting)
         {
@@ -228,8 +238,23 @@ public class TeleOp extends OpMode
 
         if (gamepad1.rightBumperWasPressed())
         {
-            isParking = !isParking;
-            hw.drivetrain.togglePark();
+            if (ParkStatus == parkStatus.NOT_PARKED)
+            {
+                isParking = true;
+                hw.drivetrain.mobilePark();
+                ParkStatus = parkStatus.MOBILE_PARKED;
+            }
+            else if (ParkStatus == parkStatus.MOBILE_PARKED)
+            {
+                hw.drivetrain.park();
+                ParkStatus = parkStatus.FULL_PARKED;
+            }
+            else
+            {
+                isParking = false;
+                hw.drivetrain.unpark();
+                ParkStatus = parkStatus.NOT_PARKED;
+            }
         }
 
         if (gamepad1.x)
@@ -251,6 +276,11 @@ public class TeleOp extends OpMode
             endgame = true;
             gamepad1.setLedColor(1, 1, 1, 1000000000);
             gamepad1.rumbleBlips(4);
+        }
+
+        if (gamepad1.psWasPressed())
+        {
+            hw.turret.ToggleFlywheel();
         }
 
 

@@ -440,13 +440,13 @@ public class Turret
         {
             if (angleunit == AngleUnit.DEGREES)
             {
-                if (angle > 60)
+                if (angle > 90)
                 {
-                    return (int)(60 / ticksToDegreesCoeffecient);
+                    return (int)(90 / ticksToDegreesCoeffecient);
                 }
-                else if (angle < -150)
+                else if (angle < -180)
                 {
-                    return (int)(-150 / ticksToDegreesCoeffecient);
+                    return (int)(-180 / ticksToDegreesCoeffecient);
                 }
                 else
                 {

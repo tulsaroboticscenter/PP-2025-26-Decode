@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
-import org.firstinspires.ftc.teamcode.goBilda.Prism.GoBildaPrismDriver;
 
 public class Lights
 {

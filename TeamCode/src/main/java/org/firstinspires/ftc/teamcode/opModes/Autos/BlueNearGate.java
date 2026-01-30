@@ -121,10 +121,12 @@ public class BlueNearGate extends OpMode {
                 {
                     hw.intake.intake();
 
-                    if(shooterTimer.getElapsedTime() > 1000 && shooterTimer.getElapsedTime() < 2000){
+                    if(shooterTimer.getElapsedTime() > 1000 && shooterTimer.getElapsedTime() < 2000)
+                    {
                         // let's wait to do anything to see if the shooter can adjust its position
                         hw.intake.openGate();
-                    } else if (shooterTimer.getElapsedTime() > 4000)
+                    }
+                    else if (shooterTimer.getElapsedTime() > 4000)
                     {
                         hw.intake.closeGate();
                         hw.intake.intake();
@@ -214,10 +216,11 @@ public class BlueNearGate extends OpMode {
                 // Shoot
             case 7:
                 if (!follower.isBusy()) {
-                    if(shooterTimer.getElapsedTime() > 1000 && shooterTimer.getElapsedTime() < 2000){
+                    if(shooterTimer.getElapsedTime() > 1000 && shooterTimer.getElapsedTime() < 2000)
+                    {
                         hw.intake.openGate();
-
-                    } else if (shooterTimer.getElapsedTime() > 3000)
+                    }
+                    else if (shooterTimer.getElapsedTime() > 3000)
                     {
                         hw.intake.closeGate();
                         hw.intake.stop();

@@ -125,7 +125,7 @@ public class blueFar extends OpMode {
                 setPathState(1);
                 break;
 
-                // Intake
+                // Shoot
             case 1:
                 if (!follower.isBusy())
                 {
@@ -158,7 +158,7 @@ public class blueFar extends OpMode {
                 }
                 break;
 
-                // Go back to shooting line
+                // intake
             case 2:
                 if (!follower.isBusy()) {
                     hw.intake.closeGate();
@@ -213,6 +213,7 @@ public class blueFar extends OpMode {
                     shooterTimer.resetTimer();
                 }
                 if (!follower.isBusy()) {
+                    hw.intake.intake();
                     hw.intake.openGate();
 
                     if (shooterTimer.getElapsedTime() > 3000)
@@ -252,6 +253,7 @@ public class blueFar extends OpMode {
                 }
                 if (!follower.isBusy()) {
                     hw.intake.openGate();
+                    hw.intake.intake();
                     if (shooterTimer.getElapsedTime() > 4000)
                     {
                         Park();
