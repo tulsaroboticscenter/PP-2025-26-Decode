@@ -171,7 +171,7 @@ public class TeleOp extends OpMode
         }
         else
         {
-            goalPosition = Field.redGoal;
+            //goalPosition = Field.redGoal;
         }
         hw.pinpoint.setPosition(storedLocation);
     }

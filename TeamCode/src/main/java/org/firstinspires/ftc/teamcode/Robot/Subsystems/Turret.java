@@ -32,8 +32,6 @@ public class Turret
 
     @Sorter(sort = 0)
     public static double turretkP = 10;
-    // 
-
     @Sorter(sort = 1)
     public static double turretkI = 0;
     @Sorter(sort = 2)
@@ -81,7 +79,7 @@ public class Turret
     public final double HOOD_HIGH_POSITION = 0.9;
 
     public double velocity = LAUNCHER_LOW_VELOCITY;
-    public double hoodTarget = HOOD_LOW_POSITION;
+    public double hoodTarget = 0.275;
     public boolean isFlywheelSpinning = false;
 
     // Variables for regressions
@@ -131,8 +129,8 @@ public class Turret
 
         if (!TeleOp)
         {
-            hoodServoL.setPosition(1);
-            hoodServoR.setPosition(0);
+            hoodServoL.setPosition(0.275);
+            hoodServoR.setPosition(1 - 0.275);
 //            launcherL.setDirection(DcMotorSimple.Direction.REVERSE);
 //            launcherR.setDirection(DcMotorSimple.Direction.FORWARD);
         }
@@ -231,6 +229,9 @@ public class Turret
             launcherL.setVelocity(0);
             launcherR.setVelocity(0);
         }
+        hoodTarget = Range.clip(hoodTarget, 0.275, 1);
+
+
         hoodServoR.setPosition(hoodTarget);
         hoodServoL.setPosition((1 - hoodTarget));
     }
