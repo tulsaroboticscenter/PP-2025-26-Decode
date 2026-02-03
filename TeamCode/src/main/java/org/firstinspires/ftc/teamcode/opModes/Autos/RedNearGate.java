@@ -283,6 +283,7 @@ public class RedNearGate extends OpMode {
                     hw.intake.openGate();
                     if (shooterTimer.getElapsedTime() > 3000)
                     {
+                        shooterTimer.resetTimer();
                         Park();
                         setPathState(11);
                     }
@@ -291,7 +292,7 @@ public class RedNearGate extends OpMode {
 
                 // Park
             case 11:
-                if (!follower.isBusy())
+                if (!follower.isBusy() && shooterTimer.getElapsedTimeSeconds() > 2)
                 {
                     setPathState(-1);
                     stop();
@@ -316,7 +317,7 @@ public class RedNearGate extends OpMode {
         hw.turret.update();
 
         hw.turret.setTarget(follower.getPose(), goalPosition);
-        hw.turret.manuallySetFlywheelAndHood(1450, 0.8);
+        hw.turret.updateFlywheelAndHood(follower.getPose(), goalPosition);
 
         // Constantly save the last known position
         Field.lastKnownPosition = new Pose2D(DistanceUnit.INCH, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.RADIANS, follower.getHeading());

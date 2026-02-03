@@ -289,8 +289,7 @@ public class blueFar extends OpMode {
         hw.turret.update();
 
         hw.turret.setTarget(follower.getPose(), goalPosition);
-//        hw.turret.updateFlywheelAndHood(follower.getPose(), goalPosition);
-        hw.turret.manuallySetFlywheelAndHood(2200, 0.9);
+        hw.turret.updateFlywheelAndHood(follower.getPose(), goalPosition);
 
         // Constantly save the last known position
         Field.lastKnownPosition = new Pose2D(DistanceUnit.INCH, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.RADIANS, follower.getHeading());

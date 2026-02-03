@@ -271,6 +271,7 @@ public class BlueNearGate extends OpMode {
                     hw.intake.openGate();
                     if (shooterTimer.getElapsedTime() > 4000)
                     {
+                        shooterTimer.resetTimer();
                         hw.intake.closeGate();
                         Park();
                         setPathState(11);
@@ -281,7 +282,7 @@ public class BlueNearGate extends OpMode {
                 // Park
             case 11:
                 hw.intake.closeGate();
-                if (!follower.isBusy())
+                if (!follower.isBusy() && shooterTimer.getElapsedTimeSeconds() > 2)
                 {
                     setPathState(-1);
                     stop();
@@ -300,13 +301,12 @@ public class BlueNearGate extends OpMode {
         // These loop the movements of the robot, these must be called continuously in order to work
         follower.update();
         autonomousPathRedUpdate();
-        telemetry.addLine("RED");
 
         hw.lights.update();
         hw.turret.update();
 
         hw.turret.setTarget(follower.getPose(), goalPosition);
-        hw.turret.manuallySetFlywheelAndHood(1550, 0.8);
+        hw.turret.updateFlywheelAndHood(follower.getPose(), goalPosition);
 
         // Constantly save the last known position
         Field.lastKnownPosition = new Pose2D(DistanceUnit.INCH, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.RADIANS, follower.getHeading());

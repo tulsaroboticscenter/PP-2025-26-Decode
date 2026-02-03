@@ -74,6 +74,12 @@ public class Turret
     public final double LAUNCHER_MEDIUM_VELOCITY_AUTO = 2000;
     public final double LAUNCHER_HIGH_VELOCITY = 1700;
 
+    /**
+    public final double SCORE_HEIGHT = 28.0;
+    public final double SCORE_ANGLE = Math.toRadians(-30);
+    public final double PASS_THROUGH_POINT_RADIUS = 5;
+     **/
+
     public final double HOOD_LOW_POSITION = 0;
     public final double HOOD_MEDIUM_POSITION = 0.6;
     public final double HOOD_HIGH_POSITION = 0.9;
@@ -83,16 +89,14 @@ public class Turret
     public boolean isFlywheelSpinning = false;
 
     // Variables for regressions
-    public double hoodA = 1.72354e-9;
-    public double hoodB = -0.0000100528;
-    public double hoodC = 0.0193934;
-    public double hoodD = -11.77608;
+    public double hoodA = 2.3787e-9;
+    public double hoodB = -0.0000136258;
+    public double hoodC = 0.0261005;
+    public double hoodD = -15.84687;
 
-    public double flywheelA = -0.000030599;
-    public double flywheelB = 0.0124228;
-    public double flywheelC = -1.81284;
-    public double flywheelD = 117.75304;
-    public double flywheelE = -1359.02861;
+    public double flywheelA = 0.0152667;
+    public double flywheelB = 3.35652;
+    public double flywheelC = 1186.6063;
 
     private Pose2D currentPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0);
     private Pose2D targetPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0);
@@ -259,7 +263,7 @@ public class Turret
 
         // Quadratic Example: ((flywheelA * Math.pow(distanceInches, 2)) + (flywheelB * distanceInches) + flywheelC)
 
-        velocity = ((flywheelA * Math.pow(distanceInches, 4)) + (flywheelB * Math.pow(distanceInches, 3)) + (flywheelC * Math.pow(distanceInches, 2)) + (flywheelD * distanceInches) + flywheelE);
+        velocity = ((flywheelA * Math.pow(distanceInches, 2)) + (flywheelB * distanceInches) + flywheelC);
         Range.clip(velocity, 600, 2500);
 
         double averageVelocity = (launcherL.getVelocity() + launcherR.getVelocity()) / 2;
@@ -270,19 +274,19 @@ public class Turret
         // Cubic Example: ((hoodA * Math.pow(averageVelocity, 3)) + (hoodB * Math.pow(averageVelocity, 2)) + (hoodC * averageVelocity) + hoodD)
 
         tempTarget = ((hoodA * Math.pow(averageVelocity, 3)) + (hoodB * Math.pow(averageVelocity, 2)) + (hoodC * averageVelocity) + hoodD);
-        if (tempTarget > 0.9)
+        if (tempTarget > 1)
         {
-            hoodTarget = 0.9;
+            hoodTarget = 1;
         }
-        else if (tempTarget < 0.01)
+        else if (tempTarget < 0.275)
         {
-            hoodTarget = 0.01;
+            hoodTarget = 0.275;
         }
         else
         {
             hoodTarget = tempTarget;
         }
-        hoodTarget = Range.clip(hoodTarget, 0.01, 0.9);
+        hoodTarget = Range.clip(hoodTarget, 0.275, 1);
     }
 
     public void updateFlywheelAndHood(Pose currentPosition, Pose2D goalPosition)
@@ -297,29 +301,34 @@ public class Turret
             distanceInches = getDistanceToTarget(currentPosition, goalPosition);
         }
 
-        velocity = ((flywheelA * Math.pow(distanceInches, 3)) + (flywheelB * Math.pow(distanceInches, 2)) + flywheelC);
-        if (distanceInches > 441)
-        {
-            velocity = 2200;
-        }
-        Range.clip(velocity, 600, 2000);
+        // THIS is where you compute your regression for the flywheel. Adjust this to match the equation you came up with
+
+        // Quadratic Example: ((flywheelA * Math.pow(distanceInches, 2)) + (flywheelB * distanceInches) + flywheelC)
+
+        velocity = ((flywheelA * Math.pow(distanceInches, 2)) + (flywheelB * distanceInches) + flywheelC);
+        Range.clip(velocity, 600, 2500);
 
         double averageVelocity = (launcherL.getVelocity() + launcherR.getVelocity()) / 2;
 
+        // THIS is where you compute your regression for the hood. Note that x is now the flywheel velocity, not the distance.
+
+        // Cubic Example: ((hoodA * Math.pow(averageVelocity, 3)) + (hoodB * Math.pow(averageVelocity, 2)) + (hoodC * averageVelocity) + hoodD)
+
         tempTarget = ((hoodA * Math.pow(averageVelocity, 3)) + (hoodB * Math.pow(averageVelocity, 2)) + (hoodC * averageVelocity) + hoodD);
-        if (tempTarget > 0.9)
+
+        if (tempTarget > 1)
         {
-            hoodTarget = 0.9;
+            hoodTarget = 1;
         }
-        else if (tempTarget < 0.01)
+        else if (tempTarget < 0.275)
         {
-            hoodTarget = 0.01;
+            hoodTarget = 0.275;
         }
         else
         {
             hoodTarget = tempTarget;
         }
-        hoodTarget = Range.clip(hoodTarget, 0.01, 0.9);
+        hoodTarget = Range.clip(hoodTarget, 0.275, 1);
     }
 
 
@@ -537,6 +546,19 @@ public class Turret
         {
             return degreesToTarget;
         }
+    }
+
+
+    public double inchPerSecToFlywheelTicks(double velocity)
+    {
+        double ticksPerRotation = 28;
+        double flywheelCircumferenceInches = 8.90530201016; // (72 * pi) / 25.4
+        double ticksPerInch = ticksPerRotation / flywheelCircumferenceInches;
+        return ticksPerInch * velocity;
+    }
+    public double degreesToHoodValue(double degrees)
+    {
+        return Range.clip(0.275 + ((degrees - 32) / 34.4827586207), 0.275, 1);
     }
 
     public double getGlobalTurretHeadingDegrees(double robotHeadingDegrees)

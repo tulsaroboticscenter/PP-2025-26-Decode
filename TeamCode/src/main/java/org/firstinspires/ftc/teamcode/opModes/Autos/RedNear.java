@@ -301,7 +301,7 @@ public class RedNear extends OpMode {
         hw.turret.update();
 
         hw.turret.setTarget(follower.getPose(), goalPosition);
-        hw.turret.manuallySetFlywheelAndHood(1450, 0.8);
+        hw.turret.updateFlywheelAndHood(follower.getPose(), goalPosition);
 
         // Constantly save the last known position
         Field.lastKnownPosition = new Pose2D(DistanceUnit.INCH, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.RADIANS, follower.getHeading());
