@@ -37,7 +37,7 @@ public class BlueNearGate extends OpMode {
     private final Pose startPose = new Pose(26.33, 132.117, Math.toRadians(-126.678));
     private final Pose scorePose = new Pose(57.9, 84.1, Math.toRadians(180));
     private final Pose intake1 = new Pose(25, 84.1, Math.toRadians(180));
-    private final Pose clearGate = new Pose(16, 75.2, Math.toRadians(90));
+    private final Pose clearGate = new Pose(14, 79.2, Math.toRadians(-90));
     private final Pose gateControlPoint = new Pose(30, 69.1);
     private final Pose prepIntake2 = new Pose(42.8, 59.7, Math.toRadians(180));
     private final Pose intake2 = new Pose(20, 59.5, Math.toRadians(180));
@@ -80,11 +80,11 @@ public class BlueNearGate extends OpMode {
                 .build();
         clearGatePath = follower.pathBuilder()
                 .addPath(new BezierCurve(intake1, gateControlPoint, clearGate))
-                .setConstantHeadingInterpolation(intake1.getHeading())
+                .setConstantHeadingInterpolation(clearGate.getHeading())
                 .build();
         scoreLine1 = follower.pathBuilder()
-                .addPath(new BezierLine(intake1, scorePose))
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .addPath(new BezierLine(clearGate, scorePose))
+                .setLinearHeadingInterpolation(clearGate.getHeading(), scorePose.getHeading())
                 .build();
         scorePreload = follower.pathBuilder()
                 .addPath(new BezierLine(startPose, scorePose))
@@ -126,7 +126,7 @@ public class BlueNearGate extends OpMode {
                         // let's wait to do anything to see if the shooter can adjust its position
                         hw.intake.openGate();
                     }
-                    else if (shooterTimer.getElapsedTime() > 4000)
+                    else if (shooterTimer.getElapsedTime() > 2000)
                     {
                         hw.intake.closeGate();
                         hw.intake.intake();
@@ -151,7 +151,7 @@ public class BlueNearGate extends OpMode {
 
                 //clear gate
             case 2:
-                if (!follower.isBusy()) {
+                if (!follower.isBusy() || pathTimer.getElapsedTime() > 4000) {
                     follower.followPath(clearGatePath, true);
                     setPathState(3);
                 }
@@ -173,7 +173,7 @@ public class BlueNearGate extends OpMode {
                     if(shooterTimer.getElapsedTime() > 1000 && shooterTimer.getElapsedTime() < 2000){
                         hw.intake.openGate();
 
-                    } else if (shooterTimer.getElapsedTime() > 4000)
+                    } else if (shooterTimer.getElapsedTime() > 2000)
                     {
                         hw.intake.closeGate();
                         hw.intake.stop();
@@ -220,7 +220,7 @@ public class BlueNearGate extends OpMode {
                     {
                         hw.intake.openGate();
                     }
-                    else if (shooterTimer.getElapsedTime() > 3000)
+                    else if (shooterTimer.getElapsedTime() > 2000)
                     {
                         hw.intake.closeGate();
                         hw.intake.stop();
@@ -269,7 +269,7 @@ public class BlueNearGate extends OpMode {
                 }
                 if (!follower.isBusy()) {
                     hw.intake.openGate();
-                    if (shooterTimer.getElapsedTime() > 4000)
+                    if (shooterTimer.getElapsedTime() > 2000)
                     {
                         shooterTimer.resetTimer();
                         hw.intake.closeGate();
@@ -306,7 +306,7 @@ public class BlueNearGate extends OpMode {
         hw.turret.update();
 
         hw.turret.setTarget(follower.getPose(), goalPosition);
-        hw.turret.updateFlywheelAndHood(follower.getPose(), goalPosition);
+        hw.turret.manuallySetFlywheelAndHood(1500, 0.65);
 
         // Constantly save the last known position
         Field.lastKnownPosition = new Pose2D(DistanceUnit.INCH, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.RADIANS, follower.getHeading());

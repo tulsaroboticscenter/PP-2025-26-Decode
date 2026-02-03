@@ -174,7 +174,7 @@ public class blueFar extends OpMode {
 
                     hw.intake.openGate();
 
-                    if (shooterTimer.getElapsedTime() > 3000)
+                    if (shooterTimer.getElapsedTime() > 3000 && shooterTimer.getElapsedTime() > 1000)
                     {
                         hw.intake.closeGate();
                         hw.intake.intake();
@@ -199,7 +199,7 @@ public class blueFar extends OpMode {
                 // Intake again
             case 4:
                 if (!follower.isBusy()) {
-                    hw.intake.stop();
+                    hw.intake.intake();
                     follower.followPath(scoreLine2, true);
                     shooterTimer.resetTimer();
                     setPathState(5);
@@ -212,7 +212,7 @@ public class blueFar extends OpMode {
                 {
                     shooterTimer.resetTimer();
                 }
-                if (!follower.isBusy()) {
+                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 1000) {
                     hw.intake.intake();
                     hw.intake.openGate();
 
@@ -223,6 +223,7 @@ public class blueFar extends OpMode {
                         // Check if we go to the next spike
                         if (numOfSpikes > 2)
                         {
+                            hw.intake.intake();
                             follower.followPath(intakeCurve3, true);
                             setPathState(6);
                         }
@@ -251,7 +252,7 @@ public class blueFar extends OpMode {
                 {
                     shooterTimer.resetTimer();
                 }
-                if (!follower.isBusy()) {
+                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 1000) {
                     hw.intake.openGate();
                     hw.intake.intake();
                     if (shooterTimer.getElapsedTime() > 4000)
@@ -289,7 +290,8 @@ public class blueFar extends OpMode {
         hw.turret.update();
 
         hw.turret.setTarget(follower.getPose(), goalPosition);
-        hw.turret.updateFlywheelAndHood(follower.getPose(), goalPosition);
+//        hw.turret.updateFlywheelAndHood(follower.getPose(), goalPosition);
+        hw.turret.manuallySetFlywheelAndHood(2200, 0.9);
 
         // Constantly save the last known position
         Field.lastKnownPosition = new Pose2D(DistanceUnit.INCH, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.RADIANS, follower.getHeading());

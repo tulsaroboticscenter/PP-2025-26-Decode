@@ -306,7 +306,7 @@ public class Turret
         // Quadratic Example: ((flywheelA * Math.pow(distanceInches, 2)) + (flywheelB * distanceInches) + flywheelC)
 
         velocity = ((flywheelA * Math.pow(distanceInches, 2)) + (flywheelB * distanceInches) + flywheelC);
-        Range.clip(velocity, 600, 2500);
+        Range.clip(velocity, 1200, 2500);
 
         double averageVelocity = (launcherL.getVelocity() + launcherR.getVelocity()) / 2;
 
@@ -351,7 +351,7 @@ public class Turret
 //        }
 
         this.velocity = velocity;
-        Range.clip(velocity, 600, 2000);
+        Range.clip(velocity, 1200, 2000);
 
 //        double averageVelocity = (launcherL.getVelocity() + launcherR.getVelocity()) / 2;
 

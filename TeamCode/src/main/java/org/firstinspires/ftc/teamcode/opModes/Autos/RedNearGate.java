@@ -37,8 +37,8 @@ public class RedNearGate extends OpMode {
     private final Pose startPose = new Pose(117.670, 132.117, Math.toRadians(-53.322));
     private final Pose scorePose = new Pose(85, 84.1, Math.toRadians(0));
     private final Pose intake1 = new Pose(120.7, 84.1, Math.toRadians(0));
-    private final Pose clearGate = new Pose(119, 75.2, Math.toRadians(0));
-    private final Pose gateControlPoint = new Pose(115, 69.1);
+    private final Pose clearGate = new Pose(122, 74.2, Math.toRadians(0));
+    private final Pose gateControlPoint = new Pose(110, 69.1);
     private final Pose prepIntake2 = new Pose(95.2, 59.7, Math.toRadians(0));
     private final Pose intake2 = new Pose(125.4, 59.5, Math.toRadians(0));
     private final Pose prepIntake3 = new Pose(95.2, 35.8, Math.toRadians(0));
@@ -140,7 +140,7 @@ public class RedNearGate extends OpMode {
                     hw.intake.intake();
                     hw.intake.openGate();
 
-                    if (shooterTimer.getElapsedTime() > 3000)
+                    if (shooterTimer.getElapsedTime() > 2000)
                     {
                         hw.intake.closeGate();
                         hw.intake.intake();
@@ -186,7 +186,7 @@ public class RedNearGate extends OpMode {
 
                     hw.intake.openGate();
 
-                    if (shooterTimer.getElapsedTime() > 3000)
+                    if (shooterTimer.getElapsedTime() > 2000)
                     {
                         hw.intake.closeGate();
                         hw.intake.stop();
@@ -235,7 +235,7 @@ public class RedNearGate extends OpMode {
                 if (!follower.isBusy()) {
                     hw.intake.openGate();
 
-                    if (shooterTimer.getElapsedTime() > 3000)
+                    if (shooterTimer.getElapsedTime() > 2000)
                     {
                         hw.intake.closeGate();
                         hw.intake.stop();
@@ -281,7 +281,7 @@ public class RedNearGate extends OpMode {
                 }
                 if (!follower.isBusy()) {
                     hw.intake.openGate();
-                    if (shooterTimer.getElapsedTime() > 3000)
+                    if (shooterTimer.getElapsedTime() > 2000)
                     {
                         shooterTimer.resetTimer();
                         Park();
@@ -317,8 +317,7 @@ public class RedNearGate extends OpMode {
         hw.turret.update();
 
         hw.turret.setTarget(follower.getPose(), goalPosition);
-        hw.turret.updateFlywheelAndHood(follower.getPose(), goalPosition);
-
+        hw.turret.manuallySetFlywheelAndHood(1550, 0.65);
         // Constantly save the last known position
         Field.lastKnownPosition = new Pose2D(DistanceUnit.INCH, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.RADIANS, follower.getHeading());
 
