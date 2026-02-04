@@ -46,8 +46,8 @@ public class blueFar extends OpMode {
                         new BezierCurve(
                                 new Pose(59.883, 8.932),
                                 new Pose(43.990, 34.922),
-                                new Pose(39.738, 36.097),
-                                new Pose(18.874, 35.534)
+                                new Pose(39.738, 38.097),
+                                new Pose(18.874, 39.534)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
 
@@ -129,13 +129,13 @@ public class blueFar extends OpMode {
             case 1:
                 if (!follower.isBusy())
                 {
-                    if (shooterTimer.getElapsedTime() > 1000)
+                    if (shooterTimer.getElapsedTime() > 3000)
                     {
-                        hw.intake.intake();
+                        hw.intake.partialIntake();
                         hw.intake.openGate();
                     }
 
-                    if (shooterTimer.getElapsedTime() > 4000)
+                    if (shooterTimer.getElapsedTime() > 6000)
                     {
                         hw.intake.closeGate();
                         hw.intake.intake();
@@ -174,7 +174,7 @@ public class blueFar extends OpMode {
 
                     hw.intake.openGate();
 
-                    if (shooterTimer.getElapsedTime() > 3000 && shooterTimer.getElapsedTime() > 1000)
+                    if (shooterTimer.getElapsedTime() > 4000 && shooterTimer.getElapsedTime() > 3000)
                     {
                         hw.intake.closeGate();
                         hw.intake.intake();
@@ -212,8 +212,8 @@ public class blueFar extends OpMode {
                 {
                     shooterTimer.resetTimer();
                 }
-                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 1000) {
-                    hw.intake.intake();
+                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 1500) {
+                    hw.intake.partialIntake();
                     hw.intake.openGate();
 
                     if (shooterTimer.getElapsedTime() > 3000)
@@ -252,10 +252,10 @@ public class blueFar extends OpMode {
                 {
                     shooterTimer.resetTimer();
                 }
-                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 1000) {
+                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 1500) {
                     hw.intake.openGate();
-                    hw.intake.intake();
-                    if (shooterTimer.getElapsedTime() > 4000)
+                    hw.intake.partialIntake();
+                    if (shooterTimer.getElapsedTime() > 3000)
                     {
                         Park();
                         setPathState(8);
@@ -291,7 +291,7 @@ public class blueFar extends OpMode {
 
         hw.turret.setTarget(follower.getPose(), goalPosition);
 //        hw.turret.updateFlywheelAndHood(follower.getPose(), goalPosition);
-        hw.turret.manuallySetFlywheelAndHood(2200, 0.9);
+        hw.turret.manuallySetFlywheelAndHood(2000, 0.96);
 
         // Constantly save the last known position
         Field.lastKnownPosition = new Pose2D(DistanceUnit.INCH, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.RADIANS, follower.getHeading());
