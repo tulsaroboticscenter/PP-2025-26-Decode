@@ -270,7 +270,7 @@ public class TeleOp extends OpMode
 
         if (gamepad1.optionsWasPressed())
         {
-            hw.pinpoint.pinpoint.setPosition(Field.center);
+            hw.pinpoint.pinpoint.setPosition((startingSide == Field.Side.BLUE) ? Field.blueHumanPlayerZone : Field.redHumanPlayerZone);
         }
 
         if (totalRuntime.seconds() > 100 && !endgame)
