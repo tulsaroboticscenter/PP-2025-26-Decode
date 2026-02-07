@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
@@ -30,6 +31,7 @@ public class Turret
     public Servo hoodServoR = null;
     private RevTouchSensor turretLimitSwitch = null;
 
+    // Turret Rotation PIDF Values
     @Sorter(sort = 0)
     public static double turretkP = 10;
     @Sorter(sort = 1)
@@ -40,6 +42,18 @@ public class Turret
     public static double turretkF = 0;
     @Sorter(sort = 4)
     public static double turretTolerance = 0;
+
+    // Flywheel Velocity PIDF Values
+    @Sorter(sort = 5)
+    public static double flywheelkP = 60;
+    @Sorter(sort = 6)
+    public static double flywheelkI = 5;
+    @Sorter(sort = 7)
+    public static double flywheelkD = 25;
+    @Sorter(sort = 8)
+    public static double flywheelkF = 0;
+    @Sorter(sort = 9)
+    public static double flywheelTolerance = 5;
 
     private PIDFController turretPID = new PIDFController(turretkP, turretkI, turretkD, turretkF, -2500, 2500);
 
@@ -63,10 +77,10 @@ public class Turret
 
     public static boolean reversePolarity = false;
 
-    public boolean isLeading = false;
+    public boolean isLeading = true;
     private Pose2D lastLeadPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0);
 
-    @Sorter(sort = 5)
+    @Sorter(sort = 10)
     public static double leadMagnitudeMultiplier = 1;
 
     public final double LAUNCHER_LOW_VELOCITY = 1000;
@@ -135,8 +149,6 @@ public class Turret
         {
             hoodServoL.setPosition(0.275);
             hoodServoR.setPosition(1 - 0.275);
-//            launcherL.setDirection(DcMotorSimple.Direction.REVERSE);
-//            launcherR.setDirection(DcMotorSimple.Direction.FORWARD);
         }
         else
         {
@@ -145,6 +157,9 @@ public class Turret
         }
         turretPID.setTolerance(turretTolerance);
         turretPID.setTarget(0);
+
+        launcherR.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(flywheelkP, flywheelkI, flywheelkD, flywheelkF));
+        launcherL.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(flywheelkP, flywheelkI, flywheelkD, flywheelkF));
     }
 
     public void initHood()
@@ -223,6 +238,9 @@ public class Turret
         turretPID.setTolerance(turretTolerance);
         turretRotationMotor.setVelocity(turretPID.calculate(turretRotationMotor.getCurrentPosition()));
 
+        launcherL.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(flywheelkP, flywheelkI, flywheelkD, flywheelkF));
+        launcherR.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(flywheelkP, flywheelkI, flywheelkD, flywheelkF));
+
         if (isFlywheelSpinning)
         {
             launcherL.setVelocity(velocity);
@@ -230,14 +248,19 @@ public class Turret
         }
         else
         {
-            launcherL.setVelocity(0);
             launcherR.setVelocity(0);
+            launcherL.setVelocity(0);
         }
         hoodTarget = Range.clip(hoodTarget, 0.275, 1);
 
-
         hoodServoR.setPosition(hoodTarget);
         hoodServoL.setPosition((1 - hoodTarget));
+    }
+
+    public void setFlywheelPower(double power)
+    {
+        launcherL.setPower(power);
+        launcherR.setPower(power);
     }
 
     public void setHoodTarget(double target)
@@ -287,6 +310,11 @@ public class Turret
             hoodTarget = tempTarget;
         }
         hoodTarget = Range.clip(hoodTarget, 0.275, 1);
+    }
+
+    public double getAverageFlywheelVelocity()
+    {
+        return (launcherL.getVelocity() + launcherR.getVelocity()) / 2;
     }
 
     public void updateFlywheelAndHood(Pose currentPosition, Pose2D goalPosition)

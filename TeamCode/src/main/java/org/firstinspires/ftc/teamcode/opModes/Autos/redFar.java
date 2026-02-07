@@ -315,7 +315,7 @@ public class redFar extends OpMode {
         goalPosition = Field.redGoal;
 
         // Save the selected alliance side, so TeleOp can read it and automatically load the goal position.
-        Field.lastAllianceSide = Field.Side.BLUE;
+        Field.lastAllianceSide = Field.Side.RED;
     }
 
     /** This method is called once at the init of the OpMode. **/

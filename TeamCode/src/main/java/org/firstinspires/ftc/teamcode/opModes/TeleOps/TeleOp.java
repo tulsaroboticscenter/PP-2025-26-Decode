@@ -189,7 +189,14 @@ public class TeleOp extends OpMode
         //hw.lights.setLightColor(hw.turret.getHueFromDistance(pos, goalPosition));
         if (velocityAdjustmentRuntime.seconds() > (1.0 / 150) && !isParking)
         {
-            hw.turret.updateFlywheelAndHood(pos, goalPosition);
+            if (hw.turret.isLeading)
+            {
+                hw.turret.setLeadTarget(pos, goalPosition, hw.pinpoint.getVelX(), hw.pinpoint.getVelY());
+            }
+            if (pos != null)
+            {
+                hw.turret.updateFlywheelAndHood(pos, goalPosition);
+            }
             velocityAdjustmentRuntime.reset();
         }
 
@@ -285,11 +292,10 @@ public class TeleOp extends OpMode
             hw.turret.ToggleFlywheel();
         }
 
-
-
-        ptelemetry.setUpdateInterval(15);
+        ptelemetry.setUpdateInterval(50);
 
         ptelemetry.addData("Target Flywheel Velocity", hw.turret.velocity);
+        ptelemetry.addData("Average Flywheel Velocity", hw.turret.getAverageFlywheelVelocity());
         ptelemetry.addData("Left Flywheel Motor Velocity", hw.turret.launcherL.getVelocity());
         ptelemetry.addData("Right Flywheel Motor Velocity", hw.turret.launcherR.getVelocity());
 

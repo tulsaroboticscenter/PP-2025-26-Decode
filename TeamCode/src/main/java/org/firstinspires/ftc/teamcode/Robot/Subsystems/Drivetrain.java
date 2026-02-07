@@ -81,7 +81,7 @@ public class Drivetrain
 
     public double drivePower = 1;
 
-    public static double SLOW_DRIVING_SPEED = 0.75;
+    public static double SLOW_DRIVING_SPEED = 0.5;
 
     public void slowDown()
     {
