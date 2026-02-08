@@ -34,20 +34,18 @@ public class RedNearGate extends OpMode {
 
     public Pose2D goalPosition = null;
 
-    private final Pose startPose = new Pose(117.670, 132.117, Math.toRadians(-53.322));
-    private final Pose scorePose = new Pose(85, 84.1, Math.toRadians(0));
+    private final Pose startPose = new Pose(117.18446601941747, 133.11650485436894, Math.toRadians(-53.322));
+    private final Pose scorePose = new Pose(80, 84.1, Math.toRadians(0));
     private final Pose intake1 = new Pose(120.7, 84.1, Math.toRadians(0));
-    private final Pose clearGate = new Pose(128, 77.2, Math.toRadians(90));
+    private final Pose clearGate = new Pose(127, 77.2, Math.toRadians(90));
     private final Pose gateControlPoint = new Pose(110, 69.1);
-    private final Pose prepIntake2 = new Pose(95.2, 59.7, Math.toRadians(0));
+    private final Pose prepIntake2 = new Pose(95.2, 63, Math.toRadians(0));
     private final Pose intake2 = new Pose(125.4, 59.5, Math.toRadians(0));
-    private final Pose prepIntake3 = new Pose(95.2, 35.8, Math.toRadians(0));
+    private final Pose prepIntake3 = new Pose(95.2, 40, Math.toRadians(0));
     private final Pose intake3 = new Pose(125.4, 35.8, Math.toRadians(0));
     private final Pose park = new Pose(110.942, 90, Math.toRadians(-90));
 
-
     private PathChain scorePreload, parkPath, intakeLine1, scoreLine1, lineupIntake2, intakeLine2, scoreLine2, lineupIntake3, intakeLine3, scoreLine3, clearGatePath;
-
 
     public void buildPaths() {
         switch (numOfSpikes)
@@ -168,7 +166,7 @@ public class RedNearGate extends OpMode {
 
                 //clear gate
             case 2:
-                if (!follower.isBusy()) {
+                if (!follower.isBusy() || follower.isRobotStuck()) {
                     follower.followPath(clearGatePath);
                     setPathState(3);
                 }

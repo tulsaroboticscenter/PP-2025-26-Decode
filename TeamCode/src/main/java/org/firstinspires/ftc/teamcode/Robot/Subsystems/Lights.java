@@ -21,9 +21,6 @@ public class Lights
         rgb1 = hwMap.get(Servo.class, "rgb1");
         rgb2 = hwMap.get(Servo.class, "rgb2");
 
-        //prism = hwMap.get(GoBildaPrismDriver.class, "prism");
-        //prism.setStripLength(6);
-
         light1 = new RGBLightController(rgb1);
         light2 = new RGBLightController(rgb2);
     }
@@ -42,11 +39,6 @@ public class Lights
     {
         light1.update();
         light2.update();
-    }
-
-    public void runlight()
-    {
-
     }
 
     public RGBLightController.LEDMode getLightMode()

@@ -34,10 +34,10 @@ public class BlueNearGate extends OpMode {
 
     public Pose2D goalPosition = null;
 
-    private final Pose startPose = new Pose(26.33, 132.117, Math.toRadians(-126.678));
+    private final Pose startPose = new Pose(27.0873786407767, 133.11650485436894, Math.toRadians(-126.678));
     private final Pose scorePose = new Pose(57.9, 84.1, Math.toRadians(180));
     private final Pose intake1 = new Pose(25, 84.1, Math.toRadians(180));
-    private final Pose clearGate = new Pose(13, 79.2, Math.toRadians(90));
+    private final Pose clearGate = new Pose(14, 78, Math.toRadians(90));
     private final Pose gateControlPoint = new Pose(30, 69.1);
     private final Pose prepIntake2 = new Pose(42.8, 59.7, Math.toRadians(180));
     private final Pose intake2 = new Pose(20, 59.5, Math.toRadians(180));
@@ -84,7 +84,7 @@ public class BlueNearGate extends OpMode {
                 .build();
         scoreLine1 = follower.pathBuilder()
                 .addPath(new BezierLine(clearGate, scorePose))
-                .setLinearHeadingInterpolation(clearGate.getHeading(), scorePose.getHeading())
+                .setConstantHeadingInterpolation(scorePose.getHeading())
                 .build();
         scorePreload = follower.pathBuilder()
                 .addPath(new BezierLine(startPose, scorePose))
@@ -151,7 +151,8 @@ public class BlueNearGate extends OpMode {
 
                 //clear gate
             case 2:
-                if (!follower.isBusy() || pathTimer.getElapsedTime() > 4000) {
+                if (!follower.isBusy() || pathTimer.getElapsedTime() > 4000)
+                {
                     follower.followPath(clearGatePath, true);
                     setPathState(3);
                 }
@@ -351,7 +352,7 @@ public class BlueNearGate extends OpMode {
         follower.setStartingPose(startPose);
         hw.initPedro(hardwareMap);
         hw.lights.setLightMode(RGBLightController.LEDMode.PULSE_WAKE);
-        hw.lights.setLightColor(RGBLightController.RED);
+        hw.lights.setLightColor(RGBLightController.BLUE);
 
         hw.intake.closeGate();
 

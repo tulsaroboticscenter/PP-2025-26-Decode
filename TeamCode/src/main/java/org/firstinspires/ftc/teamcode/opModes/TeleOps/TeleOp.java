@@ -92,6 +92,7 @@ public class TeleOp extends OpMode
         {
             storedLocation = Field.redSmallZone;
             startingSide = Field.Side.RED;
+            goalPosition = Field.redGoal;
             hw.lights.setLightColor(RGBLightController.RED);
             telemetry.addLine("Last known position not found. Defaulting to Red.");
         }
@@ -205,20 +206,28 @@ public class TeleOp extends OpMode
         {
             hw.turret.setTarget(hw.turret.HeadingToTurretTicks(-90, AngleUnit.DEGREES));
             hw.turret.manuallySetFlywheelAndHood(0, 0);
+            hw.intake.stop();
         }
         else if (isTargeting)
         {
             // if targeting is on, update the turret with the new target
             hw.turret.setTarget(pos, goalPosition);
         }
+        else
+        {
+            hw.turret.setTarget(hw.turret.HeadingToTurretTicks(0, AngleUnit.DEGREES));
+        }
 
         if (gamepad1.yWasPressed())
         {
             // Switch Light Mode from solid to flashing, or from flashing to solid
-            hw.lights.setLightMode(((hw.lights.getLightMode() == RGBLightController.LEDMode.SOLID) ? RGBLightController.LEDMode.FLASH : RGBLightController.LEDMode.SOLID));
+            if (!(totalRuntime.seconds() > 110))
+            {
+                hw.lights.setLightMode(((hw.lights.getLightMode() == RGBLightController.LEDMode.SOLID) ? RGBLightController.LEDMode.FLASH : RGBLightController.LEDMode.SOLID));
+            }
             // Toggle targeting
             isTargeting = !isTargeting;
-            //hw.turret.isLeading = !hw.turret.isLeading;
+            hw.turret.isLeading = !hw.turret.isLeading;
         }
 
         // Right Trigger (Firing)
@@ -283,8 +292,13 @@ public class TeleOp extends OpMode
         if (totalRuntime.seconds() > 100 && !endgame)
         {
             endgame = true;
+            hw.lights.setLightColor(1);
             gamepad1.setLedColor(1, 1, 1, 1000000000);
             gamepad1.rumbleBlips(4);
+        }
+        if (totalRuntime.seconds() > 110 && hw.lights.getLightColor() != 0.504)
+        {
+            hw.lights.setLightMode(RGBLightController.LEDMode.PULSE);
         }
 
         if (gamepad1.psWasPressed())

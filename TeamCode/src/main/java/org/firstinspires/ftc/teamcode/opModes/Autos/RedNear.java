@@ -33,7 +33,7 @@ public class RedNear extends OpMode {
 
     public Pose2D goalPosition = null;
 
-    private final Pose startPose = new Pose(117.670, 132.117, Math.toRadians(-53.322));
+    private final Pose startPose = new Pose(117.18446601941747, 133.11650485436894, Math.toRadians(-53.322));
     private final Pose scorePose = new Pose(85, 84.1, Math.toRadians(0));
     private final Pose intake1 = new Pose(120.7, 84.1, Math.toRadians(0));
     private final Pose prepIntake2 = new Pose(95.2, 59.7, Math.toRadians(0));
