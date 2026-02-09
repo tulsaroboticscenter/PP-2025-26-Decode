@@ -81,7 +81,7 @@ public class Turret
     private Pose2D lastLeadPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0);
 
     @Sorter(sort = 10)
-    public static double leadMagnitudeMultiplier = 1;
+    public static double leadMagnitudeMultiplier = 0.9;
 
     public final double LAUNCHER_LOW_VELOCITY = 1000;
     public final double LAUNCHER_MEDIUM_VELOCITY = 1400;
@@ -379,7 +379,7 @@ public class Turret
 //        }
 
         this.velocity = velocity;
-        Range.clip(velocity, 1200, 2000);
+        Range.clip(velocity, 1300, 2000);
 
 //        double averageVelocity = (launcherL.getVelocity() + launcherR.getVelocity()) / 2;
 
