@@ -94,7 +94,7 @@ public class redFarLeviathan extends OpMode {
         Park = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(83.286, 10.897), new Pose(107.611, 18.681))
+                        new BezierLine(new Pose(83.286, 10.897),park)
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(90))
                 .build();
@@ -102,24 +102,24 @@ public class redFarLeviathan extends OpMode {
 
     public void autonomousPathRedUpdate() {
         switch (pathState) {
-            // Back up to shoot
+            /// Spins up flywheel
             case 0:
                 hw.turret.spinUpFlywheel();
                 shooterTimer.resetTimer();
                 setPathState(1);
                 break;
 
-            // Shoot
+            /// Shoot
             case 1:
                 if (!follower.isBusy())
                 {
-                    if (shooterTimer.getElapsedTime() > 3000)
+                    if (shooterTimer.getElapsedTime() > 2500)
                     {
                         hw.intake.partialIntake();
                         hw.intake.openGate();
                     }
 
-                    if (shooterTimer.getElapsedTime() > 6000)
+                    if (shooterTimer.getElapsedTime() > 4500)
                     {
                         hw.intake.closeGate();
                         hw.intake.intake();
@@ -133,29 +133,27 @@ public class redFarLeviathan extends OpMode {
                 }
                 break;
 
-            // intake
+            /// intake spike mark, and go back to shoot
             case 2:
-                if (!follower.isBusy() && pathTimer.getElapsedTime() > 2000) {
+                if (!follower.isBusy() && pathTimer.getElapsedTime() > 1500) {
                     hw.intake.closeGate();
                     hw.intake.intake();
                     follower.followPath(Movetoshoot, true);
                     setPathState(3);
-
-                    //shooterTimer.resetTimer();
                 }
                 break;
 
-            // Shoot
+            /// Shoot
             case 3:
                 if (!follower.isBusy())
                 {
-                    if (shooterTimer.getElapsedTime() > 3000)
+                    if (shooterTimer.getElapsedTime() > 2500)
                     {
                         hw.intake.partialIntake();
                         hw.intake.openGate();
                     }
 
-                    if (shooterTimer.getElapsedTime() > 6000)
+                    if (shooterTimer.getElapsedTime() > 4500)
                     {
                         hw.intake.closeGate();
                         hw.intake.intake();
@@ -170,7 +168,7 @@ public class redFarLeviathan extends OpMode {
                 }
                 break;
 
-            // Intake again
+            /// Intake again, from the human player station, and move back
             case 4:
                 if (!follower.isBusy()) {
                     hw.intake.intake();
@@ -180,27 +178,57 @@ public class redFarLeviathan extends OpMode {
                 }
                 break;
 
-            // Shoot
+            /// Shoot
             case 5:
                 if (follower.isBusy())
                 {
                     shooterTimer.resetTimer();
                 }
-                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 3500) {
+                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 2500) {
                     hw.intake.partialIntake();
                     hw.intake.openGate();
 
-                    if (shooterTimer.getElapsedTime() > 6000)
+                    if (shooterTimer.getElapsedTime() > 4500)
+                    {
+                        hw.intake.closeGate();
+                        hw.intake.stop();
+                        hw.intake.intake();
+                        follower.followPath(Movetointake2, true);
+                        setPathState(6);
+                    }
+                }
+                break;
+            /// moves to intake again from the human player zone
+            case 6:
+                if (!follower.isBusy()) {
+                    hw.intake.intake();
+                    follower.followPath(Movetoshoot2, true);
+                    shooterTimer.resetTimer();
+                    setPathState(7);
+                }
+                break;
+            /// shoots for the final time
+            case 7:
+                if (follower.isBusy())
+                {
+                    shooterTimer.resetTimer();
+                }
+                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 2500) {
+                    hw.intake.partialIntake();
+                    hw.intake.openGate();
+
+                    if (shooterTimer.getElapsedTime() > 4500)
                     {
                         hw.intake.closeGate();
                         hw.intake.stop();
                         hw.intake.intake();
                         follower.followPath(Park, true);
-                        setPathState(6);
+                        setPathState(8);
                     }
                 }
                 break;
-            case 6:
+            /// park
+            case 8:
                 if (!follower.isBusy()) {
                     setPathState(-1);
                     stop();
@@ -281,25 +309,14 @@ public class redFarLeviathan extends OpMode {
         telemetry.update();
     }
 
-    private Field.Side currentSide = Field.Side.BLUE;
-    private Field.StartingPosition currentStartingPosition = Field.StartingPosition.NEAR;
-    private int numOfSpikes = 3;
+    private Field.Side currentSide = Field.Side.RED;
+    private Field.StartingPosition currentStartingPosition = Field.StartingPosition.FAR;
+
     @Override
     public void init_loop()
     {
         hw.lights.update();
         hw.turret.update();
-
-        telemetry.addLine("Press up or down on the D-Pad to select number of spikes");
-        telemetry.addLine("Number of spikes selected: " + numOfSpikes);
-        if (gamepad1.dpadUpWasPressed() && numOfSpikes != 3)
-        {
-            numOfSpikes++;
-        }
-        else if (gamepad1.dpadDownWasPressed() && numOfSpikes != 0)
-        {
-            numOfSpikes--;
-        }
 
         telemetry.addLine("Side: " + ((currentSide == Field.Side.RED) ? "Red" : "Blue"));
         telemetry.addLine("Starting Position: " + ((currentStartingPosition == Field.StartingPosition.NEAR) ? "Near" : "Far"));
