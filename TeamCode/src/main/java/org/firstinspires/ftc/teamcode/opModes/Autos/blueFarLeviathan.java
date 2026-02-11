@@ -97,28 +97,26 @@ public class blueFarLeviathan extends OpMode {
                 .build();
     }
 
-    public void autonomousPathRedUpdate() {
+    public void autonomousPathUpdate() {
         switch (pathState) {
-            // Back up to shoot
+            /// Spins up flywheel
             case 0:
                 hw.turret.spinUpFlywheel();
                 shooterTimer.resetTimer();
                 setPathState(1);
                 break;
 
-            // Shoot
+            /// Shoot
             case 1:
                 if (!follower.isBusy())
                 {
-                    hw.turret.updateFlywheelAndHood(follower.getPose(), goalPosition);
-
-                    if (shooterTimer.getElapsedTime() > 3000)
+                    if (shooterTimer.getElapsedTime() > 2000)
                     {
                         hw.intake.partialIntake();
                         hw.intake.openGate();
                     }
 
-                    if (shooterTimer.getElapsedTime() > 6000)
+                    if (shooterTimer.getElapsedTime() > 3500)
                     {
                         hw.intake.closeGate();
                         hw.intake.intake();
@@ -132,9 +130,9 @@ public class blueFarLeviathan extends OpMode {
                 }
                 break;
 
-            // intake
+            /// intake spike mark, and go back to shoot
             case 2:
-                if (!follower.isBusy() && pathTimer.getElapsedTime() > 2000) {
+                if (!follower.isBusy() && pathTimer.getElapsedTime() > 1500) {
                     hw.intake.closeGate();
                     hw.intake.intake();
                     follower.followPath(Movetoshoot, true);
@@ -142,13 +140,17 @@ public class blueFarLeviathan extends OpMode {
                 }
                 break;
 
-            // Shoot
+            /// Shoot
             case 3:
-                if (!follower.isBusy()) {
+                if (!follower.isBusy())
+                {
+                    if (shooterTimer.getElapsedTime() > 2000)
+                    {
+                        hw.intake.partialIntake();
+                        hw.intake.openGate();
+                    }
 
-                    hw.intake.openGate();
-
-                    if (shooterTimer.getElapsedTime() > 4000 && shooterTimer.getElapsedTime() > 3000)
+                    if (shooterTimer.getElapsedTime() > 3500)
                     {
                         hw.intake.closeGate();
                         hw.intake.intake();
@@ -156,12 +158,14 @@ public class blueFarLeviathan extends OpMode {
                         setPathState(4);
                     }
                 }
-                else {
+                else
+                {
+                    telemetry.addLine("Case 3 -> Busy");
                     shooterTimer.resetTimer();
                 }
                 break;
 
-            // Intake again
+            /// Intake again, from the human player station, and move back
             case 4:
                 if (!follower.isBusy()) {
                     hw.intake.intake();
@@ -171,27 +175,57 @@ public class blueFarLeviathan extends OpMode {
                 }
                 break;
 
-            // Shoot
+            /// Shoot
             case 5:
                 if (follower.isBusy())
                 {
                     shooterTimer.resetTimer();
                 }
-                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 1500) {
+                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 2000) {
                     hw.intake.partialIntake();
                     hw.intake.openGate();
 
-                    if (shooterTimer.getElapsedTime() > 3000)
+                    if (shooterTimer.getElapsedTime() > 3500)
+                    {
+                        hw.intake.closeGate();
+                        hw.intake.stop();
+                        hw.intake.intake();
+                        follower.followPath(Movetointake2, true);
+                        setPathState(6);
+                    }
+                }
+                break;
+            /// moves to intake again from the human player zone
+            case 6:
+                if (!follower.isBusy()) {
+                    hw.intake.intake();
+                    follower.followPath(Movetoshoot2, true);
+                    shooterTimer.resetTimer();
+                    setPathState(7);
+                }
+                break;
+            /// shoots for the final time
+            case 7:
+                if (follower.isBusy())
+                {
+                    shooterTimer.resetTimer();
+                }
+                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 2000) {
+                    hw.intake.partialIntake();
+                    hw.intake.openGate();
+
+                    if (shooterTimer.getElapsedTime() > 3500)
                     {
                         hw.intake.closeGate();
                         hw.intake.stop();
                         hw.intake.intake();
                         follower.followPath(Park, true);
-                        setPathState(6);
+                        setPathState(8);
                     }
                 }
                 break;
-            case 6:
+            /// park
+            case 8:
                 if (!follower.isBusy()) {
                     setPathState(-1);
                     stop();
@@ -209,13 +243,14 @@ public class blueFarLeviathan extends OpMode {
     public void loop() {
         // These loop the movements of the robot, these must be called continuously in order to work
         follower.update();
-        autonomousPathRedUpdate();
+        autonomousPathUpdate();
         telemetry.addLine("RED");
 
         hw.lights.update();
         hw.turret.update();
 
         hw.turret.setTarget(follower.getPose(), goalPosition);
+        hw.turret.manuallySetFlywheelAndHood(1900, 0.9);
 
         // Constantly save the last known position
         Field.lastKnownPosition = new Pose2D(DistanceUnit.INCH, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.RADIANS, follower.getHeading());
@@ -239,10 +274,10 @@ public class blueFarLeviathan extends OpMode {
     {
         opmodeTimer.resetTimer();
         setPathState(0);
-        goalPosition = Field.redGoal;
+        goalPosition = Field.blueGoal;
 
         // Save the selected alliance side, so TeleOp can read it and automatically load the goal position.
-        Field.lastAllianceSide = Field.Side.RED;
+        Field.lastAllianceSide = Field.Side.BLUE;
     }
 
     /** This method is called once at the init of the OpMode. **/
@@ -258,7 +293,7 @@ public class blueFarLeviathan extends OpMode {
         follower.setStartingPose(startPose);
         hw.initPedro(hardwareMap);
         hw.lights.setLightMode(RGBLightController.LEDMode.PULSE_WAKE);
-        hw.lights.setLightColor(RGBLightController.RED);
+        hw.lights.setLightColor(RGBLightController.BLUE);
         hw.intake.closeGate();
 
         shotsFired = false;
@@ -271,24 +306,12 @@ public class blueFarLeviathan extends OpMode {
     }
 
     private Field.Side currentSide = Field.Side.BLUE;
-    private Field.StartingPosition currentStartingPosition = Field.StartingPosition.NEAR;
-    private int numOfSpikes = 3;
+    private Field.StartingPosition currentStartingPosition = Field.StartingPosition.FAR;
     @Override
     public void init_loop()
     {
         hw.lights.update();
         hw.turret.update();
-
-        telemetry.addLine("Press up or down on the D-Pad to select number of spikes");
-        telemetry.addLine("Number of spikes selected: " + numOfSpikes);
-        if (gamepad1.dpadUpWasPressed() && numOfSpikes != 3)
-        {
-            numOfSpikes++;
-        }
-        else if (gamepad1.dpadDownWasPressed() && numOfSpikes != 0)
-        {
-            numOfSpikes--;
-        }
 
         telemetry.addLine("Side: " + ((currentSide == Field.Side.RED) ? "Red" : "Blue"));
         telemetry.addLine("Starting Position: " + ((currentStartingPosition == Field.StartingPosition.NEAR) ? "Near" : "Far"));

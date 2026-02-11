@@ -11,7 +11,7 @@ public class Intake
     private Servo gateServo = null;
 
     private double gateOpenPosition = 0.8;
-    private double gateClosedPosition = 0.5;
+    private double gateClosedPosition = 0.42;
 
     public void init(HardwareMap hwMap)
     {
