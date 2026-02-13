@@ -67,17 +67,17 @@ public class blueFarLeviathan extends OpMode {
                 .addPath(
                         new BezierLine(
                                 new Pose(61.103, 10.897),
-                                new Pose(30, 40)
+                                new Pose(35, 42)
                         )
                 )
-                .setLinearHeadingInterpolation(90, -95)
+                .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(-100))
+                .setReversed()
                 .addPath(
                         new BezierLine(
                                 new Pose(8.368, 25),
                                 new Pose(8.368, 13)
                         )
                 )
-                .setTangentHeadingInterpolation()
                 .build();
 
         Movetoshoot2 = follower
