@@ -36,9 +36,9 @@ public class RedNear extends OpMode {
     private final Pose startPose = new Pose(117.18446601941747, 133.11650485436894, Math.toRadians(-53.322));
     private final Pose scorePose = new Pose(85, 84.1, Math.toRadians(0));
     private final Pose intake1 = new Pose(120.7, 84.1, Math.toRadians(0));
-    private final Pose prepIntake2 = new Pose(95.2, 59.7, Math.toRadians(0));
+    private final Pose prepIntake2 = new Pose(95.2, 65, Math.toRadians(0));
     private final Pose intake2 = new Pose(125.4, 59.5, Math.toRadians(0));
-    private final Pose prepIntake3 = new Pose(95.2, 35.8, Math.toRadians(0));
+    private final Pose prepIntake3 = new Pose(95.2, 40, Math.toRadians(0));
     private final Pose intake3 = new Pose(125.4, 35.8, Math.toRadians(0));
     private final Pose park = new Pose(110.942, 90, Math.toRadians(-90));
 
@@ -174,7 +174,6 @@ public class RedNear extends OpMode {
                     if (shooterTimer.getElapsedTime() > 3000)
                     {
                         hw.intake.closeGate();
-                        hw.intake.stop();
                         // Check if we go to the next spike
                         if (numOfSpikes > 1)
                         {
@@ -223,7 +222,6 @@ public class RedNear extends OpMode {
                     if (shooterTimer.getElapsedTime() > 3000)
                     {
                         hw.intake.closeGate();
-                        hw.intake.stop();
                         // Check if we go to the next spike
                         if (numOfSpikes > 2)
                         {
@@ -301,7 +299,7 @@ public class RedNear extends OpMode {
         hw.turret.update();
 
         hw.turret.setTarget(follower.getPose(), goalPosition);
-        hw.turret.updateFlywheelAndHood(follower.getPose(), goalPosition);
+        hw.turret.manuallySetFlywheelAndHood(1500, 0.65);
 
         // Constantly save the last known position
         Field.lastKnownPosition = new Pose2D(DistanceUnit.INCH, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.RADIANS, follower.getHeading());

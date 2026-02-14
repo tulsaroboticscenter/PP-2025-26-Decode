@@ -26,9 +26,6 @@ public class HardwareManager {
     public Pinpoint pinpoint = new Pinpoint();
     public Limelight limelight = new Limelight();
 
-    //public LynxModule controlHub = hwMap.get(LynxModule.class, "Control Hub");
-    //double totalCurrent = controlHub.getCurrent(CurrentUnit.AMPS);
-
     public void initTeleOp(HardwareMap hwMap)
     {
         turret.init(hwMap, true);

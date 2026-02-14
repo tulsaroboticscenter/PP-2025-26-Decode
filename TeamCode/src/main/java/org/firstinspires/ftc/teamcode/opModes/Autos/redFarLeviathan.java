@@ -67,17 +67,16 @@ public class redFarLeviathan extends OpMode {
                 .addPath(
                         new BezierLine(
                                 new Pose(84.065, 10.508),
-                                new Pose(115, 35)
+                                new Pose(120, 30)
                         )
                 )
-                .setLinearHeadingInterpolation(90, 280)
-                .setReversed()
+                .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(-80))
                 .addPath(
                         new BezierLine(
-                                new Pose(138, 25.341),
-                                new Pose(138, 10))
+                                new Pose(136, 25),
+                                new Pose(136, 13))
                 )
-                .setTangentHeadingInterpolation()
+                .setConstantHeadingInterpolation(Math.toRadians(-80))
                 .build();
 
         Movetoshoot2 = follower
@@ -147,13 +146,13 @@ public class redFarLeviathan extends OpMode {
             case 3:
                 if (!follower.isBusy())
                 {
-                    if (shooterTimer.getElapsedTime() > 2000)
+                    if (shooterTimer.getElapsedTime() > 750)
                     {
                         hw.intake.partialIntake();
                         hw.intake.openGate();
                     }
 
-                    if (shooterTimer.getElapsedTime() > 3500)
+                    if (shooterTimer.getElapsedTime() > 3000)
                     {
                         hw.intake.closeGate();
                         hw.intake.intake();
@@ -184,7 +183,7 @@ public class redFarLeviathan extends OpMode {
                 {
                     shooterTimer.resetTimer();
                 }
-                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 2000) {
+                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 750) {
                     hw.intake.partialIntake();
                     hw.intake.openGate();
 
@@ -213,7 +212,7 @@ public class redFarLeviathan extends OpMode {
                 {
                     shooterTimer.resetTimer();
                 }
-                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 2000) {
+                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 750) {
                     hw.intake.partialIntake();
                     hw.intake.openGate();
 

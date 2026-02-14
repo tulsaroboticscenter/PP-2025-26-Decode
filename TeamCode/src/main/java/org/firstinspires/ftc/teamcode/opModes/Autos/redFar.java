@@ -67,7 +67,7 @@ public class redFar extends OpMode {
                 .addPath(
                         new BezierCurve(
                                 new Pose(83.481, 10.314),
-                                new Pose(89.903, 60.130),
+                                new Pose(89.903, 65.130),
                                 new Pose(135.243, 59.935)
                         )
                 )
@@ -126,8 +126,6 @@ public class redFar extends OpMode {
             case 1:
                 if (!follower.isBusy())
                 {
-                    hw.turret.updateFlywheelAndHood(follower.getPose(), goalPosition);
-
                     if (shooterTimer.getElapsedTime() > 3000)
                     {
                         hw.intake.partialIntake();
@@ -289,6 +287,7 @@ public class redFar extends OpMode {
         hw.turret.update();
 
         hw.turret.setTarget(follower.getPose(), goalPosition);
+        hw.turret.manuallySetFlywheelAndHood(1900, 0.9);
 
         // Constantly save the last known position
         Field.lastKnownPosition = new Pose2D(DistanceUnit.INCH, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.RADIANS, follower.getHeading());

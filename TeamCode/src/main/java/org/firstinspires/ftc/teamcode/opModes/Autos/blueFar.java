@@ -284,14 +284,14 @@ public class blueFar extends OpMode {
         // These loop the movements of the robot, these must be called continuously in order to work
         follower.update();
         autonomousPathRedUpdate();
-        telemetry.addLine("RED");
+        telemetry.addLine("BLUE");
 
         hw.lights.update();
         hw.turret.update();
 
         hw.turret.setTarget(follower.getPose(), goalPosition);
 //        hw.turret.updateFlywheelAndHood(follower.getPose(), goalPosition);
-        hw.turret.manuallySetFlywheelAndHood(2000, 0.96);
+        hw.turret.manuallySetFlywheelAndHood(1900, 0.9);
 
         // Constantly save the last known position
         Field.lastKnownPosition = new Pose2D(DistanceUnit.INCH, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.RADIANS, follower.getHeading());

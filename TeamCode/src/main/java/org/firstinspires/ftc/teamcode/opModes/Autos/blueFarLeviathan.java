@@ -67,17 +67,18 @@ public class blueFarLeviathan extends OpMode {
                 .addPath(
                         new BezierLine(
                                 new Pose(61.103, 10.897),
-                                new Pose(35, 42)
+                                new Pose(30, 30)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(-100))
-                .setReversed()
+                //.setReversed()
                 .addPath(
                         new BezierLine(
                                 new Pose(8.368, 25),
                                 new Pose(8.368, 13)
                         )
                 )
+                .setConstantHeadingInterpolation(Math.toRadians(-100))
                 .build();
 
         Movetoshoot2 = follower
@@ -144,13 +145,13 @@ public class blueFarLeviathan extends OpMode {
             case 3:
                 if (!follower.isBusy())
                 {
-                    if (shooterTimer.getElapsedTime() > 2000)
+                    if (shooterTimer.getElapsedTime() > 750)
                     {
                         hw.intake.partialIntake();
                         hw.intake.openGate();
                     }
 
-                    if (shooterTimer.getElapsedTime() > 3500)
+                    if (shooterTimer.getElapsedTime() > 3000)
                     {
                         hw.intake.closeGate();
                         hw.intake.intake();
@@ -181,7 +182,7 @@ public class blueFarLeviathan extends OpMode {
                 {
                     shooterTimer.resetTimer();
                 }
-                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 2000) {
+                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 750) {
                     hw.intake.partialIntake();
                     hw.intake.openGate();
 
@@ -210,7 +211,7 @@ public class blueFarLeviathan extends OpMode {
                 {
                     shooterTimer.resetTimer();
                 }
-                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 2000) {
+                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 750) {
                     hw.intake.partialIntake();
                     hw.intake.openGate();
 

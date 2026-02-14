@@ -36,11 +36,11 @@ public class BlueNear extends OpMode {
     private final Pose startPose = new Pose(27.0873786407767, 133.11650485436894, Math.toRadians(-126.678));
     private final Pose scorePose = new Pose(57.9, 84.1, Math.toRadians(180));
     private final Pose intake1 = new Pose(23, 84.1, Math.toRadians(180));
-    private final Pose prepIntake2 = new Pose(42.8, 59.7, Math.toRadians(180));
-    private final Pose intake2 = new Pose(20, 59.5, Math.toRadians(180));
-    private final Pose prepIntake3 = new Pose(48, 40, Math.toRadians(180));
-    private final Pose intake3 = new Pose(20, 35.8, Math.toRadians(180));
-    private final Pose park = new Pose(29.058, 85.796, Math.toRadians(-90));
+    private final Pose prepIntake2 = new Pose(42.8, 67, Math.toRadians(180));
+    private final Pose intake2 = new Pose(15, 59.5, Math.toRadians(180));
+    private final Pose prepIntake3 = new Pose(48, 45, Math.toRadians(180));
+    private final Pose intake3 = new Pose(15, 35.8, Math.toRadians(180));
+    private final Pose park = new Pose(29.058, 90, Math.toRadians(-90));
 
 
     private PathChain scorePreload, parkPath, intakeLine1, scoreLine1, lineupIntake2, intakeLine2, scoreLine2, lineupIntake3, intakeLine3, scoreLine3;
@@ -164,7 +164,6 @@ public class BlueNear extends OpMode {
                     } else if (shooterTimer.getElapsedTime() > 4000)
                     {
                         hw.intake.closeGate();
-                        hw.intake.stop();
                         // Check if we go to the next spike
                         if (numOfSpikes > 1)
                         {
@@ -210,7 +209,6 @@ public class BlueNear extends OpMode {
                     } else if (shooterTimer.getElapsedTime() > 3000)
                     {
                         hw.intake.closeGate();
-                        hw.intake.stop();
                         // Check if we go to the next spike
                         if (numOfSpikes > 2)
                         {
@@ -287,13 +285,13 @@ public class BlueNear extends OpMode {
         // These loop the movements of the robot, these must be called continuously in order to work
         follower.update();
         autonomousPathRedUpdate();
-        telemetry.addLine("RED");
+        telemetry.addLine("BLUE");
 
         hw.lights.update();
         hw.turret.update();
 
         hw.turret.setTarget(follower.getPose(), goalPosition);
-        hw.turret.updateFlywheelAndHood(follower.getPose(), goalPosition);
+        hw.turret.manuallySetFlywheelAndHood(1500, 0.65);
 
         // Constantly save the last known position
         Field.lastKnownPosition = new Pose2D(DistanceUnit.INCH, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.RADIANS, follower.getHeading());
