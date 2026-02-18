@@ -35,7 +35,7 @@ public class RedNearGate extends OpMode {
     public Pose2D goalPosition = null;
 
     private final Pose startPose = new Pose(117.18446601941747, 133.11650485436894, Math.toRadians(-53.322));
-    private final Pose scorePose = new Pose(80, 84.1, Math.toRadians(0));
+    private final Pose scorePose = new Pose(74, 77, Math.toRadians(0));
     private final Pose intake1 = new Pose(120.7, 84.1, Math.toRadians(0));
     private final Pose clearGate = new Pose(127, 77.2, Math.toRadians(90));
     private final Pose gateControlPoint = new Pose(110, 69.1);

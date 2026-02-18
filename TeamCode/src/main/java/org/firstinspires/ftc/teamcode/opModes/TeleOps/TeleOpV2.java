@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.Robot.HardwareManager;
 
 import java.util.Locale;
 
+@Disabled
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="TeleOpV2", group="Robot")
 public class TeleOpV2 extends OpMode
 {
