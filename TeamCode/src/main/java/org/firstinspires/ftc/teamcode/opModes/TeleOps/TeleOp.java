@@ -154,7 +154,6 @@ public class TeleOp extends OpMode
     @Override
     public void start()
     {
-        hw.turret.spinUpFlywheel();
         if (testing)
         {
             if (testingSide == Field.Side.RED)
@@ -187,37 +186,6 @@ public class TeleOp extends OpMode
 
         hw.drivetrain.fieldOrientedDrive(this, pos, storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
 
-        //hw.lights.setLightColor(hw.turret.getHueFromDistance(pos, goalPosition));
-        if (velocityAdjustmentRuntime.seconds() > (1.0 / 150) && !isParking)
-        {
-            if (hw.turret.isLeading)
-            {
-                hw.turret.setLeadTarget(pos, goalPosition, hw.pinpoint.getVelX(), hw.pinpoint.getVelY());
-            }
-            if (pos != null)
-            {
-                hw.turret.updateFlywheelAndHood(pos, goalPosition);
-            }
-            velocityAdjustmentRuntime.reset();
-        }
-
-
-        if (isParking)
-        {
-            hw.turret.setTarget(hw.turret.HeadingToTurretTicks(-90, AngleUnit.DEGREES));
-            hw.turret.manuallySetFlywheelAndHood(0, 0);
-            hw.intake.stop();
-        }
-        else if (isTargeting)
-        {
-            // if targeting is on, update the turret with the new target
-            hw.turret.setTarget(pos, goalPosition);
-        }
-        else
-        {
-            hw.turret.setTarget(hw.turret.HeadingToTurretTicks(0, AngleUnit.DEGREES));
-        }
-
         if (gamepad1.yWasPressed())
         {
             // Switch Light Mode from solid to flashing, or from flashing to solid
@@ -227,21 +195,20 @@ public class TeleOp extends OpMode
             }
             // Toggle targeting
             isTargeting = !isTargeting;
-            hw.turret.isLeading = !hw.turret.isLeading;
         }
 
         // Right Trigger (Firing)
-        if (gamepad1.right_trigger > 0.2) {
-            hw.intake.openGate();
-        } else {
-            hw.intake.closeGate();
-        }
-        if (gamepad1.right_trigger > 0.5 && hw.turret.velocity > 1750) {
-            hw.intake.partialIntake();
-        } else if (gamepad1.right_trigger > 0.5 && hw.turret.velocity < 1750) {
+//        if (gamepad1.right_trigger > 0.2) {
+//            hw.intake.openGate();
+//        } else {
+//            hw.intake.closeGate();
+//        }
+        if (gamepad1.right_trigger > 0.5)
+        {
             hw.intake.intake();
         }
-        if (gamepad1.right_trigger < 0.5) {
+        else if (gamepad1.right_trigger < 0.5)
+        {
             if (isIntaking) {
                 hw.intake.intake();
             } else if (!isIntaking) {
@@ -301,11 +268,6 @@ public class TeleOp extends OpMode
             hw.lights.setLightMode(RGBLightController.LEDMode.PULSE);
         }
 
-        if (gamepad1.psWasPressed())
-        {
-            hw.turret.ToggleFlywheel();
-        }
-
         ptelemetry.setUpdateInterval(50);
 
         ptelemetry.addData("Target Flywheel Velocity", hw.turret.velocity);
@@ -325,31 +287,22 @@ public class TeleOp extends OpMode
 
         ptelemetry.addData("Hood Target", hw.turret.hoodTarget);
 
-        ptelemetry.addData("Turret Rotation", hw.turret.turretRotationMotor.getCurrentPosition());
-
         ptelemetry.addLine("");
 
-        //Intake would not work as it is set to DCMotor not DCMotorEx, I did not want to mess with it as it could cause issues
-
-        ptelemetry.addData("Intake Current", hw.intake.intakeMotor.getCurrent(CurrentUnit.AMPS));
+        ptelemetry.addData("Intake Inner Current", hw.intake.innerIntakeMotor.getCurrent(CurrentUnit.AMPS));
+        ptelemetry.addData("Intake Outer Current", hw.intake.outerIntakeMotor.getCurrent(CurrentUnit.AMPS));
 
         ptelemetry.addLine("");
 
         ptelemetry.addData("Shooter Left Current", hw.turret.launcherL.getCurrent(CurrentUnit.AMPS));
         ptelemetry.addData("Shooter Right Current", hw.turret.launcherR.getCurrent(CurrentUnit.AMPS));
-        ptelemetry.addData("Turret Rotation Current", hw.turret.turretRotationMotor.getCurrent(CurrentUnit.AMPS));
 
         ptelemetry.addData("Pinpoint Frequency", hw.pinpoint.pinpoint.getFrequency());
         ptelemetry.addData("X Encoder Raw", hw.pinpoint.pinpoint.getEncoderX());
         ptelemetry.addData("Y Encoder Raw", hw.pinpoint.pinpoint.getEncoderY());
         ptelemetry.addData("Heading", hw.pinpoint.pinpoint.getHeading());
 
-        //ptelemetry.addData("Total Draw", hw.controlHub.getCurrent(CurrentUnit.AMPS));
-
         ptelemetry.update();
-        //telemetry.addLine();
-
-        //telemetry.addLine("limelight robot position: " + PoseUtils.poseToString(hw.limelight.getRobotPosition(), DistanceUnit.INCH, AngleUnit.DEGREES));
         telemetry.addLine("Targeting: " + isTargeting);
         telemetry.addLine("Parked: " + hw.drivetrain.parked);
         telemetry.addLine("Hood Target Position: " + String.format(Locale.US, "%.2f", hw.turret.getHoodTarget()));

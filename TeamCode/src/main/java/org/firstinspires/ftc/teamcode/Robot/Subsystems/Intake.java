@@ -2,50 +2,50 @@ package org.firstinspires.ftc.teamcode.Robot.Subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Intake
 {
-    public DcMotorEx intakeMotor = null;
-    private Servo gateServo = null;
+    public DcMotorEx innerIntakeMotor = null;
+    public DcMotorEx outerIntakeMotor = null;
 
-    private double gateOpenPosition = 0.8;
-    private double gateClosedPosition = 0.42;
 
     public void init(HardwareMap hwMap)
     {
-        intakeMotor = hwMap.get(DcMotorEx.class, "intakeMotor");
-        intakeMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        intakeMotor.setPower(0);
+        innerIntakeMotor = hwMap.get(DcMotorEx.class, "innerIntake");
+        innerIntakeMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        innerIntakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        innerIntakeMotor.setPower(0);
 
-        gateServo = hwMap.get(Servo.class, "gate");
+        outerIntakeMotor = hwMap.get(DcMotorEx.class, "outerIntake");
+        outerIntakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        outerIntakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        outerIntakeMotor.setPower(0);
 
+        // Direction
+        innerIntakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        outerIntakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void intake()
     {
-        intakeMotor.setPower(1);
+        innerIntakeMotor.setPower(1);
+        outerIntakeMotor.setPower(1);
     }
     public void partialIntake() {
-        intakeMotor.setPower(0.9);
+        innerIntakeMotor.setPower(0.9);
     }
     public void outtake()
     {
-        intakeMotor.setPower(-1);
+        innerIntakeMotor.setPower(-1);
+        outerIntakeMotor.setPower(-1);
     }
     public void stop()
     {
-        intakeMotor.setPower(0);
-    }
-    public void openGate()
-    {
-        gateServo.setPosition(gateOpenPosition);
-    }
-    public void closeGate()
-    {
-        gateServo.setPosition(gateClosedPosition);
+        innerIntakeMotor.setPower(0);
+        outerIntakeMotor.setPower(0);
     }
 
 }

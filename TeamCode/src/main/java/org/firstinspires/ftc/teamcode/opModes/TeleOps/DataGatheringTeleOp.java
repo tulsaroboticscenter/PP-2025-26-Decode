@@ -145,7 +145,6 @@ public class DataGatheringTeleOp extends OpMode
     @Override
     public void start()
     {
-        hw.turret.initHood();
         if (testing)
         {
             if (testingSide == Field.Side.RED)
@@ -184,11 +183,11 @@ public class DataGatheringTeleOp extends OpMode
         hw.lights.setLightColor(((hw.limelight.seesTarget()) ? RGBLightController.GREEN : RGBLightController.RED));
 
         // Right Trigger (Firing)
-        if (gamepad1.right_trigger > 0.2) {
-            hw.intake.openGate();
-        } else {
-            hw.intake.closeGate();
-        }
+//        if (gamepad1.right_trigger > 0.2) {
+//            hw.intake.openGate();
+//        } else {
+//            hw.intake.closeGate();
+//        }
         if (gamepad1.right_trigger > 0.5) {
             hw.intake.intake();
         }
@@ -206,11 +205,6 @@ public class DataGatheringTeleOp extends OpMode
             isIntaking = !isIntaking;
         }
 
-        if (gamepad1.xWasPressed())
-        {
-            hw.turret.ToggleFlywheel();
-        }
-
         if (gamepad1.optionsWasPressed())
         {
             hw.pinpoint.resetPosition(startingSide);
@@ -219,29 +213,6 @@ public class DataGatheringTeleOp extends OpMode
         if (gamepad1.shareWasPressed())
         {
             hw.pinpoint.setPosition(Field.center);
-        }
-
-        if (gamepad1.dpadRightWasPressed())
-        {
-            hw.turret.incrementHoodTarget(0.05);
-        }
-        if (gamepad1.dpadLeftWasPressed())
-        {
-            hw.turret.incrementHoodTarget(-0.05);
-        }
-
-        if (velocityAdjustmentRuntime.seconds() > 0.2)
-        {
-            if (gamepad1.dpad_up)
-            {
-                hw.turret.incrementVelocity(50.0);
-                velocityAdjustmentRuntime.reset();
-            }
-            else if (gamepad1.dpad_down)
-            {
-                hw.turret.incrementVelocity(-50.0);
-                velocityAdjustmentRuntime.reset();
-            }
         }
 
         ptelemetry.addData("Target Flywheel Velocity", hw.turret.velocity);

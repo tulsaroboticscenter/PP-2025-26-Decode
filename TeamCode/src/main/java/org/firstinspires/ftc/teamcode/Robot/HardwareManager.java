@@ -28,12 +28,12 @@ public class HardwareManager {
 
     public void initTeleOp(HardwareMap hwMap)
     {
-        turret.init(hwMap, true);
+        //turret.init(hwMap, true);
         intake.init(hwMap);
         lights.init(hwMap, true);
         drivetrain.init(hwMap);
         pinpoint.init(hwMap, true);
-        limelight.init(hwMap, true);
+        //limelight.init(hwMap, true);
     }
 
     public void initPedro(HardwareMap hwMap)
@@ -48,19 +48,16 @@ public class HardwareManager {
         turret.update();
         lights.update();
         pinpoint.update();
-        limelight.update(turret.getGlobalTurretHeadingDegrees(pinpoint.getPosition().getHeading(AngleUnit.DEGREES)));
     }
     public void updateInitTeleOp()
     {
         lights.update();
         pinpoint.update();
-        limelight.update(turret.getGlobalTurretHeadingDegrees(pinpoint.getPosition().getHeading(AngleUnit.DEGREES)));
     }
 
     public void updatePedro()
     {
         turret.update();
         lights.update();
-
     }
 }

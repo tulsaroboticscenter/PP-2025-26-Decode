@@ -20,15 +20,10 @@ public class Pinpoint
     {
         pinpoint = hwMap.get(GoBildaPinpointDriver.class, "pinpoint");
 
-        //while (!(pinpoint.getDeviceStatus() == GoBildaPinpointDriver.DeviceStatus.READY))
-        //{
-            // Do nothing
-        //}
         pinpoint.resetPosAndIMU();
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        pinpoint.setOffsets(76.2, -190.5); // x: 3in y: -7.5in
+        pinpoint.setOffsets(130, 104);
         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.REVERSED);
-        pinpoint.setYawScalar(1); // flip gyroscope polarity
         pinpoint.recalibrateIMU();
     }
 

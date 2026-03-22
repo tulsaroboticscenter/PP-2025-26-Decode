@@ -135,8 +135,8 @@ public class redFarLeviathan extends OpMode {
             /// intake spike mark, and go back to shoot
             case 2:
                 if (!follower.isBusy() && pathTimer.getElapsedTime() > 1500) {
-                    hw.intake.closeGate();
-                    hw.intake.intake();
+//                    hw.intake.closeGate();
+//                    hw.intake.intake();
                     follower.followPath(Movetoshoot, true);
                     setPathState(3);
                 }
