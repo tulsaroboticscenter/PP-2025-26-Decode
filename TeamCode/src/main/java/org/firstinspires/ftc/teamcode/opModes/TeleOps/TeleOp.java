@@ -275,8 +275,8 @@ public class TeleOp extends OpMode
         //ptelemetry.addData("Left Flywheel Motor Velocity", hw.turret.launcherL.getVelocity());
         //ptelemetry.addData("Right Flywheel Motor Velocity", hw.turret.launcherR.getVelocity());
 
-        ptelemetry.addData("Left Flywheel Current Draw (Amps)", hw.turret.launcherL.getCurrent(CurrentUnit.AMPS));
-        ptelemetry.addData("Right Flywheel Current Draw (Amps)", hw.turret.launcherR.getCurrent(CurrentUnit.AMPS));
+//        ptelemetry.addData("Left Flywheel Current Draw (Amps)", hw.turret.launcherL.getCurrent(CurrentUnit.AMPS));
+//        ptelemetry.addData("Right Flywheel Current Draw (Amps)", hw.turret.launcherR.getCurrent(CurrentUnit.AMPS));
 
         ptelemetry.addLine("");
 
