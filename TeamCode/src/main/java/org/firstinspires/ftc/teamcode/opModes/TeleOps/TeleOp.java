@@ -270,10 +270,10 @@ public class TeleOp extends OpMode
 
         ptelemetry.setUpdateInterval(50);
 
-        ptelemetry.addData("Target Flywheel Velocity", hw.turret.velocity);
-        ptelemetry.addData("Average Flywheel Velocity", hw.turret.getAverageFlywheelVelocity());
-        ptelemetry.addData("Left Flywheel Motor Velocity", hw.turret.launcherL.getVelocity());
-        ptelemetry.addData("Right Flywheel Motor Velocity", hw.turret.launcherR.getVelocity());
+        //ptelemetry.addData("Target Flywheel Velocity", hw.turret.velocity);
+        //ptelemetry.addData("Average Flywheel Velocity", hw.turret.getAverageFlywheelVelocity());
+        //ptelemetry.addData("Left Flywheel Motor Velocity", hw.turret.launcherL.getVelocity());
+        //ptelemetry.addData("Right Flywheel Motor Velocity", hw.turret.launcherR.getVelocity());
 
         ptelemetry.addData("Left Flywheel Current Draw (Amps)", hw.turret.launcherL.getCurrent(CurrentUnit.AMPS));
         ptelemetry.addData("Right Flywheel Current Draw (Amps)", hw.turret.launcherR.getCurrent(CurrentUnit.AMPS));
@@ -294,8 +294,8 @@ public class TeleOp extends OpMode
 
         ptelemetry.addLine("");
 
-        ptelemetry.addData("Shooter Left Current", hw.turret.launcherL.getCurrent(CurrentUnit.AMPS));
-        ptelemetry.addData("Shooter Right Current", hw.turret.launcherR.getCurrent(CurrentUnit.AMPS));
+//        ptelemetry.addData("Shooter Left Current", hw.turret.launcherL.getCurrent(CurrentUnit.AMPS));
+//        ptelemetry.addData("Shooter Right Current", hw.turret.launcherR.getCurrent(CurrentUnit.AMPS));
 
         ptelemetry.addData("Pinpoint Frequency", hw.pinpoint.pinpoint.getFrequency());
         ptelemetry.addData("X Encoder Raw", hw.pinpoint.pinpoint.getEncoderX());
