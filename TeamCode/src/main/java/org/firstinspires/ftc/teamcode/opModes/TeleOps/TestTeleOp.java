@@ -146,7 +146,6 @@ public class TestTeleOp extends OpMode
     @Override
     public void start()
     {
-        hw.turret.initHood();
         if (testing)
         {
             if (testingSide == Field.Side.RED)
@@ -184,13 +183,6 @@ public class TestTeleOp extends OpMode
         hw.drivetrain.fieldOrientedDrive(this, pos, storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
         hw.lights.setLightColor(((hw.limelight.seesTarget()) ? RGBLightController.GREEN : RGBLightController.RED));
 
-
-        if (isTargeting)
-        {
-            // if targeting is on, update the turret with the new target
-            hw.turret.setTarget(pos, goalPosition);
-        }
-
         if (gamepad1.yWasPressed())
         {
             // Switch Light Mode from solid to flashing, or from flashing to solid
@@ -199,12 +191,6 @@ public class TestTeleOp extends OpMode
             isTargeting = !isTargeting;
         }
 
-        // Right Trigger (Firing)
-        if (gamepad1.right_trigger > 0.2) {
-            hw.intake.openGate();
-        } else {
-            hw.intake.closeGate();
-        }
         if (gamepad1.right_trigger > 0.5) {
             hw.intake.intake();
         }
@@ -219,11 +205,6 @@ public class TestTeleOp extends OpMode
         if (gamepad1.aWasPressed())
         {
             isIntaking = !isIntaking;
-        }
-
-        if (gamepad1.xWasPressed())
-        {
-            hw.turret.ToggleFlywheel();
         }
 
         if (gamepad1.shareWasPressed())
@@ -262,13 +243,13 @@ public class TestTeleOp extends OpMode
 
         //Intake would not work as it is set to DCMotor not DCMotorEx, I did not want to mess with it as it could cause issues
 
-        ptelemetry.addData("Intake Current", hw.intake.intakeMotor.getCurrent(CurrentUnit.AMPS));
+        ptelemetry.addData("Inner Intake Current", hw.intake.innerIntakeMotor.getCurrent(CurrentUnit.AMPS));
+        ptelemetry.addData("Outer Intake Current", hw.intake.outerIntakeMotor.getCurrent(CurrentUnit.AMPS));
 
         ptelemetry.addLine("");
 
         ptelemetry.addData("Shooter Left Current", hw.turret.launcherL.getCurrent(CurrentUnit.AMPS));
         ptelemetry.addData("Shooter Right Current", hw.turret.launcherR.getCurrent(CurrentUnit.AMPS));
-        ptelemetry.addData("Turret Rotation Current", hw.turret.turretRotationMotor.getCurrent(CurrentUnit.AMPS));
 
         ptelemetry.addData("Pinpoint Frequency", hw.pinpoint.pinpoint.getFrequency());
         ptelemetry.addData("X Encoder Raw", hw.pinpoint.pinpoint.getEncoderX());
@@ -278,7 +259,7 @@ public class TestTeleOp extends OpMode
         ptelemetry.update();
         //telemetry.addLine();
 
-        telemetry.addLine("limelight robot position: " + PoseUtils.poseToString(hw.limelight.getRobotPosition(hw.turret.getLocalTurretHeadingDegrees()), DistanceUnit.INCH, AngleUnit.DEGREES));
+
         telemetry.addLine("Targeting: " + isTargeting);
         telemetry.addLine("Hood Target Position: " + String.format(Locale.US, "%.2f", hw.turret.getHoodTarget()));
         telemetry.addLine("Flywheel Target Velocity: " + String.format(Locale.US, "%.2f", hw.turret.getCurrentVelocity()));
