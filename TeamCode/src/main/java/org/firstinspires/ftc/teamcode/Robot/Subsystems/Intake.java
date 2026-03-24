@@ -25,8 +25,8 @@ public class Intake
         outerIntakeMotor.setPower(0);
 
         // Direction
-        innerIntakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        outerIntakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        innerIntakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        outerIntakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
     public void intake()

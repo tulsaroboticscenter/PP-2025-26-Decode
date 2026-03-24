@@ -28,7 +28,7 @@ public class HardwareManager {
 
     public void initTeleOp(HardwareMap hwMap)
     {
-        //turret.init(hwMap, true);
+        turret.init(hwMap, true);
         intake.init(hwMap);
         lights.init(hwMap, true);
         drivetrain.init(hwMap);
