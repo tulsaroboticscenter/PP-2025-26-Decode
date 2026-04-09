@@ -154,6 +154,7 @@ public class TeleOp extends OpMode
     @Override
     public void start()
     {
+        hw.turret.spinUpFlywheel();
         if (testing)
         {
             if (testingSide == Field.Side.RED)
@@ -197,28 +198,37 @@ public class TeleOp extends OpMode
             isTargeting = !isTargeting;
         }
 
+        if (isParking)
+        {
+            hw.turret.setTarget(hw.turret.HeadingToServoValue(0, AngleUnit.DEGREES));
+            //hw.turret.manuallySetFlywheelAndHood(0, 0);
+            hw.intake.stop();
+        }
+        else if (isTargeting)
+        {
+            // if targeting is on, update the turret with the new target
+            hw.turret.setTarget(pos, goalPosition);
+        }
+        else
+        {
+            hw.turret.setTarget(hw.turret.HeadingToServoValue(0, AngleUnit.DEGREES));
+        }
+
         // Right Trigger (Firing)
-//        if (gamepad1.right_trigger > 0.2) {
-//            hw.intake.openGate();
-//        } else {
-//            hw.intake.closeGate();
-//        }
         if (gamepad1.right_trigger > 0.5)
         {
-            hw.intake.intake();
+            hw.intake.isForceIntaking = true;
+            hw.intake.openGate();
         }
         else if (gamepad1.right_trigger < 0.5)
         {
-            if (isIntaking) {
-                hw.intake.intake();
-            } else if (!isIntaking) {
-                hw.intake.stop();
-            }
+            hw.intake.isForceIntaking = false;
+            hw.intake.closeGate();
         }
 
         if (gamepad1.aWasPressed())
         {
-            isIntaking = !isIntaking;
+            hw.intake.toggle();
         }
 
         if (gamepad1.rightBumperWasPressed())
@@ -240,6 +250,15 @@ public class TeleOp extends OpMode
                 hw.drivetrain.unpark();
                 ParkStatus = parkStatus.NOT_PARKED;
             }
+        }
+
+        if (gamepad1.dpadUpWasPressed())
+        {
+            hw.turret.hoodTarget = 0.87;
+        }
+        else if (gamepad1.dpadDownWasPressed())
+        {
+            hw.turret.hoodTarget = 0;
         }
 
         if (gamepad1.x)
@@ -285,7 +304,7 @@ public class TeleOp extends OpMode
         ptelemetry.addData("LeftBack Current", hw.drivetrain.leftBack.getCurrent(CurrentUnit.AMPS));
         ptelemetry.addData("RightBack Current", hw.drivetrain.rightBack.getCurrent(CurrentUnit.AMPS));
 
-        ptelemetry.addData("Hood Target", hw.turret.hoodTarget);
+        //ptelemetry.addData("Hood Target", hw.turret.hoodTarget);
 
         ptelemetry.addLine("");
 
@@ -305,10 +324,10 @@ public class TeleOp extends OpMode
         ptelemetry.update();
         telemetry.addLine("Targeting: " + isTargeting);
         telemetry.addLine("Parked: " + hw.drivetrain.parked);
-        telemetry.addLine("Hood Target Position: " + String.format(Locale.US, "%.2f", hw.turret.getHoodTarget()));
-        telemetry.addLine("Flywheel Target Velocity: " + String.format(Locale.US, "%.2f", hw.turret.getCurrentVelocity()));
+//        telemetry.addLine("Hood Target Position: " + String.format(Locale.US, "%.2f", hw.turret.getHoodTarget()));
+//        telemetry.addLine("Flywheel Target Velocity: " + String.format(Locale.US, "%.2f", hw.turret.getCurrentVelocity()));
         telemetry.addLine("Position: " + PoseUtils.poseToString(pos, DistanceUnit.INCH, AngleUnit.DEGREES));
-        telemetry.addData("Distance to target:", hw.turret.getDistanceToTarget(pos, goalPosition));
+        //telemetry.addData("Distance to target:", hw.turret.getDistanceToTarget(pos, goalPosition));
         telemetry.addLine("Time Passed: " + String.format(Locale.US, "%.2f", totalRuntime.seconds()) + "s");
         telemetry.update();
     }

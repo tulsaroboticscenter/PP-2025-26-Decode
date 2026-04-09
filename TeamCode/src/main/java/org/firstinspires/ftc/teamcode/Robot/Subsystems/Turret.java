@@ -24,14 +24,13 @@ public class Turret
     public DcMotorEx launcherL = null;
     public DcMotorEx launcherR = null;
 
-    public Servo gate = null;
+
     public Servo hoodServo = null;
     public boolean isFlywheelSpinning = false;
 
     public boolean isTargeting = false;
     public static boolean reversePolarity = true;
 
-    public boolean flywheelOn = false;
     public double velocity = 1300;
 
     public double hoodTarget = 0;
@@ -46,6 +45,8 @@ public class Turret
     public double leftBound = zeroPosition - (servoRange / 2);
     public double rightBound = zeroPosition + (servoRange / 2);
 
+    double turretOffsetMM = 26.16;
+
     public void init(HardwareMap hwMap, boolean TeleOp)
     {
         turretRotationServo1 = hwMap.get(Servo.class, "trServo1");
@@ -54,7 +55,6 @@ public class Turret
         launcherL = hwMap.get(DcMotorEx.class, "launcherL");
         launcherR = hwMap.get(DcMotorEx.class, "launcherR");
 
-        gate = hwMap.get(Servo.class, "gate");
         hoodServo = hwMap.get(Servo.class, "hood");
 
         launcherL.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -72,7 +72,7 @@ public class Turret
         turretRotationServo1.setDirection(Servo.Direction.REVERSE);
         turretRotationServo2.setDirection(Servo.Direction.REVERSE);
 
-        if (!TeleOp)
+        //if (!TeleOp)
             hoodServo.setPosition(0);
     }
 
@@ -104,14 +104,12 @@ public class Turret
     {
         currentPose = currentPosition;
         targetPose = targetPosition;
-        setTurretPosition(HeadingToServoValue(getDegreesToTarget(currentPosition, targetPosition, false), AngleUnit.DEGREES));
     }
     public void setTarget(Pose currentPosition, Pose2D targetPosition)
     {
         Pose2D currentPose2D = new Pose2D(DistanceUnit.INCH, currentPosition.getX(), currentPosition.getY(), AngleUnit.RADIANS, currentPosition.getHeading());
         currentPose = currentPose2D;
         targetPose = targetPosition;
-        setTurretPosition(HeadingToServoValue(getDegreesToTarget(currentPosition, targetPosition, false), AngleUnit.DEGREES));
     }
     public void setTarget(Pose currentPosition, Pose targetPosition)
     {
@@ -119,11 +117,23 @@ public class Turret
         Pose2D targetPose2D = new Pose2D(DistanceUnit.INCH, targetPosition.getX(), targetPosition.getY(), AngleUnit.RADIANS, targetPosition.getHeading());
         currentPose = currentPose2D;
         targetPose = targetPose2D;
-        setTurretPosition(HeadingToServoValue(getDegreesToTarget(currentPosition, targetPosition, false), AngleUnit.DEGREES));
     }
     public void setTarget(double tickValue)
     {
         setTurretPosition(tickValue);
+    }
+
+    public Pose2D offsetPoseToTurret(Pose2D pose)
+    {
+        double theta = pose.getHeading(AngleUnit.RADIANS);
+        if (theta > Math.PI)
+            theta -= Math.PI;
+        else if (theta < Math.PI)
+            theta += Math.PI;
+        else
+            theta = 0;
+
+        return new Pose2D(DistanceUnit.MM, pose.getX(DistanceUnit.MM) + (turretOffsetMM * Math.cos(theta)), pose.getY(DistanceUnit.MM) + (turretOffsetMM * Math.sin(theta)), AngleUnit.RADIANS, theta);
     }
 
     public double getAverageFlywheelVelocity()
@@ -138,7 +148,7 @@ public class Turret
 
     public void update()
     {
-        if (flywheelOn)
+        if (isFlywheelSpinning)
         {
             setFlywheelMotorVelocity(velocity);
         }
@@ -146,10 +156,10 @@ public class Turret
         {
             setFlywheelMotorVelocity(0);
         }
-
-
-
         hoodServo.setPosition(hoodTarget);
+
+        if (isTargeting)
+            setTurretPosition(HeadingToServoValue(getDegreesToTarget(offsetPoseToTurret(currentPose), targetPose, false), AngleUnit.DEGREES));
     }
 
     public double getDistanceToTarget(Pose2D Pos1, Pose2D Pos2)

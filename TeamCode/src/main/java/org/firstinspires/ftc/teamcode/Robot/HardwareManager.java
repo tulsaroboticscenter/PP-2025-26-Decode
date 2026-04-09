@@ -48,6 +48,7 @@ public class HardwareManager {
         turret.update();
         lights.update();
         pinpoint.update();
+        intake.update();
     }
     public void updateInitTeleOp()
     {
