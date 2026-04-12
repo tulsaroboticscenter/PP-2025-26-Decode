@@ -47,6 +47,9 @@ public class TeleOp extends OpMode
     boolean loaded = false;
     Pose2D startingPosition = null;
 
+    double lastHeading = 0;
+    double continuousHeading = 0;
+
     Field.Side startingSide = null;
 
     enum parkStatus {
@@ -175,6 +178,7 @@ public class TeleOp extends OpMode
             //goalPosition = Field.redGoal;
         }
         hw.pinpoint.setPosition(storedLocation);
+        lastHeading = storedLocation.getHeading(AngleUnit.DEGREES);
     }
 
     private Pose2D pos;
@@ -187,6 +191,23 @@ public class TeleOp extends OpMode
 
         hw.drivetrain.fieldOrientedDrive(this, pos, storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
 
+        double delta = pos.getHeading(AngleUnit.DEGREES) - lastHeading;
+
+        if (delta > 180)
+            delta -= 360;
+        else if (delta < -180)
+            delta += 360;
+
+        continuousHeading += delta;
+        lastHeading = pos.getHeading(AngleUnit.DEGREES);
+
+        // Recenter
+        if (continuousHeading > 198)
+        {
+            continuousHeading -= 360;
+
+        }
+
         if (gamepad1.yWasPressed())
         {
             // Switch Light Mode from solid to flashing, or from flashing to solid
@@ -195,7 +216,7 @@ public class TeleOp extends OpMode
                 hw.lights.setLightMode(((hw.lights.getLightMode() == RGBLightController.LEDMode.SOLID) ? RGBLightController.LEDMode.FLASH : RGBLightController.LEDMode.SOLID));
             }
             // Toggle targeting
-            isTargeting = !isTargeting;
+            hw.turret.isTargeting = !hw.turret.isTargeting;
         }
 
         if (isParking)
@@ -204,7 +225,7 @@ public class TeleOp extends OpMode
             //hw.turret.manuallySetFlywheelAndHood(0, 0);
             hw.intake.stop();
         }
-        else if (isTargeting)
+        else if (hw.turret.isTargeting)
         {
             // if targeting is on, update the turret with the new target
             hw.turret.setTarget(pos, goalPosition);
@@ -253,13 +274,14 @@ public class TeleOp extends OpMode
         }
 
         if (gamepad1.dpadUpWasPressed())
-        {
-            hw.turret.hoodTarget = 0.87;
-        }
+            hw.turret.incrementHood(0.25);
         else if (gamepad1.dpadDownWasPressed())
-        {
-            hw.turret.hoodTarget = 0;
-        }
+            hw.turret.incrementHood(-0.25);
+
+        if (gamepad1.dpadLeftWasPressed())
+            hw.turret.incrementFlywheel(-50);
+        else if (gamepad1.dpadRightWasPressed())
+            hw.turret.incrementFlywheel(50);
 
         if (gamepad1.x)
         {
@@ -285,6 +307,11 @@ public class TeleOp extends OpMode
         if (totalRuntime.seconds() > 110 && hw.lights.getLightColor() != 0.504)
         {
             hw.lights.setLightMode(RGBLightController.LEDMode.PULSE);
+        }
+
+        if (gamepad1.psWasPressed())
+        {
+            hw.turret.toggleFlywheel();
         }
 
         ptelemetry.setUpdateInterval(50);

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Robot.Subsystems;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
+import com.qualcomm.hardware.rev.Rev9AxisImu;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -15,6 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Classes.Field;
+import org.firstinspires.ftc.teamcode.goBilda.GoBildaPinpointDriver;
 
 import java.io.File;
 
@@ -27,6 +29,8 @@ public class Drivetrain
 
     public Servo park1 = null;
     public Servo park2 = null;
+
+    public Rev9AxisImu imu = null;
 
     public void init(HardwareMap hwMap)
     {
@@ -55,6 +59,8 @@ public class Drivetrain
 
         park1.setPosition(0 + startingParkPosition);
         park2.setPosition(1 - startingParkPosition);
+
+
     }
 
     double Y = 0;
@@ -93,6 +99,8 @@ public class Drivetrain
         drivePower = 1;
     }
 
+    public static double TIP_LIMIT = 10.0;
+
     public void robotCentricDrive(double forward, double strafe, double rotate)
     {
         double frontLeftPower = forward + strafe + rotate;
@@ -118,6 +126,8 @@ public class Drivetrain
         Y = -opmode.gamepad1.left_stick_y;
         X = opmode.gamepad1.left_stick_x;
         rX = opmode.gamepad1.right_stick_x;
+
+
 
         heading = botHeadingRadians - startingHeadingRadians;
 

@@ -174,45 +174,86 @@ public class DataGatheringTeleOp extends OpMode
         pos = hw.pinpoint.getPosition();
         // Update Methods
         hw.updateTeleOp();
-
-        //hw.drivetrain.fieldcentricDrive(this, (pos.getHeading(AngleUnit.RADIANS) - Math.toRadians(storedHeadingDegrees)) + Math.toRadians(fieldCentricOffset));
-        //hw.drivetrain.fieldcentricDrive(this, pos.getHeading(AngleUnit.RADIANS), Math.toRadians(storedHeadingDegrees), startingSide);
-       // hw.drivetrain.StrafeDrive(gamepad1.left_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x);
-
+        hw.turret.setTarget(pos, goalPosition);
         hw.drivetrain.fieldOrientedDrive(this, pos, storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
-        hw.lights.setLightColor(((hw.limelight.seesTarget()) ? RGBLightController.GREEN : RGBLightController.RED));
+
+        if (gamepad1.yWasPressed())
+        {
+            // Switch Light Mode from solid to flashing, or from flashing to solid
+            if (!(totalRuntime.seconds() > 110))
+            {
+                hw.lights.setLightMode(((hw.lights.getLightMode() == RGBLightController.LEDMode.SOLID) ? RGBLightController.LEDMode.FLASH : RGBLightController.LEDMode.SOLID));
+            }
+            // Toggle targeting
+            hw.turret.isTargeting = !hw.turret.isTargeting;
+        }
+
+        else if (hw.turret.isTargeting)
+        {
+            // if targeting is on, update the turret with the new target
+            hw.turret.setTarget(pos, goalPosition);
+        }
+        else
+        {
+            hw.turret.setTarget(hw.turret.HeadingToServoValue(0, AngleUnit.DEGREES));
+        }
 
         // Right Trigger (Firing)
-//        if (gamepad1.right_trigger > 0.2) {
-//            hw.intake.openGate();
-//        } else {
-//            hw.intake.closeGate();
-//        }
-        if (gamepad1.right_trigger > 0.5) {
-            hw.intake.intake();
+        if (gamepad1.right_trigger > 0.5)
+        {
+            hw.intake.isForceIntaking = true;
+            hw.intake.openGate();
         }
-        if (gamepad1.right_trigger < 0.5) {
-            if (isIntaking) {
-                hw.intake.intake();
-            } else if (!isIntaking) {
-                hw.intake.stop();
-            }
+        else if (gamepad1.right_trigger < 0.5)
+        {
+            hw.intake.isForceIntaking = false;
+            hw.intake.closeGate();
         }
-
 
         if (gamepad1.aWasPressed())
         {
-            isIntaking = !isIntaking;
+            hw.intake.toggle();
+        }
+
+        if (gamepad1.dpadUpWasPressed())
+            hw.turret.incrementHood(0.25);
+        else if (gamepad1.dpadDownWasPressed())
+            hw.turret.incrementHood(-0.25);
+
+        if (gamepad1.dpadLeftWasPressed())
+            hw.turret.incrementFlywheel(-50);
+        else if (gamepad1.dpadRightWasPressed())
+            hw.turret.incrementFlywheel(50);
+
+        if (gamepad1.x)
+        {
+            hw.drivetrain.slowDown();
+        }
+        else
+        {
+            hw.drivetrain.speedUp();
         }
 
         if (gamepad1.optionsWasPressed())
         {
-            hw.pinpoint.resetPosition(startingSide);
+            hw.pinpoint.pinpoint.setPosition((startingSide == Field.Side.BLUE) ? Field.blueHumanPlayerZone : Field.redHumanPlayerZone);
         }
 
-        if (gamepad1.shareWasPressed())
+        if (totalRuntime.seconds() > 100 && !endgame)
         {
-            hw.pinpoint.setPosition(Field.center);
+            endgame = true;
+            hw.lights.setLightColor(1);
+            gamepad1.setLedColor(1, 1, 1, 1000000000);
+            gamepad1.rumbleBlips(4);
+        }
+        if (totalRuntime.seconds() > 110 && hw.lights.getLightColor() != 0.504)
+        {
+            hw.lights.setLightMode(RGBLightController.LEDMode.PULSE);
+        }
+
+        if (gamepad1.psWasPressed())
+        {
+            hw.turret.toggleFlywheel();
         }
 
         ptelemetry.addData("Target Flywheel Velocity", hw.turret.velocity);
@@ -228,10 +269,10 @@ public class DataGatheringTeleOp extends OpMode
         telemetry.addData("Left Flywheel Motor Velocity", hw.turret.launcherL.getVelocity());
         telemetry.addData("Right Flywheel Motor Velocity", hw.turret.launcherR.getVelocity());
 
-        telemetry.addLine("Hood Target Position: " + String.format(Locale.US, "%.2f", hw.turret.getHoodTarget()));
+        telemetry.addLine("Hood Target Position: " + String.format(Locale.US, "%.2f", hw.turret.hoodTarget));
         telemetry.addLine("Flywheel Target Velocity: " + String.format(Locale.US, "%.2f", hw.turret.getCurrentVelocity()));
         telemetry.addLine();
-        telemetry.addData("Distance to target:", hw.turret.getDistanceToTarget(pos, goalPosition));
+        telemetry.addData("Distance to target:", hw.turret.getDistanceToTarget(hw.turret.offsetPoseToTurret(pos), goalPosition));
         telemetry.addLine("Position" + PoseUtils.poseToString(pos, DistanceUnit.INCH, AngleUnit.DEGREES));
         telemetry.update();
     }

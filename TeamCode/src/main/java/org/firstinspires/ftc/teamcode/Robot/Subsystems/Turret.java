@@ -31,19 +31,23 @@ public class Turret
     public boolean isTargeting = false;
     public static boolean reversePolarity = true;
 
-    public double velocity = 1300;
+    public double velocity = 2400;
 
     public double hoodTarget = 0;
+
+    public double lastHeading = 0;
+    public double currentHeading = 0;
+    public double continuousHeading = 0;
 
     public double trOffset = 0;
 
     // This variable below represents how much the servo has to rotate to get a full 360 degree range of motion
     // The numbers in this variable correspond to the current gear ratio.
-    public double servoRange = 1.0 / ((100.0/20.0) * (24.0/95.0));
+    public double servoRangeCoeff = (100.0/20.0) * (24.0/95.0);
 
     public double zeroPosition = 0.5 + trOffset;
-    public double leftBound = zeroPosition - (servoRange / 2);
-    public double rightBound = zeroPosition + (servoRange / 2);
+    //public double leftBound = zeroPosition - servoRange;
+    //public double rightBound = zeroPosition + servoRange;
 
     double turretOffsetMM = 26.16;
 
@@ -76,10 +80,29 @@ public class Turret
             hoodServo.setPosition(0);
     }
 
+    public void setServoPosition()
+    {
+        double TargetHeading = 0;
+        if (TargetHeading > 0)
+        {
+
+        }
+    }
+
     private void setFlywheelMotorVelocity(double velocity)
     {
         launcherL.setVelocity(velocity);
         launcherR.setVelocity(velocity);
+    }
+
+    public void toggleFlywheel()
+    {
+        isFlywheelSpinning = !isFlywheelSpinning;
+    }
+
+    public void stopFlywheel()
+    {
+        isFlywheelSpinning = false;
     }
 
     public double HeadingToServoValue(double heading, AngleUnit angleunit)
@@ -89,7 +112,7 @@ public class Turret
         {
             startingHeading *= (180.0 / Math.PI); // if radians, convert to degrees.
         }
-        return zeroPosition + ((startingHeading / 360) * servoRange);
+        return zeroPosition + ((startingHeading / servoRangeCoeff) / 355);
     }
 
     public void spinUpFlywheel(){isFlywheelSpinning = true;}
@@ -133,7 +156,7 @@ public class Turret
         else
             theta = 0;
 
-        return new Pose2D(DistanceUnit.MM, pose.getX(DistanceUnit.MM) + (turretOffsetMM * Math.cos(theta)), pose.getY(DistanceUnit.MM) + (turretOffsetMM * Math.sin(theta)), AngleUnit.RADIANS, theta);
+        return new Pose2D(DistanceUnit.MM, pose.getX(DistanceUnit.MM) + (turretOffsetMM * Math.cos(theta)), pose.getY(DistanceUnit.MM) + (turretOffsetMM * Math.sin(theta)), AngleUnit.RADIANS, pose.getHeading(AngleUnit.RADIANS));
     }
 
     public double getAverageFlywheelVelocity()
@@ -160,6 +183,44 @@ public class Turret
 
         if (isTargeting)
             setTurretPosition(HeadingToServoValue(getDegreesToTarget(offsetPoseToTurret(currentPose), targetPose, false), AngleUnit.DEGREES));
+        else
+            setTurretPosition(HeadingToServoValue(0, AngleUnit.DEGREES));
+
+        double delta = currentHeading - lastHeading;
+
+        if (delta > 180)
+            delta -= 360;
+        else if (delta < -180)
+            delta += 360;
+
+        continuousHeading += delta;
+        lastHeading = currentHeading;
+
+        if (continuousHeading > 198)
+        {
+            continuousHeading -= 360;
+
+        }
+        else if (continuousHeading < -198)
+        {
+            continuousHeading += 360;
+
+        }
+    }
+
+    public void incrementHood (double value)
+    {
+        if (hoodTarget + value > 0.87)
+            hoodTarget = 0.87;
+        else if (hoodTarget + value < 0)
+            hoodTarget = 0;
+        else
+            hoodTarget += value;
+    }
+
+    public void incrementFlywheel (int value)
+    {
+        velocity += value;
     }
 
     public double getDistanceToTarget(Pose2D Pos1, Pose2D Pos2)

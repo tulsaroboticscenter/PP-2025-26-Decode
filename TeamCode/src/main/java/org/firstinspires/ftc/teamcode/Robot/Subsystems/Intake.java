@@ -83,7 +83,7 @@ public class Intake
 
     public void closeGate()
     {
-        gate.setPosition(0.6);
+        gate.setPosition(0.5);
     }
 
     public void update()
