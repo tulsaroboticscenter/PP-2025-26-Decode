@@ -188,25 +188,9 @@ public class TeleOp extends OpMode
         pos = hw.pinpoint.getPosition();
         // Update Methods
         hw.updateTeleOp();
+        hw.turret.updateFlywheelAndHood(pos, goalPosition);
 
         hw.drivetrain.fieldOrientedDrive(this, pos, storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
-
-        double delta = pos.getHeading(AngleUnit.DEGREES) - lastHeading;
-
-        if (delta > 180)
-            delta -= 360;
-        else if (delta < -180)
-            delta += 360;
-
-        continuousHeading += delta;
-        lastHeading = pos.getHeading(AngleUnit.DEGREES);
-
-        // Recenter
-        if (continuousHeading > 198)
-        {
-            continuousHeading -= 360;
-
-        }
 
         if (gamepad1.yWasPressed())
         {
@@ -272,16 +256,6 @@ public class TeleOp extends OpMode
                 ParkStatus = parkStatus.NOT_PARKED;
             }
         }
-
-        if (gamepad1.dpadUpWasPressed())
-            hw.turret.incrementHood(0.25);
-        else if (gamepad1.dpadDownWasPressed())
-            hw.turret.incrementHood(-0.25);
-
-        if (gamepad1.dpadLeftWasPressed())
-            hw.turret.incrementFlywheel(-50);
-        else if (gamepad1.dpadRightWasPressed())
-            hw.turret.incrementFlywheel(50);
 
         if (gamepad1.x)
         {
@@ -349,6 +323,7 @@ public class TeleOp extends OpMode
         ptelemetry.addData("Heading", hw.pinpoint.pinpoint.getHeading());
 
         ptelemetry.update();
+        telemetry.addLine("Continuous Heading: " + hw.turret.continuousHeading);
         telemetry.addLine("Targeting: " + isTargeting);
         telemetry.addLine("Parked: " + hw.drivetrain.parked);
 //        telemetry.addLine("Hood Target Position: " + String.format(Locale.US, "%.2f", hw.turret.getHoodTarget()));

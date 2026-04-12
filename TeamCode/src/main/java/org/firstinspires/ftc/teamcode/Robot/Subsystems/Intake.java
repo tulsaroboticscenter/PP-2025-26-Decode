@@ -17,7 +17,7 @@ public class Intake
     public boolean isIntaking = false;
     public boolean isForceIntaking = false;
 
-    double innerAmperageLimit = 5.0;
+    double innerAmperageLimit = 3.0;
     double outerAmperageLimit = 10.0;
 
 

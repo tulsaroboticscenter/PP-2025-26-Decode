@@ -31,19 +31,32 @@ public class Turret
     public boolean isTargeting = false;
     public static boolean reversePolarity = true;
 
+    public boolean isLeading = false;
+
     public double velocity = 2400;
 
     public double hoodTarget = 0;
 
-    public double lastHeading = 0;
+    public double lastHeading = getDegreesToTarget(currentPose, targetPose, false);
     public double currentHeading = 0;
     public double continuousHeading = 0;
+
+    public double flywheelA = 0.0501095;
+    public double flywheelB = 1.3107;
+    public double flywheelC = 1383.6612;
+
+    public double hoodA = 1.76561e-9;
+    public double hoodB = -0.0000123004;
+    public double hoodC = 0.0290713;
+    public double hoodD = -21.33397;
 
     public double trOffset = 0;
 
     // This variable below represents how much the servo has to rotate to get a full 360 degree range of motion
     // The numbers in this variable correspond to the current gear ratio.
-    public double servoRangeCoeff = (100.0/20.0) * (24.0/95.0);
+    public double gearRatioCoeff = ((100.0/20.0) * (24.0/95.0)) * (355.0/360.0);
+
+    public final double MAX_ANGLE = 355 * gearRatioCoeff;
 
     public double zeroPosition = 0.5 + trOffset;
     //public double leftBound = zeroPosition - servoRange;
@@ -80,15 +93,6 @@ public class Turret
             hoodServo.setPosition(0);
     }
 
-    public void setServoPosition()
-    {
-        double TargetHeading = 0;
-        if (TargetHeading > 0)
-        {
-
-        }
-    }
-
     private void setFlywheelMotorVelocity(double velocity)
     {
         launcherL.setVelocity(velocity);
@@ -112,7 +116,7 @@ public class Turret
         {
             startingHeading *= (180.0 / Math.PI); // if radians, convert to degrees.
         }
-        return zeroPosition + ((startingHeading / servoRangeCoeff) / 355);
+        return Range.clip(zeroPosition + (startingHeading / (MAX_ANGLE)), 0, 1);
     }
 
     public void spinUpFlywheel(){isFlywheelSpinning = true;}
@@ -131,15 +135,13 @@ public class Turret
     public void setTarget(Pose currentPosition, Pose2D targetPosition)
     {
         Pose2D currentPose2D = new Pose2D(DistanceUnit.INCH, currentPosition.getX(), currentPosition.getY(), AngleUnit.RADIANS, currentPosition.getHeading());
-        currentPose = currentPose2D;
-        targetPose = targetPosition;
+        setTarget(currentPose2D, targetPosition);
     }
     public void setTarget(Pose currentPosition, Pose targetPosition)
     {
         Pose2D currentPose2D = new Pose2D(DistanceUnit.INCH, currentPosition.getX(), currentPosition.getY(), AngleUnit.RADIANS, currentPosition.getHeading());
         Pose2D targetPose2D = new Pose2D(DistanceUnit.INCH, targetPosition.getX(), targetPosition.getY(), AngleUnit.RADIANS, targetPosition.getHeading());
-        currentPose = currentPose2D;
-        targetPose = targetPose2D;
+        setTarget(currentPose2D, targetPose2D);
     }
     public void setTarget(double tickValue)
     {
@@ -157,6 +159,55 @@ public class Turret
             theta = 0;
 
         return new Pose2D(DistanceUnit.MM, pose.getX(DistanceUnit.MM) + (turretOffsetMM * Math.cos(theta)), pose.getY(DistanceUnit.MM) + (turretOffsetMM * Math.sin(theta)), AngleUnit.RADIANS, pose.getHeading(AngleUnit.RADIANS));
+    }
+
+    double distanceInches = 0;
+    public void updateFlywheelAndHood(Pose2D currentPosition, Pose2D goalPosition)
+    {
+        double tempTarget = 0;
+//        if (isLeading)
+//        {
+//            distanceInches = getDistanceToTarget(currentPosition, lastLeadPose);
+//        }
+//        else
+//        {
+            distanceInches = getDistanceToTarget(currentPosition, goalPosition);
+        //}
+
+
+        // THIS is where you compute your regression for the flywheel. Adjust this to match the equation you came up with
+
+        // Quadratic Example: ((flywheelA * Math.pow(distanceInches, 2)) + (flywheelB * distanceInches) + flywheelC)
+
+        velocity = ((flywheelA * Math.pow(distanceInches, 2)) + (flywheelB * distanceInches) + flywheelC);
+        Range.clip(velocity, 1300, 2500);
+
+        double averageVelocity = (launcherL.getVelocity() + launcherR.getVelocity()) / 2;
+
+
+        // THIS is where you compute your regression for the hood. Note that x is now the flywheel velocity, not the distance.
+
+        // Cubic Example: ((hoodA * Math.pow(averageVelocity, 3)) + (hoodB * Math.pow(averageVelocity, 2)) + (hoodC * averageVelocity) + hoodD)
+
+        tempTarget = ((hoodA * Math.pow(averageVelocity, 3)) + (hoodB * Math.pow(averageVelocity, 2)) + (hoodC * averageVelocity) + hoodD);
+        if (tempTarget > 0.87)
+        {
+            hoodTarget = 0.87;
+        }
+        else if (tempTarget < 0)
+        {
+            hoodTarget = 0;
+        }
+        else
+        {
+            hoodTarget = tempTarget;
+        }
+        hoodTarget = Range.clip(hoodTarget, 0, 0.87);
+    }
+
+    public void updateFlywheelAndHood(Pose currentPosition, Pose2D goalPosition)
+    {
+        updateFlywheelAndHood(new Pose2D(DistanceUnit.MM, currentPosition.getX(), currentPosition.getY(), AngleUnit.RADIANS, currentPosition.getHeading()), goalPosition);
     }
 
     public double getAverageFlywheelVelocity()
@@ -181,31 +232,31 @@ public class Turret
         }
         hoodServo.setPosition(hoodTarget);
 
-        if (isTargeting)
-            setTurretPosition(HeadingToServoValue(getDegreesToTarget(offsetPoseToTurret(currentPose), targetPose, false), AngleUnit.DEGREES));
-        else
-            setTurretPosition(HeadingToServoValue(0, AngleUnit.DEGREES));
+        currentHeading = getDegreesToTarget(offsetPoseToTurret(currentPose), targetPose, false);
 
         double delta = currentHeading - lastHeading;
 
-        if (delta > 180)
+        if (delta > 270)
             delta -= 360;
-        else if (delta < -180)
+        else if (delta < -270)
             delta += 360;
 
         continuousHeading += delta;
         lastHeading = currentHeading;
 
-        if (continuousHeading > 198)
+        if (continuousHeading > (MAX_ANGLE / 2))
         {
             continuousHeading -= 360;
-
         }
-        else if (continuousHeading < -198)
+        else if (continuousHeading < -(MAX_ANGLE / 2))
         {
             continuousHeading += 360;
-
         }
+
+        if (isTargeting)
+            setTurretPosition(HeadingToServoValue(continuousHeading, AngleUnit.DEGREES));
+        else
+            setTurretPosition(HeadingToServoValue(0, AngleUnit.DEGREES));
     }
 
     public void incrementHood (double value)
@@ -232,10 +283,7 @@ public class Turret
     }
     public double getDistanceToTarget(Pose currentPosition, Pose2D targetPosition)
     {
-        double deltaY = targetPosition.getY(DistanceUnit.INCH) - currentPosition.getY();
-        double deltaX = targetPosition.getX(DistanceUnit.INCH) - currentPosition.getX();
-
-        return Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+        return getDistanceToTarget(new Pose2D(DistanceUnit.MM, currentPosition.getX(), currentPosition.getY(), AngleUnit.RADIANS, currentPosition.getHeading()), targetPosition);
     }
 
     public static double getDegreesToTarget(Pose2D currentLocation, Pose2D targetLocation, boolean convertToRadians)

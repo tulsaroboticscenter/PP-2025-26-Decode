@@ -216,9 +216,9 @@ public class DataGatheringTeleOp extends OpMode
         }
 
         if (gamepad1.dpadUpWasPressed())
-            hw.turret.incrementHood(0.25);
+            hw.turret.incrementHood(0.05);
         else if (gamepad1.dpadDownWasPressed())
-            hw.turret.incrementHood(-0.25);
+            hw.turret.incrementHood(-0.05);
 
         if (gamepad1.dpadLeftWasPressed())
             hw.turret.incrementFlywheel(-50);
