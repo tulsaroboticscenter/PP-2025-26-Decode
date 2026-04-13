@@ -54,15 +54,12 @@ public class Turret
 
     // This variable below represents how much the servo has to rotate to get a full 360 degree range of motion
     // The numbers in this variable correspond to the current gear ratio.
-    public double gearRatioCoeff = ((100.0/20.0) * (24.0/95.0)) * (355.0/360.0);
-
-    public final double MAX_ANGLE = 355 * gearRatioCoeff;
-
+    public final double TURRET_PER_SERVO = (100.0/20.0) * (24.0/95.0);
+    public final double SERVO_RANGE_DEG = 355.0;
+    public final double MAX_ANGLE = SERVO_RANGE_DEG * TURRET_PER_SERVO;
     public double zeroPosition = 0.5 + trOffset;
-    //public double leftBound = zeroPosition - servoRange;
-    //public double rightBound = zeroPosition + servoRange;
 
-    double turretOffsetMM = 26.16;
+    double turretOffsetMM = -26.16; // Offset from center of robot to turret
 
     public void init(HardwareMap hwMap, boolean TeleOp)
     {
@@ -116,7 +113,9 @@ public class Turret
         {
             startingHeading *= (180.0 / Math.PI); // if radians, convert to degrees.
         }
-        return Range.clip(zeroPosition + (startingHeading / (MAX_ANGLE)), 0, 1);
+
+        // flip + to - if rotating wrong way
+        return Range.clip(zeroPosition + (startingHeading / TURRET_PER_SERVO) / SERVO_RANGE_DEG, 0, 1);
     }
 
     public void spinUpFlywheel(){isFlywheelSpinning = true;}
@@ -151,13 +150,6 @@ public class Turret
     public Pose2D offsetPoseToTurret(Pose2D pose)
     {
         double theta = pose.getHeading(AngleUnit.RADIANS);
-        if (theta > Math.PI)
-            theta -= Math.PI;
-        else if (theta < Math.PI)
-            theta += Math.PI;
-        else
-            theta = 0;
-
         return new Pose2D(DistanceUnit.MM, pose.getX(DistanceUnit.MM) + (turretOffsetMM * Math.cos(theta)), pose.getY(DistanceUnit.MM) + (turretOffsetMM * Math.sin(theta)), AngleUnit.RADIANS, pose.getHeading(AngleUnit.RADIANS));
     }
 
