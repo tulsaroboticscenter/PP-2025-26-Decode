@@ -35,6 +35,8 @@ public class HardwareManager {
     public final double ROTATION_TOLERANCE_DEG = 5; // per second
     public final double TOLERANCE_DETECTION_HZ = 240.0;
 
+    public final double TRANSALATIONAL_TOLERANCE_MM_PER_SEC = 5.0;
+
     public Pose2D lastPose = new Pose2D(DistanceUnit.MM, 0, 0, AngleUnit.RADIANS, 0);
 
     public ElapsedTime poseUpdateRuntime = new ElapsedTime();
@@ -82,7 +84,9 @@ public class HardwareManager {
     {
         if (poseUpdateRuntime.time(TimeUnit.MILLISECONDS) > 1000.0 / TOLERANCE_DETECTION_HZ)
         {
-            if ((currentPose.getHeading(AngleUnit.DEGREES) - lastPose.getHeading(AngleUnit.DEGREES) * TOLERANCE_DETECTION_HZ) < ROTATION_TOLERANCE_DEG && !drivetrain.isInputtingOutsideDeadzone(opmode))
+            if ((currentPose.getHeading(AngleUnit.DEGREES) - lastPose.getHeading(AngleUnit.DEGREES) * TOLERANCE_DETECTION_HZ) < ROTATION_TOLERANCE_DEG
+                    && !drivetrain.isInputtingOutsideDeadzone(opmode)
+                    && pinpoint.getVelocityR() < TRANSALATIONAL_TOLERANCE_MM_PER_SEC)
             {
                 pinpoint.setPosition(lastPose);
             }

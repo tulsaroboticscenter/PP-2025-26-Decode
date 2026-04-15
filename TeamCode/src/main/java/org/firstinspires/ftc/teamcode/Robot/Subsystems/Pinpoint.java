@@ -47,6 +47,11 @@ public class Pinpoint
         return new double[]{magnitude, theta};
     }
 
+    public double getVelocityR()
+    {
+        return Math.hypot(pinpoint.getVelX(), pinpoint.getVelY());
+    }
+
     public double getVelX()
     {
         return pinpoint.getVelX();
