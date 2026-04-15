@@ -58,7 +58,6 @@ public class Turret
     public final double SERVO_RANGE_DEG = 355.0;
     public final double MAX_ANGLE = SERVO_RANGE_DEG * TURRET_PER_SERVO;
     public double zeroPosition = 0.5 + trOffset;
-
     public final double TURRET_OFFSET_MM = -26.16; // Offset from center of robot to turret
 
     public void init(HardwareMap hwMap, boolean TeleOp)
@@ -147,6 +146,11 @@ public class Turret
         setTurretPosition(tickValue);
     }
 
+    /**
+     * Offsets a robot pose to the location of its turret.
+     * @param pose The position of the robot.
+     * @return A corrected pose adjusted for the turret's position
+     */
     public Pose2D offsetPoseToTurret(Pose2D pose)
     {
         double theta = pose.getHeading(AngleUnit.RADIANS);

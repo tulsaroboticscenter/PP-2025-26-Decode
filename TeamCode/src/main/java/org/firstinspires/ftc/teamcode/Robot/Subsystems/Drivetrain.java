@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.Robot.Subsystems;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
+import android.view.SoundEffectConstants;
+
 import com.qualcomm.hardware.rev.Rev9AxisImu;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -9,6 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -19,6 +22,7 @@ import org.firstinspires.ftc.teamcode.Classes.Field;
 import org.firstinspires.ftc.teamcode.goBilda.GoBildaPinpointDriver;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 public class Drivetrain
 {
@@ -76,6 +80,10 @@ public class Drivetrain
 
     public boolean parked = false;
 
+    public boolean isInputtingDrive = false;
+
+
+
 
     // Parking values
     public double parkRange = 0.5;
@@ -100,6 +108,8 @@ public class Drivetrain
     }
 
     public static double TIP_LIMIT = 10.0;
+
+    public double joystickDeadzone = 0.05;
 
     public void robotCentricDrive(double forward, double strafe, double rotate)
     {
@@ -127,8 +137,6 @@ public class Drivetrain
         X = opmode.gamepad1.left_stick_x;
         rX = opmode.gamepad1.right_stick_x;
 
-
-
         heading = botHeadingRadians - startingHeadingRadians;
 
         offset = ((side == Field.Side.RED) ? Math.toRadians(0) : Math.toRadians(180));
@@ -148,6 +156,16 @@ public class Drivetrain
         rightBack.setPower(backRightPower);
     }
 
+    public boolean isInputtingOutsideDeadzone(OpMode opmode)
+    {
+        double leftY = -opmode.gamepad1.left_stick_y;
+        double leftX = opmode.gamepad1.left_stick_x;
+        double rightX = opmode.gamepad1.right_stick_x;
+
+        double r = Math.hypot(Y, X);
+        return r > joystickDeadzone || Math.abs(rightX) > joystickDeadzone;
+    }
+
     public void fieldOrientedDrive(OpMode opmode, double currentHeadingRadians, double storedHeadingRadians, Field.Side side)
     {
         double forward = -opmode.gamepad1.left_stick_y;
@@ -162,7 +180,6 @@ public class Drivetrain
 
         double newForward = r * Math.sin(theta);
         double newStrafe = r * Math.cos(theta);
-
 
         robotCentricDrive(newForward, newStrafe, rotate);
     }
@@ -186,7 +203,10 @@ public class Drivetrain
         robotCentricDrive(newForward, newStrafe, rotate);
     }
 
-    public void playerCentricDrive(OpMode opmode, Pose2D currentPosition, Field.Side side)
+    /**
+     *   Recieves opmode, current position, and the side of the field the robot is on and creates a driver-centric movement system.
+     */
+    public void playerCentricDrive(OpMode opmode, Pose2D currentPosition, Field.Side side) // Very experimental.
     {
         double forward = -opmode.gamepad1.left_stick_y;
         double strafe = opmode.gamepad1.left_stick_x;
@@ -250,11 +270,10 @@ public class Drivetrain
 
     /**
      *
-     * @return returns array of amps [leftFront, rightFront, leftRear, rightRear]
+     * @return returns total current draw of the drivetrain motors in AMPS.
      */
-    public double[] getCurrentAmps()
+    public double getCurrentAmps()
     {
-        double[] amperages = {leftFront.getCurrent(CurrentUnit.AMPS), rightFront.getCurrent(CurrentUnit.AMPS), leftBack.getCurrent(CurrentUnit.AMPS), rightBack.getCurrent(CurrentUnit.AMPS)};
-        return amperages;
+        return leftFront.getCurrent(CurrentUnit.AMPS) + leftBack.getCurrent(CurrentUnit.AMPS) + rightBack.getCurrent(CurrentUnit.AMPS) + rightFront.getCurrent(CurrentUnit.AMPS);
     }
 }

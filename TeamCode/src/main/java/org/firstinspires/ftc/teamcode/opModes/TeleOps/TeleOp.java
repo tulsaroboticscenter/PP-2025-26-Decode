@@ -187,7 +187,7 @@ public class TeleOp extends OpMode
     {
         pos = hw.pinpoint.getPosition();
         // Update Methods
-        hw.updateTeleOp();
+        hw.updateTeleOp(this);
         hw.turret.updateFlywheelAndHood(pos, goalPosition);
 
         hw.drivetrain.fieldOrientedDrive(this, pos, storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
@@ -323,6 +323,7 @@ public class TeleOp extends OpMode
         ptelemetry.addData("Heading", hw.pinpoint.pinpoint.getHeading());
 
         ptelemetry.update();
+        telemetry.addLine("Drive being inputted?: " + hw.drivetrain.isInputtingOutsideDeadzone(this));
         telemetry.addLine("Continuous Heading: " + hw.turret.continuousHeading);
         telemetry.addLine("Targeting: " + isTargeting);
         telemetry.addLine("Parked: " + hw.drivetrain.parked);

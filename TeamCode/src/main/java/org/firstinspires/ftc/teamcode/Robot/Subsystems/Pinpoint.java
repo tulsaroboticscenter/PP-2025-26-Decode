@@ -76,6 +76,4 @@ public class Pinpoint
     {
         pinpoint.setPosition((side == Field.Side.BLUE) ? Field.blueTouchingGoalFacingToward : Field.redTouchingGoalFacingToward);
     }
-
-
 }

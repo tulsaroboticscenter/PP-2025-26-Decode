@@ -108,7 +108,7 @@ public class DataGatheringTeleOp extends OpMode
     @Override
     public void init_loop()
     {
-        hw.updateTeleOp();
+        hw.updateTeleOp(this);
         if (!testing)
         {
             if (loaded)
@@ -173,7 +173,7 @@ public class DataGatheringTeleOp extends OpMode
     {
         pos = hw.pinpoint.getPosition();
         // Update Methods
-        hw.updateTeleOp();
+        hw.updateTeleOp(this);
         hw.turret.setTarget(pos, goalPosition);
         hw.drivetrain.fieldOrientedDrive(this, pos, storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
 
