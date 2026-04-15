@@ -80,7 +80,7 @@ public class HardwareManager {
 
     public void antiVibratoryCorrection(Pose2D lastPose, Pose2D currentPose, OpMode opmode)
     {
-        if (poseUpdateRuntime.time(TimeUnit.SECONDS) > 1 / TOLERANCE_DETECTION_HZ)
+        if (poseUpdateRuntime.time(TimeUnit.MILLISECONDS) > 1000.0 / TOLERANCE_DETECTION_HZ)
         {
             if ((currentPose.getHeading(AngleUnit.DEGREES) - lastPose.getHeading(AngleUnit.DEGREES) * TOLERANCE_DETECTION_HZ) < ROTATION_TOLERANCE_DEG && !drivetrain.isInputtingOutsideDeadzone(opmode))
             {
