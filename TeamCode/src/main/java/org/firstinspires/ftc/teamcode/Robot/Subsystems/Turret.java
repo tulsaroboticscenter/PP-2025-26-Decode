@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.Robot.Subsystems;
 
+import com.bylazar.configurables.annotations.Sorter;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
@@ -40,10 +42,21 @@ public class Turret
     public double lastHeading = getDegreesToTarget(currentPose, targetPose, false);
     public double currentHeading = 0;
     public double continuousHeading = 0;
-
     public double flywheelA = 0.0501095;
     public double flywheelB = 1.3107;
     public double flywheelC = 1383.6612;
+
+    // Flywheel Velocity PIDF Values
+    @Sorter(sort = 5)
+    public static double flywheelkP = 60;
+    @Sorter(sort = 6)
+    public static double flywheelkI = 5;
+    @Sorter(sort = 7)
+    public static double flywheelkD = 25;
+    @Sorter(sort = 8)
+    public static double flywheelkF = 0;
+    @Sorter(sort = 9)
+    public static double flywheelTolerance = 5;
 
     public double hoodA = 1.76561e-9;
     public double hoodB = -0.0000123004;
@@ -87,6 +100,7 @@ public class Turret
 
         //if (!TeleOp)
             hoodServo.setPosition(0);
+
     }
 
     private void setFlywheelMotorVelocity(double velocity)
@@ -218,6 +232,9 @@ public class Turret
 
     public void update()
     {
+        launcherL.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(flywheelkP, flywheelkI, flywheelkD, flywheelkF));
+        launcherR.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(flywheelkP, flywheelkI, flywheelkD, flywheelkF));
+
         if (isFlywheelSpinning)
         {
             setFlywheelMotorVelocity(velocity);
@@ -250,7 +267,7 @@ public class Turret
         }
 
         if (isTargeting)
-            setTurretPosition(HeadingToServoValue(continuousHeading, AngleUnit.DEGREES));
+            setTurretPosition(HeadingToServoValue((reversePolarity) ? ((continuousHeading > 0) ? continuousHeading - 180 : continuousHeading + 180) : continuousHeading, AngleUnit.DEGREES));
         else
             setTurretPosition(HeadingToServoValue(0, AngleUnit.DEGREES));
     }

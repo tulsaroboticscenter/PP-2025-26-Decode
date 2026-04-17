@@ -66,7 +66,7 @@ public class HardwareManager {
         pinpoint.update();
         intake.update();
 
-        antiVibratoryCorrection(lastPose, pinpoint.getPosition(), opmode);
+        //antiVibratoryCorrection(lastPose, pinpoint.getPosition(), opmode);
     }
     public void updateInitTeleOp()
     {

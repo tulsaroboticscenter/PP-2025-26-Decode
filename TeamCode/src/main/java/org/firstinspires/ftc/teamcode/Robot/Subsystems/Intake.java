@@ -17,7 +17,7 @@ public class Intake
     public boolean isIntaking = false;
     public boolean isForceIntaking = false;
 
-    double innerAmperageLimit = 3.0;
+    double innerAmperageLimit = 4.0;
     double outerAmperageLimit = 10.0;
 
 
@@ -78,7 +78,7 @@ public class Intake
 
     public void openGate()
     {
-        gate.setPosition(0.38);
+        gate.setPosition(0.28);
     }
 
     public void closeGate()
