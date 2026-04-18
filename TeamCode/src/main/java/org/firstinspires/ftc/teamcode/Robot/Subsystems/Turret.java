@@ -42,9 +42,9 @@ public class Turret
     public double lastHeading = getDegreesToTarget(currentPose, targetPose, false);
     public double currentHeading = 0;
     public double continuousHeading = 0;
-    public double flywheelA = 0.0501095;
-    public double flywheelB = 1.3107;
-    public double flywheelC = 1383.6612;
+    public double flywheelA = -0.0081341;
+    public double flywheelB = 7.34548;
+    public double flywheelC = 1161.1835;
 
     // Flywheel Velocity PIDF Values
     @Sorter(sort = 5)
@@ -58,10 +58,10 @@ public class Turret
     @Sorter(sort = 9)
     public static double flywheelTolerance = 5;
 
-    public double hoodA = 1.76561e-9;
-    public double hoodB = -0.0000123004;
-    public double hoodC = 0.0290713;
-    public double hoodD = -21.33397;
+    public double hoodA = 1.87929e-9;
+    public double hoodB = -0.0000123511;
+    public double hoodC = 0.026961;
+    public double hoodD = -18.67335;
 
     public double trOffset = 0;
 
