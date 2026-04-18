@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Robot.Subsystems;
 
 import com.bylazar.configurables.annotations.Sorter;
 import com.pedropathing.geometry.Pose;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -22,6 +23,8 @@ public class Turret
 
     public Servo turretRotationServo1 = null;
     public Servo turretRotationServo2 = null;
+
+    public AnalogInput turretRotationEncoder = null;
 
     public DcMotorEx launcherL = null;
     public DcMotorEx launcherR = null;
@@ -68,8 +71,7 @@ public class Turret
     // This variable below represents how much the servo has to rotate to get a full 360 degree range of motion
     // The numbers in this variable correspond to the current gear ratio.
     public final double TURRET_PER_SERVO = (100.0/20.0) * (24.0/95.0);
-    public final double SERVO_RANGE_DEG = 355.0;
-    public final double MAX_ANGLE = SERVO_RANGE_DEG * TURRET_PER_SERVO;
+    public double MAX_ANGLE = 400.78;
     public double zeroPosition = 0.5 + trOffset;
     public final double TURRET_OFFSET_MM = -26.16; // Offset from center of robot to turret
 
@@ -128,15 +130,15 @@ public class Turret
         }
 
         // flip + to - if rotating wrong way
-        return Range.clip(zeroPosition + (startingHeading / TURRET_PER_SERVO) / SERVO_RANGE_DEG, 0, 1);
+        return Range.clip(zeroPosition + (startingHeading / MAX_ANGLE), 0, 1);
     }
 
     public void spinUpFlywheel(){isFlywheelSpinning = true;}
 
     public void setTurretPosition(double position)
     {
-        turretRotationServo1.setPosition(position);
-        turretRotationServo2.setPosition(position);
+        turretRotationServo1.setPosition(Range.clip(position, 0, 1));
+        turretRotationServo2.setPosition(Range.clip(position, 0, 1));
     }
 
     public void setTarget(Pose2D currentPosition, Pose2D targetPosition)
@@ -243,7 +245,7 @@ public class Turret
         {
             setFlywheelMotorVelocity(0);
         }
-        hoodServo.setPosition(hoodTarget);
+        hoodServo.setPosition(Range.clip(hoodTarget, 0, 0.87));
 
         currentHeading = getDegreesToTarget(offsetPoseToTurret(currentPose), targetPose, false);
 
@@ -280,6 +282,12 @@ public class Turret
             hoodTarget = 0;
         else
             hoodTarget += value;
+    }
+
+    public double getServoHeading(AngleUnit angleUnit)
+    {
+        double headingDegrees = (turretRotationEncoder.getVoltage() - 0.5) * MAX_ANGLE;
+        return (angleUnit == AngleUnit.RADIANS) ? Math.toRadians(headingDegrees) : headingDegrees;
     }
 
     public void incrementFlywheel (int value)

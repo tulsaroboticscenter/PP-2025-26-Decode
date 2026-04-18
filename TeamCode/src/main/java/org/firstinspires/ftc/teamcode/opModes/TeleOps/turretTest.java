@@ -20,8 +20,8 @@ import com.bylazar.telemetry.PanelsTelemetry.*;
 
 import java.util.Locale;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="TeleOp", group="Robot")
-public class TeleOp extends OpMode
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="turretTest", group="Robot")
+public class turretTest extends OpMode
 {
 
     TelemetryManager ptelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
@@ -192,33 +192,6 @@ public class TeleOp extends OpMode
 
         hw.drivetrain.fieldOrientedDrive(this, pos, storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
 
-        if (gamepad1.yWasPressed())
-        {
-            // Switch Light Mode from solid to flashing, or from flashing to solid
-            if (!(totalRuntime.seconds() > 110))
-            {
-                hw.lights.setLightMode(((hw.lights.getLightMode() == RGBLightController.LEDMode.SOLID) ? RGBLightController.LEDMode.FLASH : RGBLightController.LEDMode.SOLID));
-            }
-            // Toggle targeting
-            hw.turret.isTargeting = !hw.turret.isTargeting;
-        }
-
-        if (isParking)
-        {
-            hw.turret.setTarget(hw.turret.HeadingToServoValue(0, AngleUnit.DEGREES));
-            //hw.turret.manuallySetFlywheelAndHood(0, 0);
-            hw.intake.stop();
-        }
-        else if (hw.turret.isTargeting)
-        {
-            // if targeting is on, update the turret with the new target
-            hw.turret.setTarget(pos, goalPosition);
-        }
-        else
-        {
-            hw.turret.setTarget(hw.turret.HeadingToServoValue(0, AngleUnit.DEGREES));
-        }
-
         // Right Trigger (Firing)
         if (gamepad1.right_trigger > 0.5)
         {
@@ -266,45 +239,13 @@ public class TeleOp extends OpMode
             hw.drivetrain.speedUp();
         }
 
-
-        // Real-Time Goal Adjustment
-        if (side == Field.Side.BLUE)
+        if (gamepad1.dpadLeftWasPressed())
         {
-            if (gamepad1.dpadUpWasPressed())
-            {
-                goalPosition = new Pose2D(DistanceUnit.INCH, goalPosition.getX(DistanceUnit.INCH) - 1, goalPosition.getY(DistanceUnit.INCH), AngleUnit.RADIANS, goalPosition.getHeading(AngleUnit.RADIANS));
-            }
-            else if (gamepad1.dpadDownWasPressed())
-            {
-                goalPosition = new Pose2D(DistanceUnit.INCH, goalPosition.getX(DistanceUnit.INCH) + 1, goalPosition.getY(DistanceUnit.INCH), AngleUnit.RADIANS, goalPosition.getHeading(AngleUnit.RADIANS));
-            }
-            else if (gamepad1.dpadLeftWasPressed())
-            {
-                goalPosition = new Pose2D(DistanceUnit.INCH, goalPosition.getX(DistanceUnit.INCH), goalPosition.getY(DistanceUnit.INCH) - 1, AngleUnit.RADIANS, goalPosition.getHeading(AngleUnit.RADIANS));
-            }
-            else if (gamepad1.dpadRightWasPressed())
-            {
-                goalPosition = new Pose2D(DistanceUnit.INCH, goalPosition.getX(DistanceUnit.INCH), goalPosition.getY(DistanceUnit.INCH) + 1, AngleUnit.RADIANS, goalPosition.getHeading(AngleUnit.RADIANS));
-            }
+            hw.turret.setTurretPosition(0);
         }
-        else if (side == Field.Side.RED)
+        else if (gamepad1.dpadRightWasPressed())
         {
-            if (gamepad1.dpadUpWasPressed())
-            {
-                goalPosition = new Pose2D(DistanceUnit.INCH, goalPosition.getX(DistanceUnit.INCH) + 1, goalPosition.getY(DistanceUnit.INCH), AngleUnit.RADIANS, goalPosition.getHeading(AngleUnit.RADIANS));
-            }
-            else if (gamepad1.dpadDownWasPressed())
-            {
-                goalPosition = new Pose2D(DistanceUnit.INCH, goalPosition.getX(DistanceUnit.INCH) - 1, goalPosition.getY(DistanceUnit.INCH), AngleUnit.RADIANS, goalPosition.getHeading(AngleUnit.RADIANS));
-            }
-            else if (gamepad1.dpadLeftWasPressed())
-            {
-                goalPosition = new Pose2D(DistanceUnit.INCH, goalPosition.getX(DistanceUnit.INCH), goalPosition.getY(DistanceUnit.INCH) + 1, AngleUnit.RADIANS, goalPosition.getHeading(AngleUnit.RADIANS));
-            }
-            else if (gamepad1.dpadRightWasPressed())
-            {
-                goalPosition = new Pose2D(DistanceUnit.INCH, goalPosition.getX(DistanceUnit.INCH), goalPosition.getY(DistanceUnit.INCH) - 1, AngleUnit.RADIANS, goalPosition.getHeading(AngleUnit.RADIANS));
-            }
+            hw.turret.setTurretPosition(1);
         }
 
         if (gamepad1.optionsWasPressed())
