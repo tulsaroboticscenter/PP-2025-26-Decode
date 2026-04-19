@@ -34,7 +34,7 @@ public class Turret
     public boolean isFlywheelSpinning = false;
 
     public boolean isTargeting = false;
-    public static boolean reversePolarity = false;
+    public static boolean reversePolarity = true;
 
     public boolean isLeading = false;
 

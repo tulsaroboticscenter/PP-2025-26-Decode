@@ -192,13 +192,19 @@ public class TeleOp extends OpMode
         hw.updateTeleOp(this);
         hw.turret.updateFlywheelAndHood(pos, goalPosition);
         hw.drivetrain.fieldOrientedDrive(this, pos, goalPosition, storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
-        hw.drivetrain.isTargeting = gamepad1.square;
 
         //hw.setDrivePowers(gamepad1, true, goalPosition, side);
 
         // Switch Light Mode from solid to flashing, or from flashing to solid
-        if ((gamepad1.squareWasPressed() || gamepad1.squareWasReleased()) && totalRuntime.seconds() < 110)
+        if (gamepad1.triangleWasPressed())
         {
+            // Switch Light Mode from solid to flashing, or from flashing to solid
+            if (!(totalRuntime.seconds() > 110))
+            {
+                hw.lights.setLightMode(((hw.lights.getLightMode() == RGBLightController.LEDMode.SOLID) ? RGBLightController.LEDMode.FLASH : RGBLightController.LEDMode.SOLID));
+            }
+            // Toggle targeting
+            hw.turret.isTargeting = !hw.turret.isTargeting;
             hw.lights.setLightMode((hw.drivetrain.isTargeting) ? RGBLightController.LEDMode.FLASH : RGBLightController.LEDMode.SOLID);
         }
 
@@ -208,7 +214,11 @@ public class TeleOp extends OpMode
             //hw.turret.manuallySetFlywheelAndHood(0, 0);
             hw.intake.stop();
         }
-
+        else if (hw.turret.isTargeting)
+        {
+            // if targeting is on, update the turret with the new target
+            hw.turret.setTarget(pos, goalPosition);
+        }
         else
         {
             hw.turret.setTarget(hw.turret.HeadingToServoValue(0, AngleUnit.DEGREES));
