@@ -25,8 +25,6 @@ public class Constants {
             .lateralZeroPowerAcceleration(-63.847)
             .translationalPIDFCoefficients(new PIDFCoefficients(0.1,0.0001,0.01,0.01))
             .headingPIDFCoefficients(new PIDFCoefficients(1,0.1,0.02,0.02))
-            .useSecondaryHeadingPIDF(true)
-            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(0, 0, 0, 0))
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.01,0,0.0000008,0.6,0.01));
 
     public static PathConstraints pathConstraints = new PathConstraints(
