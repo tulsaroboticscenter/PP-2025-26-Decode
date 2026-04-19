@@ -35,14 +35,14 @@ public class BlueNearGate extends OpMode {
     public Pose2D goalPosition = null;
 
     private final Pose startPose = new Pose(27.0873786407767, 133.11650485436894, Math.toRadians(-126.678));
-    private final Pose scorePose = new Pose(57.9, 84.1, Math.toRadians(180));
-    private final Pose intake1 = new Pose(25, 84.1, Math.toRadians(180));
-    private final Pose clearGate = new Pose(14, 78, Math.toRadians(90));
-    private final Pose gateControlPoint = new Pose(30, 69.1);
-    private final Pose prepIntake2 = new Pose(42.8, 59.7, Math.toRadians(180));
-    private final Pose intake2 = new Pose(20, 59.5, Math.toRadians(180));
-    private final Pose prepIntake3 = new Pose(48, 40, Math.toRadians(180));
-    private final Pose intake3 = new Pose(20, 35.8, Math.toRadians(180));
+    private final Pose scorePose = new Pose(47, 84.1, Math.toRadians(-45));
+    private final Pose intake1 = new Pose(25, 70, Math.toRadians(180));
+    private final Pose clearGate = new Pose(16, 67, Math.toRadians(180));
+    private final Pose gateControlPoint = new Pose(30, 61);
+    private final Pose prepIntake2 = new Pose(42.8, 53, Math.toRadians(180));
+    private final Pose intake2 = new Pose(20, 49, Math.toRadians(180));
+    private final Pose prepIntake3 = new Pose(45, 28, Math.toRadians(180));
+    private final Pose intake3 = new Pose(20, 28, Math.toRadians(180));
     private final Pose park = new Pose(29.058, 85.796, Math.toRadians(-90));
 
 
@@ -52,7 +52,7 @@ public class BlueNearGate extends OpMode {
     public void buildPaths() {
         lineupIntake3 = follower.pathBuilder()
                 .addPath(new BezierLine(scorePose, prepIntake3))
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), Math.toRadians(180))
                 .build();
         intakeLine3 = follower.pathBuilder()
                 .addPath(new BezierLine(prepIntake3, intake3))
@@ -60,11 +60,11 @@ public class BlueNearGate extends OpMode {
                 .build();
         scoreLine3 = follower.pathBuilder()
                 .addPath(new BezierLine(intake3, scorePose))
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setLinearHeadingInterpolation(intake3.getHeading(), Math.toRadians(-45))
                 .build();
         lineupIntake2 = follower.pathBuilder()
                 .addPath(new BezierLine(scorePose, prepIntake2))
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), Math.toRadians(180))
                 .build();
         intakeLine2 = follower.pathBuilder()
                 .addPath(new BezierLine(prepIntake2, intake2))
@@ -72,7 +72,7 @@ public class BlueNearGate extends OpMode {
                 .build();
         scoreLine2 = follower.pathBuilder()
                 .addPath(new BezierLine(intake2, scorePose))
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setLinearHeadingInterpolation(intake2.getHeading(), Math.toRadians(-45))
                 .build();
         intakeLine1 = follower.pathBuilder()
                 .addPath(new BezierLine(scorePose, intake1))
@@ -84,7 +84,7 @@ public class BlueNearGate extends OpMode {
                 .build();
         scoreLine1 = follower.pathBuilder()
                 .addPath(new BezierLine(clearGate, scorePose))
-                .setConstantHeadingInterpolation(scorePose.getHeading())
+                .setLinearHeadingInterpolation(intake1.getHeading(), Math.toRadians(-45))
                 .build();
         scorePreload = follower.pathBuilder()
                 .addPath(new BezierLine(startPose, scorePose))

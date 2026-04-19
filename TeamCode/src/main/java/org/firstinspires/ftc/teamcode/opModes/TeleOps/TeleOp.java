@@ -21,7 +21,7 @@ import com.bylazar.telemetry.PanelsTelemetry.*;
 
 import java.util.Locale;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="TeleOp", group="Robot")
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="tele", group="Robot")
 public class TeleOp extends OpMode
 {
 

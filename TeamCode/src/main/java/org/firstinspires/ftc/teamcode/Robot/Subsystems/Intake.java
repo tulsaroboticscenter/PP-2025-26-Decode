@@ -17,8 +17,8 @@ public class Intake
     public boolean isIntaking = false;
     public boolean isForceIntaking = false;
 
-    double innerAmperageLimit = 4.0;
-    double outerAmperageLimit = 10.0;
+    double innerAmperageLimit = 4.5;
+    double outerAmperageLimit = 12.0;
 
 
     public void init(HardwareMap hwMap)
@@ -83,7 +83,7 @@ public class Intake
 
     public void closeGate()
     {
-        gate.setPosition(0.5);
+        gate.setPosition(0.6);
     }
 
     public void update()
