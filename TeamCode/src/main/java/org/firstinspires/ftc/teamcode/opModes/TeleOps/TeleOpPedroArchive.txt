@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opModes.TeleOps;
 import com.bylazar.lights.PanelsLights;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -21,8 +22,9 @@ import com.bylazar.telemetry.PanelsTelemetry.*;
 
 import java.util.Locale;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="TeleOp", group="Robot")
-public class TeleOp extends OpMode
+@Disabled
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="TeleOpPedro", group="Robot")
+public class TeleOpPedro extends OpMode
 {
 
     TelemetryManager ptelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
@@ -103,7 +105,7 @@ public class TeleOp extends OpMode
 
         storedHeadingDegrees = storedLocation.getHeading(AngleUnit.DEGREES);
 //        hw.pinpoint.setPosition(storedLocation);
-        hw.pinpoint.setPosition(storedLocation);
+        hw.follower.setPose(Turret.toPose(storedLocation));
 
         hw.lights.setLightMode(RGBLightController.LEDMode.WAKE);
 
@@ -179,7 +181,7 @@ public class TeleOp extends OpMode
         {
             //goalPosition = Field.redGoal;
         }
-        hw.pinpoint.setPosition(storedLocation);
+        hw.follower.setPose(Turret.toPose(storedLocation));
         lastHeading = storedLocation.getHeading(AngleUnit.DEGREES);
     }
 
@@ -187,14 +189,14 @@ public class TeleOp extends OpMode
     @Override
     public void loop()
     {
-        pos = hw.pinpoint.getPosition();
+        pos = Turret.toPose2D(hw.follower.getPose());
         // Update Methods
         hw.updateTeleOp(this);
         hw.turret.updateFlywheelAndHood(pos, goalPosition);
-        hw.drivetrain.fieldOrientedDrive(this, pos, goalPosition, storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
+        /*hw.drivetrain.fieldOrientedDrive(this, pos, goalPosition, storedLocation.getHeading(AngleUnit.RADIANS), startingSide);*/
         hw.drivetrain.isTargeting = gamepad1.square;
 
-        //hw.setDrivePowers(gamepad1, true, goalPosition, side);
+        hw.setDrivePowers(gamepad1, true, goalPosition, side);
 
         // Switch Light Mode from solid to flashing, or from flashing to solid
         if ((gamepad1.squareWasPressed() || gamepad1.squareWasReleased()) && totalRuntime.seconds() < 110)
@@ -304,7 +306,7 @@ public class TeleOp extends OpMode
 
         if (gamepad1.optionsWasPressed())
         {
-            hw.pinpoint.setPosition((startingSide == Field.Side.BLUE) ? Field.blueHumanPlayerZone : Field.redHumanPlayerZone);
+            hw.follower.setPose(Turret.toPose((startingSide == Field.Side.BLUE) ? Field.blueHumanPlayerZone : Field.redHumanPlayerZone));
         }
 
         if (totalRuntime.seconds() > 100 && !endgame)

@@ -190,7 +190,7 @@ public class turretTest extends OpMode
         hw.updateTeleOp(this);
         hw.turret.updateFlywheelAndHood(pos, goalPosition);
 
-        hw.drivetrain.fieldOrientedDrive(this, pos, storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
+        hw.drivetrain.fieldOrientedDrive(this, pos, goalPosition, storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
 
         // Right Trigger (Firing)
         if (gamepad1.right_trigger > 0.5)

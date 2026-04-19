@@ -2,8 +2,13 @@ package org.firstinspires.ftc.teamcode.Robot.Subsystems;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
+import static org.firstinspires.ftc.teamcode.Robot.Subsystems.Turret.getDegreesToTarget;
+
 import android.view.SoundEffectConstants;
 
+import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.configurables.annotations.Sorter;
+import com.pedropathing.follower.Follower;
 import com.qualcomm.hardware.rev.Rev9AxisImu;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -19,11 +24,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Classes.Field;
+import org.firstinspires.ftc.teamcode.Classes.PIDFController;
 import org.firstinspires.ftc.teamcode.goBilda.GoBildaPinpointDriver;
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
+@Configurable
 public class Drivetrain
 {
     public DcMotorEx leftFront = null;
@@ -35,6 +43,8 @@ public class Drivetrain
     public Servo park2 = null;
 
     public Rev9AxisImu imu = null;
+
+    public Follower follower;
 
     public void init(HardwareMap hwMap)
     {
@@ -64,7 +74,12 @@ public class Drivetrain
         park1.setPosition(0 + startingParkPosition);
         park2.setPosition(1 - startingParkPosition);
 
+        rotationPID.setTarget(0);
+        rotationPID.setTolerance(1.0);
 
+        //follower = Constants.createFollower(hwMap);
+
+        pdTimer.reset();
     }
 
     double Y = 0;
@@ -82,8 +97,7 @@ public class Drivetrain
 
     public boolean isInputtingDrive = false;
 
-
-
+    public boolean isTargeting = false;
 
     // Parking values
     public double parkRange = 0.5;
@@ -111,6 +125,27 @@ public class Drivetrain
 
     public double joystickDeadzone = 0.05;
 
+    // Proportional value
+    // When tuning, start with this value and start small, e.g., 0.01 to 0.05,
+    // then double until you see oscillation (back and forth movement).
+    @Sorter(sort = 1)
+    public static double KpVal = 0.008;
+
+    @Sorter(sort = 2)
+    public static double KiVal = 0.0;
+
+    // Derivative value
+    // Tune this after Kp. start small, (e.g., 0.001 to 0.05) then increase until oscillations stop
+    @Sorter(sort = 3)
+    public static double KdVal = 0.0004;
+
+    @Sorter(sort = 4)
+    public static double KfVal = 0.0;
+
+    PIDFController rotationPID = new PIDFController(KpVal, KiVal, KdVal, KfVal, -1, 1);
+
+
+
     public void robotCentricDrive(double forward, double strafe, double rotate)
     {
         double frontLeftPower = forward + strafe + rotate;
@@ -129,31 +164,6 @@ public class Drivetrain
         leftBack.setPower(drivePower * (backLeftPower / maxPower));
         rightFront.setPower(drivePower * (frontRightPower / maxPower));
         rightBack.setPower(drivePower * (backRightPower / maxPower));
-    }
-
-    public void fieldcentricDrive(OpMode opmode, double botHeadingRadians, double startingHeadingRadians, Field.Side side)
-    {
-        Y = -opmode.gamepad1.left_stick_y;
-        X = opmode.gamepad1.left_stick_x;
-        rX = opmode.gamepad1.right_stick_x;
-
-        heading = botHeadingRadians - startingHeadingRadians;
-
-        offset = ((side == Field.Side.RED) ? Math.toRadians(0) : Math.toRadians(180));
-
-        rotX = X * Math.cos(heading + offset) - Y * Math.sin(heading + offset);
-        rotY = X * Math.sin(heading + offset) + Y * Math.cos(heading + offset);
-
-        denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rX), 1);
-        frontLeftPower = (rotY + rotX + rX) / denominator;
-        backLeftPower = (rotY - rotX + rX) / denominator;
-        frontRightPower = (rotY - rotX - rX) / denominator;
-        backRightPower = (rotY + rotX - rX) / denominator;
-
-        leftFront.setPower(frontLeftPower);
-        leftBack.setPower(backLeftPower);
-        rightFront.setPower(frontRightPower);
-        rightBack.setPower(backRightPower);
     }
 
     public boolean isInputtingOutsideDeadzone(OpMode opmode)
@@ -183,7 +193,10 @@ public class Drivetrain
 
         robotCentricDrive(newForward, newStrafe, rotate);
     }
-    public void fieldOrientedDrive(OpMode opmode, Pose2D currentPosition, double storedHeadingRadians, Field.Side side)
+
+    ElapsedTime pdTimer = new ElapsedTime();
+
+    public void fieldOrientedDrive(OpMode opmode, Pose2D currentPosition, Pose2D targetPosition, double storedHeadingRadians, Field.Side side)
     {
         double forward = -opmode.gamepad1.left_stick_y;
         double strafe = opmode.gamepad1.left_stick_x;
@@ -200,8 +213,15 @@ public class Drivetrain
         double newForward = r * Math.sin(theta);
         double newStrafe = r * Math.cos(theta);
 
-        robotCentricDrive(newForward, newStrafe, rotate);
+        rotationPID.setTarget(Math.atan2(targetPosition.getY(DistanceUnit.INCH) - currentPosition.getY(DistanceUnit.INCH), targetPosition.getX(DistanceUnit.INCH) - currentPosition.getX(DistanceUnit.INCH)));
+
+        if (isTargeting)
+            robotCentricDrive(newForward, newStrafe, rotationPID.calculate(currentHeadingRadians));
+        else
+            robotCentricDrive(newForward, newStrafe, rotate);
     }
+
+    public double previousDegreesToTarget = 0;
 
     /**
      *   Recieves opmode, current position, and the side of the field the robot is on and creates a driver-centric movement system.

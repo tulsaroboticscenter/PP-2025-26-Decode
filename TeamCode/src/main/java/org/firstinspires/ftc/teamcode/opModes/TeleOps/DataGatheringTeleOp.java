@@ -175,7 +175,7 @@ public class DataGatheringTeleOp extends OpMode
         // Update Methods
         hw.updateTeleOp(this);
         hw.turret.setTarget(pos, goalPosition);
-        hw.drivetrain.fieldOrientedDrive(this, pos, storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
+        hw.drivetrain.fieldOrientedDrive(this, pos, goalPosition, storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
 
         if (gamepad1.yWasPressed())
         {

@@ -1,21 +1,34 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.configurables.annotations.Sorter;
+import com.pedropathing.control.PIDFCoefficients;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.MathFunctions;
+import com.pedropathing.math.Vector;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.Classes.Field;
 import org.firstinspires.ftc.teamcode.Robot.Subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.Robot.Subsystems.Intake;
 import org.firstinspires.ftc.teamcode.Robot.Subsystems.Lights;
 import org.firstinspires.ftc.teamcode.Robot.Subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.Robot.Subsystems.Pinpoint;
 import org.firstinspires.ftc.teamcode.Robot.Subsystems.Turret;
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+
 
 import java.util.concurrent.TimeUnit;
 
+@Configurable
 public class HardwareManager {
 
 
@@ -41,6 +54,8 @@ public class HardwareManager {
 
     public ElapsedTime poseUpdateRuntime = new ElapsedTime();
 
+    //public Follower follower;
+
     public void initTeleOp(HardwareMap hwMap)
     {
         turret.init(hwMap, true);
@@ -50,6 +65,7 @@ public class HardwareManager {
         pinpoint.init(hwMap, true);
         poseUpdateRuntime.startTime();
         //limelight.init(hwMap, true);
+        //follower = Constants.createFollower(hwMap);
     }
 
     public void initPedro(HardwareMap hwMap)
@@ -65,6 +81,7 @@ public class HardwareManager {
         lights.update();
         pinpoint.update();
         intake.update();
+        //follower.update();
 
         //antiVibratoryCorrection(lastPose, pinpoint.getPosition(), opmode);
     }
@@ -72,7 +89,60 @@ public class HardwareManager {
     {
         lights.update();
         pinpoint.update();
+        //follower.update();
     }
+
+//    public void setDrivePowers(Gamepad gamepad, boolean fieldCentric, Pose2D goalPosition, Field.Side side) {
+//
+//        double x = -gamepad.left_stick_x;
+//        double y = gamepad.left_stick_y;
+//        double heading = -gamepad.right_stick_x;
+//
+//        if (follower.isBusy()) {
+//            follower.breakFollowing();
+//        }
+//
+//        Pose robotPose = follower.getPose();
+//        Vector headingVector = new Vector();
+//        Vector driveVector = new Vector();
+//        double degreesToTarget = Turret.getHeading(follower.getPose(), goalPosition);
+//
+//        if (drivetrain.isTargeting) {
+//            double robotHeading = MathFunctions.normalizeAngle(robotPose.getHeading());
+//            double direction = MathFunctions.getTurnDirection(robotHeading, degreesToTarget);
+//
+//            degreesToTarget = MathFunctions.normalizeAngle(degreesToTarget);
+//
+//            headingVector = follower.getVectorCalculator().getHeadingVector(
+//                    MathFunctions.getSmallestAngleDifference(robotHeading, degreesToTarget) * direction,
+//                    robotPose,
+//                    degreesToTarget
+//            );
+//        } else {
+//            headingVector.setComponents(heading, robotPose.getHeading());
+//        }
+//
+//        driveVector.setOrthogonalComponents(x, y);
+//        driveVector.setMagnitude(Range.clip(driveVector.getMagnitude(), 0, 1));
+//
+//        if (fieldCentric) {
+//            if (side == Field.Side.BLUE) {
+//            driveVector.rotateVector(Math.PI / 2);
+//            } else {
+//                driveVector.rotateVector(-(Math.PI / 2));
+//            }
+//        } else {
+//            driveVector.rotateVector(robotPose.getHeading());
+//        }
+//
+//        follower.getDrivetrain().runDrive(
+//                new Vector(),
+//                headingVector,
+//                driveVector,
+//                robotPose.getHeading(),
+//                follower.getVelocity()
+//        );
+//    }
 
     public void updatePedro()
     {

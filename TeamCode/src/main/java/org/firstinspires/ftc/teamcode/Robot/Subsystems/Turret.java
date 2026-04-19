@@ -34,7 +34,7 @@ public class Turret
     public boolean isFlywheelSpinning = false;
 
     public boolean isTargeting = false;
-    public static boolean reversePolarity = true;
+    public static boolean reversePolarity = false;
 
     public boolean isLeading = false;
 
@@ -307,6 +307,21 @@ public class Turret
         return getDistanceToTarget(new Pose2D(DistanceUnit.MM, currentPosition.getX(), currentPosition.getY(), AngleUnit.RADIANS, currentPosition.getHeading()), targetPosition);
     }
 
+    public static double getHeading(Pose pose1, Pose2D pose2)
+    {
+        return Math.atan2(pose2.getY(DistanceUnit.INCH) - pose1.getY(),  pose2.getX(DistanceUnit.INCH) - pose1.getX());
+    }
+
+    public static Pose toPose(Pose2D pose2D)
+    {
+        return new Pose(pose2D.getX(DistanceUnit.INCH), pose2D.getY(DistanceUnit.INCH), pose2D.getHeading(AngleUnit.RADIANS));
+    }
+
+    public static Pose2D toPose2D(Pose pose)
+    {
+        return new Pose2D(DistanceUnit.INCH, pose.getX(), pose.getY(), AngleUnit.RADIANS, pose.getHeading());
+    }
+
     public static double getDegreesToTarget(Pose2D currentLocation, Pose2D targetLocation, boolean convertToRadians)
     {
         // Grabs change in Y and change in X to calculate slope to target
@@ -361,54 +376,7 @@ public class Turret
     public static double getDegreesToTarget(Pose currentLocation, Pose2D targetLocation, boolean convertToRadians)
     {
         Pose2D currentLocation2D = new Pose2D(DistanceUnit.MM, currentLocation.getX(), currentLocation.getY(), AngleUnit.RADIANS, currentLocation.getHeading());
-
-        // Grabs change in Y and change in X to calculate slope to target
-        double deltaY = (targetLocation.getY(DistanceUnit.MM) - currentLocation2D.getY(DistanceUnit.MM));
-        double deltaX = (targetLocation.getX(DistanceUnit.MM) - currentLocation2D.getX(DistanceUnit.MM));
-
-        // converts slope into heading to target in radians
-        double targetRadians = Math.atan2(deltaY, deltaX);
-        double targetDegrees = Math.toDegrees(targetRadians);
-
-        double currentDegrees;
-        if (reversePolarity)
-        {
-            if (currentLocation2D.getHeading(AngleUnit.DEGREES) > 0)
-            {
-                currentDegrees = currentLocation2D.getHeading(AngleUnit.DEGREES) - 180;
-            }
-            else
-            {
-                currentDegrees = currentLocation2D.getHeading(AngleUnit.DEGREES) + 180;
-            }
-        }
-        else
-        {
-            currentDegrees = currentLocation2D.getHeading(AngleUnit.DEGREES);
-        }
-
-        // this value indicates where the target is relative to the robot's heading
-        // if the value is negative, the target is to the left
-        // if the value is positive, the target is to the right
-        double degreesToTarget = currentDegrees - targetDegrees;
-
-        // Sometimes the value of degreesToTarget is greater than 180 degrees, which is never possible.
-        // This normalizes the value to be between -180 and 180.
-        while (degreesToTarget > 180) {
-            degreesToTarget -= 360;
-        }
-        while (degreesToTarget < -180) {
-            degreesToTarget += 360;
-        }
-
-        if (convertToRadians)
-        {
-            return Math.toRadians(degreesToTarget);
-        }
-        else
-        {
-            return degreesToTarget;
-        }
+        return getDegreesToTarget(currentLocation2D, targetLocation, convertToRadians);
     }
 
     public static double getDegreesToTarget(Pose currentLocation, Pose targetLocation, boolean convertToRadians)

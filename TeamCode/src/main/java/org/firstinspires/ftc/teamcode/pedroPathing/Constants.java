@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
+import com.acmerobotics.dashboard.config.Config;
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.control.FilteredPIDFCoefficients;
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.follower.Follower;
@@ -7,6 +9,7 @@ import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
 import com.pedropathing.ftc.drivetrains.MecanumConstants;
 import com.pedropathing.ftc.localization.constants.PinpointConstants;
+import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathConstraints;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -14,6 +17,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+@Configurable
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(10.47789) // Mass in kilograms.
@@ -21,6 +25,8 @@ public class Constants {
             .lateralZeroPowerAcceleration(-63.847)
             .translationalPIDFCoefficients(new PIDFCoefficients(0.1,0.0001,0.01,0.01))
             .headingPIDFCoefficients(new PIDFCoefficients(1,0.1,0.02,0.02))
+            .useSecondaryHeadingPIDF(true)
+            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(0, 0, 0, 0))
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.01,0,0.0000008,0.6,0.01));
 
     public static PathConstraints pathConstraints = new PathConstraints(
@@ -51,11 +57,24 @@ public class Constants {
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED)
             .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
 
+    public static Follower follower = null;
+
     public static Follower createFollower(HardwareMap hardwareMap) {
-        return new FollowerBuilder(followerConstants, hardwareMap)
+        Pose startingPose = new Pose();
+
+        if (Constants.follower != null) {
+            startingPose = Constants.follower.getPose();
+        }
+
+        follower = new FollowerBuilder(followerConstants, hardwareMap)
                 .pinpointLocalizer(localizerConstants)
                 .pathConstraints(pathConstraints)
                 .mecanumDrivetrain(driveConstants)
                 .build();
+
+        follower.setPose(startingPose);
+        follower.update();
+
+        return follower;
     }
 }
