@@ -107,6 +107,7 @@ public class BlueNearGate extends OpMode {
             // Back up to shoot
             case 0:
                 hw.turret.spinUpFlywheel();
+                hw.turret.setTarget(scorePose, goalPosition);
                 hw.intake.intake();
                 telemetry.addLine("spinning up flywheel-completed");
 

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Robot.Subsystems;
 
 import com.bylazar.configurables.annotations.Sorter;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.MathFunctions;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -35,6 +36,7 @@ public class Turret
 
     public boolean isTargeting = false;
     public static boolean reversePolarity = true;
+    public static boolean isManuallySetting = false;
 
     public boolean isLeading = false;
 
@@ -130,19 +132,20 @@ public class Turret
         }
 
         // flip + to - if rotating wrong way
-        return Range.clip(zeroPosition + (startingHeading / MAX_ANGLE), 0, 1);
+        return MathFunctions.clamp(zeroPosition + (startingHeading / MAX_ANGLE), 0, 1);
     }
 
     public void spinUpFlywheel(){isFlywheelSpinning = true;}
 
     public void setTurretPosition(double position)
     {
-        turretRotationServo1.setPosition(Range.clip(position, 0, 1));
-        turretRotationServo2.setPosition(Range.clip(position, 0, 1));
+        turretRotationServo1.setPosition(MathFunctions.clamp(position, 0, 1));
+        turretRotationServo2.setPosition(MathFunctions.clamp(position, 0, 1));
     }
 
     public void setTarget(Pose2D currentPosition, Pose2D targetPosition)
     {
+        isManuallySetting = false;
         currentPose = currentPosition;
         targetPose = targetPosition;
     }
@@ -156,6 +159,11 @@ public class Turret
         Pose2D currentPose2D = new Pose2D(DistanceUnit.INCH, currentPosition.getX(), currentPosition.getY(), AngleUnit.RADIANS, currentPosition.getHeading());
         Pose2D targetPose2D = new Pose2D(DistanceUnit.INCH, targetPosition.getX(), targetPosition.getY(), AngleUnit.RADIANS, targetPosition.getHeading());
         setTarget(currentPose2D, targetPose2D);
+    }
+    public void setTarget(double angle, AngleUnit angleUnit)
+    {
+        isManuallySetting = true;
+        setTurretPosition(HeadingToServoValue(angle, angleUnit));
     }
     public void setTarget(double tickValue)
     {
@@ -188,33 +196,19 @@ public class Turret
 
 
         // THIS is where you compute your regression for the flywheel. Adjust this to match the equation you came up with
-
         // Quadratic Example: ((flywheelA * Math.pow(distanceInches, 2)) + (flywheelB * distanceInches) + flywheelC)
 
         velocity = ((flywheelA * Math.pow(distanceInches, 2)) + (flywheelB * distanceInches) + flywheelC);
-        Range.clip(velocity, 1300, 2500);
+        velocity = MathFunctions.clamp(velocity, 1300, 2500);
 
         double averageVelocity = (launcherL.getVelocity() + launcherR.getVelocity()) / 2;
 
 
         // THIS is where you compute your regression for the hood. Note that x is now the flywheel velocity, not the distance.
-
         // Cubic Example: ((hoodA * Math.pow(averageVelocity, 3)) + (hoodB * Math.pow(averageVelocity, 2)) + (hoodC * averageVelocity) + hoodD)
 
         tempTarget = ((hoodA * Math.pow(averageVelocity, 3)) + (hoodB * Math.pow(averageVelocity, 2)) + (hoodC * averageVelocity) + hoodD);
-        if (tempTarget > 0.87)
-        {
-            hoodTarget = 0.87;
-        }
-        else if (tempTarget < 0)
-        {
-            hoodTarget = 0;
-        }
-        else
-        {
-            hoodTarget = tempTarget;
-        }
-        hoodTarget = Range.clip(hoodTarget, 0, 0.87);
+        hoodTarget = MathFunctions.clamp(tempTarget, 0, 0.87);
     }
 
     public void updateFlywheelAndHood(Pose currentPosition, Pose2D goalPosition)
@@ -245,7 +239,7 @@ public class Turret
         {
             setFlywheelMotorVelocity(0);
         }
-        hoodServo.setPosition(Range.clip(hoodTarget, 0, 0.87));
+        hoodServo.setPosition(MathFunctions.clamp(hoodTarget, 0, 0.87));
 
         currentHeading = getDegreesToTarget(offsetPoseToTurret(currentPose), targetPose, false);
 
@@ -268,20 +262,15 @@ public class Turret
             continuousHeading += 360;
         }
 
-        if (isTargeting)
+        if (isTargeting && !isManuallySetting)
             setTurretPosition(HeadingToServoValue((reversePolarity) ? ((continuousHeading > 0) ? continuousHeading - 180 : continuousHeading + 180) : continuousHeading, AngleUnit.DEGREES));
-        else
+        else if (!isManuallySetting)
             setTurretPosition(HeadingToServoValue(0, AngleUnit.DEGREES));
     }
 
     public void incrementHood (double value)
     {
-        if (hoodTarget + value > 0.87)
-            hoodTarget = 0.87;
-        else if (hoodTarget + value < 0)
-            hoodTarget = 0;
-        else
-            hoodTarget += value;
+        hoodTarget = MathFunctions.clamp(hoodTarget + value, 0, 0.87);
     }
 
     public double getServoHeading(AngleUnit angleUnit)
