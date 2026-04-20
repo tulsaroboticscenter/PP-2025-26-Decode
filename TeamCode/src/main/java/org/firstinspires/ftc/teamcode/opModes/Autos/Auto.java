@@ -520,7 +520,7 @@ public class Auto extends OpMode {
         follower = Constants.createFollower(hardwareMap);
         buildPathsBlueNear();
         buildPathsRedNear();
-        follower.setStartingPose(startPose);
+        follower.setPose(startPose);
         hw.initPedro(hardwareMap);
         hw.lights.setLightMode(RGBLightController.LEDMode.PULSE_WAKE);
         hw.lights.setLightColor(RGBLightController.BLUE);
