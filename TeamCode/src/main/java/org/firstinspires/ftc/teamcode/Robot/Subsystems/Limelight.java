@@ -24,6 +24,11 @@ public class Limelight
     public void init(HardwareMap hwMap, boolean TeleOp)
     {
         limelight = hwMap.get(Limelight3A.class, "limelight");
+        if (limelight == null)
+        {
+            throw new IllegalStateException("limelight not found in hardware map. Check robot configuration.");
+        }
+
         limelight.setPollRateHz(50); // This sets how often we ask Limelight for data (50 times per second)
         limelight.pipelineSwitch(0);
         limelight.start();

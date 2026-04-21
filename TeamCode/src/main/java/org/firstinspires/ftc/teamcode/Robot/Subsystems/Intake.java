@@ -37,11 +37,19 @@ public class Intake
     public void init(HardwareMap hwMap)
     {
         innerIntakeMotor = hwMap.get(DcMotorEx.class, "innerIntake");
+        if (innerIntakeMotor == null)
+        {
+            throw new IllegalStateException("innerIntake motor not found in hardware map. Check robot configuration.");
+        }
         innerIntakeMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         innerIntakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         innerIntakeMotor.setPower(0);
 
         outerIntakeMotor = hwMap.get(DcMotorEx.class, "outerIntake");
+        if (outerIntakeMotor == null)
+        {
+            throw new IllegalStateException("outerIntake motor not found in hardware map. Check robot configuration.");
+        }
         outerIntakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         outerIntakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         outerIntakeMotor.setPower(0);
@@ -51,6 +59,11 @@ public class Intake
         outerIntakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
         gate = hwMap.get(Servo.class, "gate");
+        if (gate == null)
+        {
+            throw new IllegalStateException("gate servo not found in hardware map. Check robot configuration.");
+        }
+
 
         gate.setPosition(0.6);
     }
@@ -111,13 +124,13 @@ public class Intake
         } else if (isIntaking) {
             if (innerIntakeMotor.getCurrent(CurrentUnit.AMPS) > innerAmperageLimit) {
                 innerIntakeMotor.setPower(0);
-                if (outerIntakeMotor.getPower() == 0) {
+                if (Math.abs(outerIntakeMotor.getPower()) < 0.001) {
                     isIntaking = false;
                 }
             }
             if (outerIntakeMotor.getCurrent(CurrentUnit.AMPS) > outerAmperageLimit) {
                 outerIntakeMotor.setPower(0);
-                if (innerIntakeMotor.getPower() == 0) {
+                if (Math.abs(innerIntakeMotor.getPower()) < 0.001) {
                     isIntaking = false;
                 }
             }

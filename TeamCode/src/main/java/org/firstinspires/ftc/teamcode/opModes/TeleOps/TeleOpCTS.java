@@ -38,7 +38,7 @@ public class TeleOpCTS extends OpMode {
 
     TelemetryManager ptelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
-    private final HardwareManager hw = new HardwareManager(hardwareMap);
+    private HardwareManager hw;
     private Pose2D goalPosition = null;
 
     // Only one runtime needed — endgame checks and ready-rumble cooldown
@@ -77,6 +77,7 @@ public class TeleOpCTS extends OpMode {
 
     @Override
     public void init() {
+        hw = new HardwareManager(hardwareMap);  // initialize here
         hw.initTeleOp(hardwareMap);
 
         if (Field.lastKnownPosition != null) {
@@ -186,7 +187,7 @@ public class TeleOpCTS extends OpMode {
         pos = hw.pinpoint.getPosition();
 
         // Feed fresh pose into turret BEFORE updateTeleOp calls turret.update()
-        hw.turret.setTarget(pos, goalPosition);
+//        hw.turret.setTarget(pos, goalPosition);
         hw.updateTeleOp(this);
         hw.turret.updateFlywheelAndHood(pos, goalPosition);
 

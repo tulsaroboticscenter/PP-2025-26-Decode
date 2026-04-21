@@ -84,12 +84,35 @@ public class Turret
     public void init(HardwareMap hwMap, boolean TeleOp)
     {
         turretRotationServo1 = hwMap.get(Servo.class, "trServo1");
+        if (turretRotationServo1 == null)
+        {
+            throw new IllegalStateException("turretRotationalServo1 not found in hardware map. Check robot configuration.");
+        }
+
         turretRotationServo2 = hwMap.get(Servo.class, "trServo2");
+        if (turretRotationServo2 == null)
+        {
+            throw new IllegalStateException("turretRotationalServo2 motor not found in hardware map. Check robot configuration.");
+        }
 
         launcherL = hwMap.get(DcMotorEx.class, "launcherL");
+        if (launcherL == null)
+        {
+            throw new IllegalStateException("launcherL motor not found in hardware map. Check robot configuration.");
+        }
+
         launcherR = hwMap.get(DcMotorEx.class, "launcherR");
+        if (launcherR == null)
+        {
+            throw new IllegalStateException("launcherR motor not found in hardware map. Check robot configuration.");
+        }
 
         hoodServo = hwMap.get(Servo.class, "hood");
+        if (hoodServo == null)
+        {
+            throw new IllegalStateException("hoodServo not found in hardware map. Check robot configuration.");
+        }
+
 
         launcherL.setDirection(DcMotorSimple.Direction.FORWARD);
         launcherR.setDirection(DcMotorSimple.Direction.REVERSE);

@@ -81,9 +81,28 @@ public class Drivetrain
     public void init(HardwareMap hwMap)
     {
         leftFront = hwMap.get(DcMotorEx.class, "driveLF");
+        if (leftFront == null)
+        {
+            throw new IllegalStateException("leftFront motor not found in hardware map. Check robot configuration.");
+        }
+
         rightFront = hwMap.get(DcMotorEx.class, "driveRF");
+        if (rightFront == null)
+        {
+            throw new IllegalStateException("rightFront motor not found in hardware map. Check robot configuration.");
+        }
+
         leftBack = hwMap.get(DcMotorEx.class, "driveLR");
+        if (leftBack == null)
+        {
+            throw new IllegalStateException("leftBack motor not found in hardware map. Check robot configuration.");
+        }
+
         rightBack = hwMap.get(DcMotorEx.class, "driveRR");
+        if (rightBack == null)
+        {
+            throw new IllegalStateException("rightBack motor not found in hardware map. Check robot configuration.");
+        }
 
         leftFront.setDirection(DcMotor.Direction.FORWARD);
         rightFront.setDirection(DcMotor.Direction.REVERSE);
@@ -101,7 +120,16 @@ public class Drivetrain
         rightBack.setZeroPowerBehavior(BRAKE);
 
         park1 = hwMap.get(Servo.class, "park1");
+        if (park1 == null)
+        {
+            throw new IllegalStateException("park1 servo not found in hardware map. Check robot configuration.");
+        }
+
         park2 = hwMap.get(Servo.class, "park2");
+        if (park2 == null)
+        {
+            throw new IllegalStateException("park2 servo not found in hardware map. Check robot configuration.");
+        }
 
         park1.setPosition(0 + startingParkPosition);
         park2.setPosition(1 - startingParkPosition);
