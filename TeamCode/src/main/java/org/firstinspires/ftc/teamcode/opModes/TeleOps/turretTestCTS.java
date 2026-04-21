@@ -337,10 +337,10 @@ public class turretTestCTS extends OpMode
         ptelemetry.update();
 
 
-        telemetry.addLine("Drive being inputted?: " + hw.drivetrain.isInputtingOutsideDeadzone(this));
+        telemetry.addLine("Drive being inputted?: " + hw.drivetrain.isInputtingOutsideDeadzone(gamepad1));
         telemetry.addLine("Continuous Heading: " + hw.turret.continuousHeading);
         telemetry.addLine("Targeting: " + isTargeting);
-        telemetry.addLine("Parked: " + hw.drivetrain.parked);
+        telemetry.addLine("Parked: " + hw.drivetrain.isParked);
 //        telemetry.addLine("Hood Target Position: " + String.format(Locale.US, "%.2f", hw.turret.getHoodTarget()));
 //        telemetry.addLine("Flywheel Target Velocity: " + String.format(Locale.US, "%.2f", hw.turret.getCurrentVelocity()));
         telemetry.addLine("Position: " + PoseUtils.poseToString(pos, DistanceUnit.INCH, AngleUnit.DEGREES));

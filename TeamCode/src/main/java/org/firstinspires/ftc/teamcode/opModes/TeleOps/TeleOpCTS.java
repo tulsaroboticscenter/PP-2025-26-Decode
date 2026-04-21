@@ -367,7 +367,7 @@ public class TeleOpCTS extends OpMode {
         telemetry.addLine("Distance: " + String.format(Locale.US, "%.1f", distance) + " in"
                 + "  |  Pre-aim: " + (distance <= PRE_AIM_DISTANCE_INCHES ? "YES" : "no"));
         telemetry.addLine("Continuous heading: " + String.format(Locale.US, "%.1f", hw.turret.continuousHeading));
-        telemetry.addLine("Parked: " + hw.drivetrain.parked);
+        telemetry.addLine("Parked: " + hw.drivetrain.isParked);
         telemetry.addLine("Position: " + PoseUtils.poseToString(pos, DistanceUnit.INCH, AngleUnit.DEGREES));
         telemetry.addLine("Goal: " + String.format(Locale.US, "(%.1f, %.1f)",
                 goalPosition.getX(DistanceUnit.INCH), goalPosition.getY(DistanceUnit.INCH)));

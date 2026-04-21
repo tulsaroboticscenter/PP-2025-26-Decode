@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode.opModes.TeleOps;
 
-import com.bylazar.lights.PanelsLights;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -15,9 +13,6 @@ import org.firstinspires.ftc.teamcode.Classes.Field;
 import org.firstinspires.ftc.teamcode.Classes.PoseUtils;
 import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
 import org.firstinspires.ftc.teamcode.Robot.HardwareManager;
-import org.firstinspires.ftc.teamcode.Robot.Subsystems.Turret;
-
-import com.bylazar.telemetry.PanelsTelemetry.*;
 
 import java.util.Locale;
 
@@ -198,7 +193,6 @@ public class TeleOp extends OpMode
         // Switch Light Mode from solid to flashing, or from flashing to solid
         if (gamepad1.triangleWasPressed())
         {
-            // Switch Light Mode from solid to flashing, or from flashing to solid
             if (!(totalRuntime.seconds() > 110))
             {
                 hw.lights.setLightMode(((hw.lights.getLightMode() == RGBLightController.LEDMode.SOLID) ? RGBLightController.LEDMode.FLASH : RGBLightController.LEDMode.SOLID));
@@ -388,10 +382,10 @@ public class TeleOp extends OpMode
         ptelemetry.addData("TOTAL (A)",              String.format(Locale.US, "%.2f", totalRobotCurrent));
 
         ptelemetry.update();
-        telemetry.addLine("Drive being inputted?: " + hw.drivetrain.isInputtingOutsideDeadzone(this));
+        telemetry.addLine("Drive being inputted?: " + hw.drivetrain.isInputtingOutsideDeadzone(gamepad1));
         telemetry.addLine("Continuous Heading: " + hw.turret.continuousHeading);
         telemetry.addLine("Targeting: " + isTargeting);
-        telemetry.addLine("Parked: " + hw.drivetrain.parked);
+        telemetry.addLine("Parked: " + hw.drivetrain.isParked);
 //        telemetry.addLine("Hood Target Position: " + String.format(Locale.US, "%.2f", hw.turret.getHoodTarget()));
 //        telemetry.addLine("Flywheel Target Velocity: " + String.format(Locale.US, "%.2f", hw.turret.getCurrentVelocity()));
         telemetry.addLine("Position: " + PoseUtils.poseToString(pos, DistanceUnit.INCH, AngleUnit.DEGREES));

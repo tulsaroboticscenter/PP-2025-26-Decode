@@ -82,7 +82,6 @@ public class HardwareManager {
         pinpoint.update();
         intake.update();
         //follower.update();
-
         //antiVibratoryCorrection(lastPose, pinpoint.getPosition(), opmode);
     }
     public void updateInitTeleOp()
@@ -150,12 +149,12 @@ public class HardwareManager {
         lights.update();
     }
 
-    public void antiVibratoryCorrection(Pose2D lastPose, Pose2D currentPose, OpMode opmode)
+    public void antiVibratoryCorrection(Pose2D lastPose, Pose2D currentPose, Gamepad gamepad)
     {
         if (poseUpdateRuntime.time(TimeUnit.MILLISECONDS) > 1000.0 / TOLERANCE_DETECTION_HZ)
         {
             if ((currentPose.getHeading(AngleUnit.DEGREES) - lastPose.getHeading(AngleUnit.DEGREES) * TOLERANCE_DETECTION_HZ) < ROTATION_TOLERANCE_DEG
-                    && !drivetrain.isInputtingOutsideDeadzone(opmode)
+                    && !drivetrain.isInputtingOutsideDeadzone(gamepad)
                     && pinpoint.getVelocityR() < TRANSALATIONAL_TOLERANCE_MM_PER_SEC)
             {
                 pinpoint.setPosition(lastPose);

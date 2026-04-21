@@ -4,8 +4,6 @@ import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
 import static org.firstinspires.ftc.teamcode.Robot.Subsystems.Turret.getDegreesToTarget;
 
-import android.view.SoundEffectConstants;
-
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.configurables.annotations.Sorter;
 import com.pedropathing.follower.Follower;
@@ -13,11 +11,9 @@ import com.qualcomm.hardware.rev.Rev9AxisImu;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -25,15 +21,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Classes.Field;
 import org.firstinspires.ftc.teamcode.Classes.PIDFController;
-import org.firstinspires.ftc.teamcode.goBilda.GoBildaPinpointDriver;
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-
-import java.io.File;
-import java.util.concurrent.TimeUnit;
 
 @Configurable
 public class Drivetrain
 {
+    // --------
+    // HARDWARE
+    // --------
+
     public DcMotorEx leftFront = null;
     public DcMotorEx rightFront = null;
     public DcMotorEx leftBack = null;
@@ -42,9 +37,46 @@ public class Drivetrain
     public Servo park1 = null;
     public Servo park2 = null;
 
-    public Rev9AxisImu imu = null;
+    // ---------------
+    // DRIVE VARIABLES
+    // ---------------
 
-    public Follower follower;
+    public Follower follower; // May be used in tandem with Pedro Pathing later.
+
+    // Parking values
+    public double parkRange = 0.5;
+    public double mobileParkRange = 0.35;
+    public double startingParkPosition = 0.05;
+
+    // Switches
+    public boolean isParked = false;
+    public boolean isTargeting = false;
+
+    // Field-Centric
+    double offset = 0;
+
+    // Speed
+    public static double drivePower = 1;
+    public final double SLOW_DRIVING_SPEED = 0.5;
+
+    // Input Detection
+    public final double JOYSTICK_DEADZONE = 0.05;
+
+    // Drivetrain Targeting PIDF Values (Tunable in Panels)
+    @Sorter(sort = 1)
+    public static double KpVal = 0.008;
+    @Sorter(sort = 2)
+    public static double KiVal = 0.0;
+    @Sorter(sort = 3)
+    public static double KdVal = 0.0004;
+    @Sorter(sort = 4)
+    public static double KfVal = 0.0;
+
+    PIDFController rotationPID = new PIDFController(KpVal, KiVal, KdVal, KfVal, -1, 1);
+
+    // --------------
+    // INITIALIZATION
+    // --------------
 
     public void init(HardwareMap hwMap)
     {
@@ -78,73 +110,11 @@ public class Drivetrain
         rotationPID.setTolerance(1.0);
 
         //follower = Constants.createFollower(hwMap);
-
-        pdTimer.reset();
     }
 
-    double Y = 0;
-    double X = 0;
-    double rX = 0;
-    double rotX = 0;
-    double rotY = 0;
-    double denominator = 0;
-    double frontLeftPower = 0;
-    double backLeftPower = 0;
-    double frontRightPower = 0;
-    double backRightPower = 0;
-
-    public boolean parked = false;
-
-    public boolean isInputtingDrive = false;
-
-    public boolean isTargeting = false;
-
-    // Parking values
-    public double parkRange = 0.5;
-    public double mobileParkRange = 0.35;
-    public double startingParkPosition = 0.05;
-
-    double offset = 0;
-
-    double heading = 0;
-
-    public double drivePower = 1;
-
-    public static double SLOW_DRIVING_SPEED = 0.5;
-
-    public void slowDown()
-    {
-        drivePower = SLOW_DRIVING_SPEED;
-    }
-    public void speedUp()
-    {
-        drivePower = 1;
-    }
-
-    public static double TIP_LIMIT = 10.0;
-
-    public double joystickDeadzone = 0.05;
-
-    // Proportional value
-    // When tuning, start with this value and start small, e.g., 0.01 to 0.05,
-    // then double until you see oscillation (back and forth movement).
-    @Sorter(sort = 1)
-    public static double KpVal = 0.008;
-
-    @Sorter(sort = 2)
-    public static double KiVal = 0.0;
-
-    // Derivative value
-    // Tune this after Kp. start small, (e.g., 0.001 to 0.05) then increase until oscillations stop
-    @Sorter(sort = 3)
-    public static double KdVal = 0.0004;
-
-    @Sorter(sort = 4)
-    public static double KfVal = 0.0;
-
-    PIDFController rotationPID = new PIDFController(KpVal, KiVal, KdVal, KfVal, -1, 1);
-
-
+    // -------------
+    // DRIVE METHODS
+    // -------------
 
     public void robotCentricDrive(double forward, double strafe, double rotate)
     {
@@ -166,16 +136,6 @@ public class Drivetrain
         rightBack.setPower(drivePower * (backRightPower / maxPower));
     }
 
-    public boolean isInputtingOutsideDeadzone(OpMode opmode)
-    {
-        double leftY = -opmode.gamepad1.left_stick_y;
-        double leftX = opmode.gamepad1.left_stick_x;
-        double rightX = opmode.gamepad1.right_stick_x;
-
-        double r = Math.hypot(Y, X);
-        return r > joystickDeadzone || Math.abs(rightX) > joystickDeadzone;
-    }
-
     public void fieldOrientedDrive(OpMode opmode, double currentHeadingRadians, double storedHeadingRadians, Field.Side side)
     {
         double forward = -opmode.gamepad1.left_stick_y;
@@ -193,8 +153,6 @@ public class Drivetrain
 
         robotCentricDrive(newForward, newStrafe, rotate);
     }
-
-    ElapsedTime pdTimer = new ElapsedTime();
 
     public void fieldOrientedDrive(OpMode opmode, Pose2D currentPosition, Pose2D targetPosition, double storedHeadingRadians, Field.Side side)
     {
@@ -221,10 +179,9 @@ public class Drivetrain
             robotCentricDrive(newForward, newStrafe, rotate);
     }
 
-    public double previousDegreesToTarget = 0;
-
     /**
      *   Recieves opmode, current position, and the side of the field the robot is on and creates a driver-centric movement system.
+     *   Very experimental.
      */
     public void playerCentricDrive(OpMode opmode, Pose2D currentPosition, Field.Side side) // Very experimental.
     {
@@ -255,38 +212,35 @@ public class Drivetrain
 
     public void park()
     {
-        parked = true;
+        isParked = true;
         park1.setPosition((0 + startingParkPosition) + parkRange);
         park2.setPosition((1 - startingParkPosition) - parkRange);
     }
     public void mobilePark()
     {
-        parked = true;
+        isParked = true;
         park1.setPosition((0 + startingParkPosition) + mobileParkRange);
         park2.setPosition((1 - startingParkPosition) - mobileParkRange);
     }
     public void unpark()
     {
-        parked = false;
+        isParked = false;
         park1.setPosition(0 + startingParkPosition);
         park2.setPosition(1 - startingParkPosition);
     }
 
-    public void togglePark()
+    public void slowDown()
     {
-        if (parked)
-        {
-            park1.setPosition(0 + startingParkPosition);
-            park2.setPosition(1 - startingParkPosition);
-        }
-        else
-        {
-            park1.setPosition((0 + startingParkPosition) + parkRange);
-            park2.setPosition((1 - startingParkPosition) - parkRange);
-        }
-        parked = !parked;
+        drivePower = SLOW_DRIVING_SPEED;
+    }
+    public void speedUp()
+    {
+        drivePower = 1;
     }
 
+    // -----------------
+    // TELEMETRY METHODS
+    // -----------------
 
     /**
      *
@@ -295,5 +249,15 @@ public class Drivetrain
     public double getCurrentAmps()
     {
         return leftFront.getCurrent(CurrentUnit.AMPS) + leftBack.getCurrent(CurrentUnit.AMPS) + rightBack.getCurrent(CurrentUnit.AMPS) + rightFront.getCurrent(CurrentUnit.AMPS);
+    }
+
+    public boolean isInputtingOutsideDeadzone(Gamepad gamepad)
+    {
+        double leftY = -gamepad.left_stick_y;
+        double leftX = gamepad.left_stick_x;
+        double rightX = gamepad.right_stick_x;
+
+        double r = Math.hypot(leftY, leftX);
+        return r > JOYSTICK_DEADZONE || Math.abs(rightX) > JOYSTICK_DEADZONE;
     }
 }

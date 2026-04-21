@@ -10,16 +10,29 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 public class Intake
 {
+    // --------
+    // HARDWARE
+    // --------
+
     public DcMotorEx innerIntakeMotor = null;
     public DcMotorEx outerIntakeMotor = null;
     public Servo gate = null;
 
+    // ---------
+    // VARIABLES
+    // ---------
+
+    // Switches
     public boolean isIntaking = false;
     public boolean isForceIntaking = false;
 
+    // Amperage Limits
     double innerAmperageLimit = 4.5;
     double outerAmperageLimit = 12.0;
 
+    // --------------
+    // INITIALIZATION
+    // --------------
 
     public void init(HardwareMap hwMap)
     {
@@ -42,6 +55,9 @@ public class Intake
         gate.setPosition(0.6);
     }
 
+    // -------
+    // METHODS
+    // -------
 
     public void toggle()
     {
