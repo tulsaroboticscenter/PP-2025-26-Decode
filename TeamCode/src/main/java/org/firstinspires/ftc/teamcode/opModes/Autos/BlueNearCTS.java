@@ -225,6 +225,7 @@ public class BlueNearCTS extends OpMode {
                 if (follower.isBusy()) { shooterTimer.resetTimer(); break; }
                 if (shouldOpenGate()) {
                     hw.intake.openGate();
+                    hw.intake.forceIntake();
                 } else if (shotComplete() || shotTimedOut()) {
                     hw.intake.closeGate();
                     if (numOfSpikes >= 1) {
@@ -268,6 +269,7 @@ public class BlueNearCTS extends OpMode {
                 ensureFlywheelSpinning();
                 if (shouldOpenGate()) {
                     hw.intake.openGate();
+                    hw.intake.forceIntake();
                 } else if (shotComplete() || shotTimedOut()) {
                     hw.intake.closeGate();
                     hw.intake.stop();
@@ -311,6 +313,7 @@ public class BlueNearCTS extends OpMode {
                 ensureFlywheelSpinning();
                 if (shouldOpenGate()) {
                     hw.intake.openGate();
+                    hw.intake.forceIntake();
                 } else if (shotComplete() || shotTimedOut()) {
                     hw.intake.closeGate();
                     hw.intake.stop();
@@ -354,6 +357,7 @@ public class BlueNearCTS extends OpMode {
                 ensureFlywheelSpinning();
                 if (shouldOpenGate()) {
                     hw.intake.openGate();
+                    hw.intake.forceIntake();
                 } else if (shotComplete() || shotTimedOut()) {
                     hw.intake.closeGate();
                     hw.intake.stop();
@@ -440,8 +444,7 @@ public class BlueNearCTS extends OpMode {
                         follower.getPose().getHeading()),
                 goalPosition);
 
-        hw.turret.update();
-        hw.lights.update();
+        hw.updatePedro();
 
         updateStateMachine();
 

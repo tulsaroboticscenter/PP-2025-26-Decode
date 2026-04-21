@@ -30,7 +30,6 @@ public class Turret
     public DcMotorEx launcherL = null;
     public DcMotorEx launcherR = null;
 
-
     public Servo hoodServo = null;
     public boolean isFlywheelSpinning = false;
 
@@ -50,7 +49,6 @@ public class Turret
     public double flywheelA = -0.0081341;
     public double flywheelB = 7.34548;
     public double flywheelC = 1161.1835;
-
 
     // PIDF change-detection trackers
     private double lastKP = -1;
@@ -108,9 +106,7 @@ public class Turret
         turretRotationServo1.setDirection(Servo.Direction.REVERSE);
         turretRotationServo2.setDirection(Servo.Direction.REVERSE);
 
-        //if (!TeleOp)
-            hoodServo.setPosition(0);
-
+        if (!TeleOp) hoodServo.setPosition(0);
     }
 
     private void setFlywheelMotorVelocity(double velocity)

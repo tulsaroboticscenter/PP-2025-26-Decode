@@ -27,6 +27,8 @@ public class Pinpoint
         pinpoint.recalibrateIMU();
     }
 
+    public boolean isReady() {return pinpoint.getDeviceStatus() == GoBildaPinpointDriver.DeviceStatus.READY;}
+
     public void setPosition(Pose2D position)
     {
         pinpoint.setPosition(position);
@@ -38,8 +40,7 @@ public class Pinpoint
     }
 
     // returns data for a velocity vector in polar coordinates and mm/s (r, theta)
-    public double[] getVelocityVector()
-    {
+    public double[] getVelocityVector() {
         double xVel = pinpoint.getVelX();
         double yVel = pinpoint.getVelY();
         double magnitude = Math.sqrt(Math.pow(xVel, 2) + Math.pow(yVel, 2));
@@ -66,8 +67,7 @@ public class Pinpoint
         pinpoint.update();
     }
 
-    public Pose2D getLeadPose(Pose2D startingGoalPos)
-    {
+    public Pose2D getLeadPose(Pose2D startingGoalPos) {
         double[] velocityVector = getVelocityVector();
         double magnitude = velocityVector[0] * leadMagnitudeMultiplier;
         double theta = velocityVector[1];

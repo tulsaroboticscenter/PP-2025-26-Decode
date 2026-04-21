@@ -147,6 +147,7 @@ public class HardwareManager {
     {
         turret.update();
         lights.update();
+        intake.update();
     }
 
     public void antiVibratoryCorrection(Pose2D lastPose, Pose2D currentPose, Gamepad gamepad)

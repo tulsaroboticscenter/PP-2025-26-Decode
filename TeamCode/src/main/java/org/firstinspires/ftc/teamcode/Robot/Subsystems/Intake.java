@@ -77,19 +77,21 @@ public class Intake
     public void intake()
     {
         isIntaking = true;
+        isForceIntaking = false;
     }
+    public void forceIntake() {isForceIntaking = true;}
     public void partialIntake() {
         innerIntakeMotor.setPower(0.9);
     }
-    public void outtake()
-    {
+    public void outtake() {
         innerIntakeMotor.setPower(-1);
         outerIntakeMotor.setPower(-1);
     }
-    public void stop()
-    {
+    public void stop() {
         innerIntakeMotor.setPower(0);
         outerIntakeMotor.setPower(0);
+        isForceIntaking = false;
+        isIntaking = false;
     }
 
     public void openGate()
@@ -102,34 +104,24 @@ public class Intake
         gate.setPosition(0.6);
     }
 
-    public void update()
-    {
-        if (isForceIntaking)
-        {
+    public void update() {
+        if (isForceIntaking) {
             innerIntakeMotor.setPower(1);
             outerIntakeMotor.setPower(1);
-        }
-        else if (isIntaking)
-        {
-            if (innerIntakeMotor.getCurrent(CurrentUnit.AMPS) > innerAmperageLimit)
-            {
+        } else if (isIntaking) {
+            if (innerIntakeMotor.getCurrent(CurrentUnit.AMPS) > innerAmperageLimit) {
                 innerIntakeMotor.setPower(0);
-                if (outerIntakeMotor.getPower() == 0)
-                {
+                if (outerIntakeMotor.getPower() == 0) {
                     isIntaking = false;
                 }
             }
-            if (outerIntakeMotor.getCurrent(CurrentUnit.AMPS) > outerAmperageLimit)
-            {
+            if (outerIntakeMotor.getCurrent(CurrentUnit.AMPS) > outerAmperageLimit) {
                 outerIntakeMotor.setPower(0);
-                if (innerIntakeMotor.getPower() == 0)
-                {
+                if (innerIntakeMotor.getPower() == 0) {
                     isIntaking = false;
                 }
             }
-        }
-        else
-        {
+        } else {
             isIntaking = false;
             innerIntakeMotor.setPower(0);
             outerIntakeMotor.setPower(0);
