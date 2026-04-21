@@ -51,6 +51,12 @@ public class Turret
     public double flywheelB = 7.34548;
     public double flywheelC = 1161.1835;
 
+
+    // PIDF change-detection trackers
+    private double lastKP = -1;
+    private double lastKI = -1;
+    private double lastKD = -1;
+
     // Flywheel Velocity PIDF Values
     @Sorter(sort = 5)
     public static double flywheelkP = 60;
@@ -226,6 +232,68 @@ public class Turret
         this.velocity = velocity;
     }
 
+    /**
+     * New update() method added by CTS on 4/21/2026
+     *
+     * Notes:
+     * There are two separate problems here working against each other:
+     * Problem A — the delta guard threshold is wrong. It guards against jumps > 270° but getDegreesToTarget()
+     * returns values in [-180, 180]. The maximum real delta between two loop cycles is maybe 5-10° for a
+     * fast-spinning robot. A jump of 270° will never be a real movement — it's always a wrap artifact. The
+     * threshold should be 180°, not 270°.
+     *
+     * Problem B — the boundary clamp teleports the servo. If continuousHeading drifts to +201° and the
+     * clamp fires, it instantly becomes −159°. That's a 360° servo jump in one loop cycle — exactly the
+     * snap you're seeing near the physical limit.
+     *
+     *
+     * continuousHeading is now a pure running total of rotation. It can technically exceed ±MAX_ANGLE/2 —
+     * that's fine, it just means the target is outside physical reach. The servo gets clamped cleanly to
+     * the edge of its range and holds there without snapping.
+     *
+     */
+
+    public void update() {
+
+        // Only push PIDF to motors when values change, not every loop
+        if (flywheelkP != lastKP || flywheelkI != lastKI || flywheelkD != lastKD) {
+            launcherL.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
+                    new PIDFCoefficients(flywheelkP, flywheelkI, flywheelkD, flywheelkF));
+            launcherR.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
+                    new PIDFCoefficients(flywheelkP, flywheelkI, flywheelkD, flywheelkF));
+            lastKP = flywheelkP; lastKI = flywheelkI; lastKD = flywheelkD;
+        }
+
+        // Flywheel
+        if (isFlywheelSpinning) setFlywheelMotorVelocity(velocity);
+        else                    setFlywheelMotorVelocity(0);
+
+        hoodServo.setPosition(MathFunctions.clamp(hoodTarget, 0, 0.87));
+
+        // --- Bug 2 fix: use currentPose/targetPose (set by setTarget() each loop)
+        currentHeading = getDegreesToTarget(offsetPoseToTurret(currentPose), targetPose, false);
+
+        // --- Bug 4 fix: normalize delta to [-180, 180], no teleporting boundary clamp
+        double delta = currentHeading - lastHeading;
+        while (delta > 180)  delta -= 360;
+        while (delta < -180) delta += 360;
+
+        continuousHeading += delta;
+        lastHeading = currentHeading;
+
+        // --- Bug 4 fix: clip only at servo command time
+        double clampedHeading = Range.clip(continuousHeading, -(MAX_ANGLE / 2), (MAX_ANGLE / 2));
+
+        // --- Bug 3 fix: no second polarity flip here — getDegreesToTarget handles it
+        // --- Bug 1 fix: isTargeting must be set to true externally (in start() or loop())
+        if (isTargeting && !isManuallySetting)
+            setTurretPosition(HeadingToServoValue(clampedHeading, AngleUnit.DEGREES));
+        else if (!isManuallySetting)
+            setTurretPosition(HeadingToServoValue(0, AngleUnit.DEGREES));
+    }
+
+/*  ===> Old update() commented out by CTS on 4/21/2026
+
     public void update()
     {
         launcherL.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(flywheelkP, flywheelkI, flywheelkD, flywheelkF));
@@ -263,11 +331,11 @@ public class Turret
         }
 
         if (isTargeting && !isManuallySetting)
-            setTurretPosition(HeadingToServoValue((reversePolarity) ? ((continuousHeading > 0) ? continuousHeading - 180 : continuousHeading + 180) : continuousHeading, AngleUnit.DEGREES));
+            setTurretPosition(HeadingToServoValue(continuousHeading, AngleUnit.DEGREES));
         else if (!isManuallySetting)
             setTurretPosition(HeadingToServoValue(0, AngleUnit.DEGREES));
     }
-
+*/
     public void incrementHood (double value)
     {
         hoodTarget = MathFunctions.clamp(hoodTarget + value, 0, 0.87);

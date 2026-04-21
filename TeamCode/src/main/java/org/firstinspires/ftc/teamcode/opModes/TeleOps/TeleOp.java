@@ -334,6 +334,25 @@ public class TeleOp extends OpMode
             hw.turret.toggleFlywheel();
         }
 
+        // --- Telemetry ------------------------------------------------------
+        double distance = hw.turret.getDistanceToTarget(
+                hw.turret.offsetPoseToTurret(pos), goalPosition);
+        double avgVelocity = hw.turret.getAverageFlywheelVelocity();
+
+        double leftVelocity  = hw.turret.launcherL.getVelocity();
+        double rightVelocity = hw.turret.launcherR.getVelocity();
+        double leftCurrent   = hw.turret.launcherL.getCurrent(CurrentUnit.AMPS);
+        double rightCurrent  = hw.turret.launcherR.getCurrent(CurrentUnit.AMPS);
+
+        double driveCurrentTotal = hw.drivetrain.leftFront.getCurrent(CurrentUnit.AMPS)
+                + hw.drivetrain.leftBack.getCurrent(CurrentUnit.AMPS)
+                + hw.drivetrain.rightFront.getCurrent(CurrentUnit.AMPS)
+                + hw.drivetrain.rightBack.getCurrent(CurrentUnit.AMPS);
+        double intakeCurrent     = hw.intake.innerIntakeMotor.getCurrent(CurrentUnit.AMPS)
+                + hw.intake.outerIntakeMotor.getCurrent(CurrentUnit.AMPS);
+        double turretCurrentTotal = leftCurrent + rightCurrent;
+        double totalRobotCurrent  = driveCurrentTotal + intakeCurrent + turretCurrentTotal;
+
         ptelemetry.setUpdateInterval(50);
 
         ptelemetry.addData("Target Flywheel Velocity", hw.turret.velocity);
@@ -362,6 +381,11 @@ public class TeleOp extends OpMode
 
 //        ptelemetry.addData("Shooter Left Current", hw.turret.launcherL.getCurrent(CurrentUnit.AMPS));
 //        ptelemetry.addData("Shooter Right Current", hw.turret.launcherR.getCurrent(CurrentUnit.AMPS));
+        ptelemetry.addLine("--- current draw ---");
+        ptelemetry.addData("Drivetrain (A)",         String.format(Locale.US, "%.2f", driveCurrentTotal));
+        ptelemetry.addData("Intake (A)",             String.format(Locale.US, "%.2f", intakeCurrent));
+        ptelemetry.addData("Turret (A)",             String.format(Locale.US, "%.2f", turretCurrentTotal));
+        ptelemetry.addData("TOTAL (A)",              String.format(Locale.US, "%.2f", totalRobotCurrent));
 
         ptelemetry.update();
         telemetry.addLine("Drive being inputted?: " + hw.drivetrain.isInputtingOutsideDeadzone(this));
@@ -373,6 +397,13 @@ public class TeleOp extends OpMode
         telemetry.addLine("Position: " + PoseUtils.poseToString(pos, DistanceUnit.INCH, AngleUnit.DEGREES));
         //telemetry.addData("Distance to target:", hw.turret.getDistanceToTarget(pos, goalPosition));
         telemetry.addLine("Time Passed: " + String.format(Locale.US, "%.2f", totalRuntime.seconds()) + "s");
+
+        telemetry.addLine("--- current draw ---");
+        telemetry.addData("Drivetrain (A)",         String.format(Locale.US, "%.2f", driveCurrentTotal));
+        telemetry.addData("Intake (A)",             String.format(Locale.US, "%.2f", intakeCurrent));
+        telemetry.addData("Turret (A)",             String.format(Locale.US, "%.2f", turretCurrentTotal));
+        telemetry.addData("TOTAL (A)",              String.format(Locale.US, "%.2f", totalRobotCurrent));
+
         telemetry.update();
     }
 }
