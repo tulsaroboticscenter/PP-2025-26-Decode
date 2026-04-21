@@ -189,7 +189,6 @@ public class TeleOpCTS extends OpMode {
         // Feed fresh pose into turret BEFORE updateTeleOp calls turret.update()
 //        hw.turret.setTarget(pos, goalPosition);
         hw.updateTeleOp(this);
-        hw.turret.updateFlywheelAndHood(pos, goalPosition);
 
         // --- 2. Cache all motor reads once — reused in telemetry (Issue 7 fix) ---
         distance         = hw.turret.getDistanceToTarget(hw.turret.offsetPoseToTurret(pos), goalPosition);
@@ -241,6 +240,8 @@ public class TeleOpCTS extends OpMode {
         } else {
             hw.turret.setTarget(hw.turret.HeadingToServoValue(0, AngleUnit.DEGREES));
         }
+
+        hw.turret.updateFlywheelAndHood(pos, goalPosition);
 
         // --- 7. Flywheel ready indicator (new) -----------------------------------
         // When flywheel is on target and turret is aiming, give driver a clear signal.

@@ -34,7 +34,7 @@ public class Turret
     public boolean isFlywheelSpinning = false;
 
     public boolean isTargeting = false;
-    public static boolean reversePolarity = true;
+    public static boolean reversePolarity = false;
     public static boolean isManuallySetting = false;
 
     public boolean isLeading = false;
@@ -226,6 +226,7 @@ public class Turret
         velocity = ((flywheelA * Math.pow(distanceInches, 2)) + (flywheelB * distanceInches) + flywheelC);
         velocity = MathFunctions.clamp(velocity, 1300, 2500);
 
+//        double averageVelocity = (launcherL.getVelocity() + launcherR.getVelocity()) / 2;
         double averageVelocity = (launcherL.getVelocity() + launcherR.getVelocity()) / 2;
 
 
