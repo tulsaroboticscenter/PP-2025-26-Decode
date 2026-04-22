@@ -299,7 +299,7 @@ public class BlueNear extends OpMode {
         telemetry.addData("path state", pathState);
         telemetry.addLine("Position: " + PoseUtils.poseToString(follower.getPose(), DistanceUnit.INCH, AngleUnit.DEGREES));
         telemetry.addData("Distance to target:", hw.turret.getDistanceToTarget(follower.getPose(), goalPosition));
-        telemetry.addData("target flywheel velocity", hw.turret.velocity);
+        telemetry.addData("target flywheel velocity", hw.turret.targetVelocity);
         telemetry.addData("current flywheel velocity", hw.turret.launcherL.getVelocity());
         telemetry.update();
 

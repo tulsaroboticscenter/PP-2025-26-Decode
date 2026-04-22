@@ -349,7 +349,7 @@ public class TeleOp extends OpMode
 
         ptelemetry.setUpdateInterval(50);
 
-        ptelemetry.addData("Target Flywheel Velocity", hw.turret.velocity);
+        ptelemetry.addData("Target Flywheel Velocity", hw.turret.targetVelocity);
         ptelemetry.addData("Average Flywheel Velocity", hw.turret.getAverageFlywheelVelocity());
         ptelemetry.addData("Left Flywheel Motor Velocity", hw.turret.launcherL.getVelocity());
         ptelemetry.addData("Right Flywheel Motor Velocity", hw.turret.launcherR.getVelocity());

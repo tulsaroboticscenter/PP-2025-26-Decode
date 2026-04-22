@@ -251,7 +251,7 @@ public class TeleOpCTS extends OpMode {
         // When flywheel is on target and turret is aiming, give driver a clear signal.
         boolean flywheelReady = hw.turret.isFlywheelSpinning
                 && hw.turret.isTargeting
-                && Math.abs(avgVelocity - hw.turret.velocity) < FLYWHEEL_READY_TOLERANCE;
+                && Math.abs(avgVelocity - hw.turret.targetVelocity) < FLYWHEEL_READY_TOLERANCE;
 
         if (flywheelReady && !flywheelWasReady
                 && readyRumbleTimer.milliseconds() > READY_RUMBLE_COOLDOWN_MS) {
@@ -345,7 +345,7 @@ public class TeleOpCTS extends OpMode {
         ptelemetry.setUpdateInterval(50);
 
         ptelemetry.addLine("--- flywheel ---");
-        ptelemetry.addData("Target velocity",   String.format(Locale.US, "%.0f", hw.turret.velocity));
+        ptelemetry.addData("Target velocity",   String.format(Locale.US, "%.0f", hw.turret.targetVelocity));
         ptelemetry.addData("Avg velocity",       String.format(Locale.US, "%.0f", avgVelocity));
         ptelemetry.addData("Left velocity",      String.format(Locale.US, "%.0f", leftVelocity));
         ptelemetry.addData("Right velocity",     String.format(Locale.US, "%.0f", rightVelocity));

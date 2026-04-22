@@ -10,7 +10,6 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -31,24 +30,19 @@ public class Turret
     public DcMotorEx launcherR = null;
 
     public Servo hoodServo = null;
+
     public boolean isFlywheelSpinning = false;
-
     public boolean isTargeting = false;
-    public static boolean reversePolarity = false;
+    // Turret facing backwards initially instead of forwards?
+    public static boolean reversePolarity = true;
     public static boolean isManuallySetting = false;
-
     public boolean isLeading = false;
 
-    public double velocity = 2400;
-
+    public double targetVelocity = 2400; // Refactored from velocity to targetVelocity for clarity
     public double hoodTarget = 0;
-
     public double lastHeading = getDegreesToTarget(currentPose, targetPose, false);
     public double currentHeading = 0;
     public double continuousHeading = 0;
-    public double flywheelA = -0.0081341;
-    public double flywheelB = 7.34548;
-    public double flywheelC = 1161.1835;
 
     // PIDF change-detection trackers
     private double lastKP = -1;
@@ -67,6 +61,10 @@ public class Turret
     @Sorter(sort = 9)
     public static double flywheelTolerance = 5;
 
+    public double flywheelA = -0.0081341;
+    public double flywheelB = 7.34548;
+    public double flywheelC = 1161.1835;
+
     public double hoodA = 1.87929e-9;
     public double hoodB = -0.0000123511;
     public double hoodC = 0.026961;
@@ -74,9 +72,10 @@ public class Turret
 
     public double trOffset = 0;
 
-    // This variable below represents how much the servo has to rotate to get a full 360 degree range of motion
-    // The numbers in this variable correspond to the current gear ratio.
-    public final double TURRET_PER_SERVO = (100.0/20.0) * (24.0/95.0);
+    //public final double TURRET_PER_SERVO = (100.0/20.0) * (24.0/95.0);
+
+    // The actual, physical range of the servo
+    // Taken by comparing two photos of the servos' extreme points
     public double MAX_ANGLE = 400.78;
     public double zeroPosition = 0.5 + trOffset;
     public final double TURRET_OFFSET_MM = -26.16; // Offset from center of robot to turret
@@ -153,13 +152,10 @@ public class Turret
         if(Double.isNaN(heading)) return zeroPosition;
         double startingHeading = heading;
         if (angleunit == AngleUnit.RADIANS)
-        {
-            startingHeading *= (180.0 / Math.PI); // if radians, convert to degrees.
-        }
+            startingHeading = Math.toDegrees(startingHeading);
 
         // flip + to - if rotating wrong way
-        startingHeading += 180.0;
-        return MathFunctions.clamp(zeroPosition + (-startingHeading / MAX_ANGLE), 0, 1);
+        return MathFunctions.clamp(zeroPosition + (startingHeading / MAX_ANGLE), 0, 1);
     }
 
     public void spinUpFlywheel(){isFlywheelSpinning = true;}
@@ -236,12 +232,10 @@ public class Turret
         // THIS is where you compute your regression for the flywheel. Adjust this to match the equation you came up with
         // Quadratic Example: ((flywheelA * Math.pow(distanceInches, 2)) + (flywheelB * distanceInches) + flywheelC)
 
-        velocity = ((flywheelA * Math.pow(distanceInches, 2)) + (flywheelB * distanceInches) + flywheelC);
-        velocity = MathFunctions.clamp(velocity, 1300, 2500);
+        targetVelocity = ((flywheelA * Math.pow(distanceInches, 2)) + (flywheelB * distanceInches) + flywheelC);
+        targetVelocity = MathFunctions.clamp(targetVelocity, 1300, 2500);
 
-//        double averageVelocity = (launcherL.getVelocity() + launcherR.getVelocity()) / 2;
-        double averageVelocity = velocity;
-
+        double averageVelocity = (launcherL.getVelocity() + launcherR.getVelocity()) / 2;
 
         // THIS is where you compute your regression for the hood. Note that x is now the flywheel velocity, not the distance.
         // Cubic Example: ((hoodA * Math.pow(averageVelocity, 3)) + (hoodB * Math.pow(averageVelocity, 2)) + (hoodC * averageVelocity) + hoodD)
@@ -262,7 +256,7 @@ public class Turret
 
     public void setTargetVelocity(double velocity)
     {
-        this.velocity = velocity;
+        this.targetVelocity = velocity;
     }
 
     /**
@@ -298,7 +292,7 @@ public class Turret
         }
 
         // Flywheel
-        if (isFlywheelSpinning) setFlywheelMotorVelocity(velocity);
+        if (isFlywheelSpinning) setFlywheelMotorVelocity(targetVelocity);
         else                    setFlywheelMotorVelocity(0);
 
 
@@ -316,28 +310,50 @@ public class Turret
         if (Double.isNaN(hoodTarget)) hoodTarget = 0;
         hoodServo.setPosition(MathFunctions.clamp(hoodTarget, 0, 0.87));
 
-        // getDegreesToTarget already returns robot-relative angle to goal.
-        // Feed it directly — no accumulator needed.
+        // ------ NOTICE -------------------------
+        // This section of code is to utilize the full ~400 degrees of rotation of the turret,
+        // not to limit the turret to only 360 degrees. This prevents the back-and-forth snap
+        // of the turret when going from one degree extreme to the other.
+
+        // We first grab the robot-relative degrees to target.
         currentHeading = getDegreesToTarget(offsetPoseToTurret(currentPose), targetPose, false);
 
-        // add this guard before using currentHeading
-        if(Double.isNaN(currentHeading)) return;
-
-        // Unwrap only — accumulate delta to track continuous rotation past ±180°
-        // This prevents snap when goal crosses behind the robot
+        // Then we find the difference from the last cycle to the current cycle.
         double delta = currentHeading - lastHeading;
-        while (delta > 180)  delta -= 360;
-        while (delta < -180) delta += 360;
+
+        // If the pinpoint has flipped from 180 to -180, or vice versa,
+        // we add or subtract 360 to ignore the pinpoint's IMU limits.
+        if (delta > 270)
+            delta -= 360;
+        else if (delta < -270)
+            delta += 360;
+
+        // Then we add it to our continuous heading.
         continuousHeading += delta;
+        // And update the last heading.
         lastHeading = currentHeading;
 
-        // Clamp only at servo command time — never teleport the accumulator
-        double clampedHeading = Range.clip(currentHeading, -(MAX_ANGLE / 2), (MAX_ANGLE / 2));
+        // THEN, we check if the heading we give to the servos are beyond their physical limits
+        // If they are, we flip it back.
+        if (continuousHeading > (MAX_ANGLE / 2))
+        {
+            continuousHeading -= 360;
+        }
+        else if (continuousHeading < -(MAX_ANGLE / 2))
+        {
+            continuousHeading += 360;
+        }
 
+        // Then we tell the servos to run to the calculated position.
         if (isTargeting && !isManuallySetting)
-            setTurretPosition(HeadingToServoValue(clampedHeading, AngleUnit.DEGREES));
+            // Check if the polarity of the turret is flipped. If it is, then assign the polar opposite value.
+            setTurretPosition(HeadingToServoValue(reversePolarity ?
+                    (continuousHeading > 0 ? continuousHeading - 180 : continuousHeading + 180)
+                    : continuousHeading, AngleUnit.DEGREES));
         else if (!isManuallySetting)
             setTurretPosition(HeadingToServoValue(0, AngleUnit.DEGREES));
+
+        // In this way, we give the turret an extra ~40 degrees of freedom, increasing efficiency
     }
 
 /*  ===> Old update() commented out by CTS on 4/21/2026
@@ -397,7 +413,7 @@ public class Turret
 
     public void incrementFlywheel (int value)
     {
-        velocity += value;
+        targetVelocity += value;
     }
 
     public double getDistanceToTarget(Pose2D Pos1, Pose2D Pos2)
@@ -544,7 +560,7 @@ public class Turret
 
     public double getCurrentVelocity()
     {
-        return velocity;
+        return targetVelocity;
     }
 
     public double getHoodTarget() {return hoodTarget;}

@@ -318,7 +318,7 @@ public class turretTestCTS extends OpMode
 
         ptelemetry.addData("Shooter Left Current", hw.turret.launcherL.getCurrent(CurrentUnit.AMPS));
         ptelemetry.addData("Shooter Right Current", hw.turret.launcherR.getCurrent(CurrentUnit.AMPS));
-        ptelemetry.addData("Target Flywheel Velocity", hw.turret.velocity);
+        ptelemetry.addData("Target Flywheel Velocity", hw.turret.targetVelocity);
         ptelemetry.addData("Left Flywheel Motor Velocity", hw.turret.launcherL.getVelocity());
         ptelemetry.addData("Right Flywheel Motor Velocity", hw.turret.launcherR.getVelocity());
         ptelemetry.addLine("Hood Target Position: " + String.format(Locale.US, "%.2f", hw.turret.hoodTarget));

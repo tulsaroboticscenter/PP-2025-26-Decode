@@ -455,7 +455,7 @@ public class BlueFarOptionsCTS extends OpMode {
         telemetry.addData("Cycle fits",      timeForAnotherCycle() ? "YES" : "no");
         telemetry.addData("Shooter timer",   shooterTimer.getElapsedTime() + " ms");
         telemetry.addData("Gate",            shouldOpenGate() ? "OPEN" : "closed");
-        telemetry.addData("Flywheel target", hw.turret.velocity);
+        telemetry.addData("Flywheel target", hw.turret.targetVelocity);
         telemetry.addData("Flywheel actual", hw.turret.launcherL.getVelocity());
         telemetry.addData("Distance",        hw.turret.getDistanceToTarget(follower.getPose(), goalPosition));
         telemetry.addLine("Position: "       + PoseUtils.poseToString(follower.getPose(), DistanceUnit.INCH, AngleUnit.DEGREES));

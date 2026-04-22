@@ -219,7 +219,7 @@ public class DataGatheringTeleOpCTS extends OpMode {
         double totalRobotCurrent  = driveCurrentTotal + intakeCurrent + turretCurrentTotal;
 
         ptelemetry.addLine("--- flywheel ---");
-        ptelemetry.addData("Target velocity",        hw.turret.velocity);
+        ptelemetry.addData("Target velocity",        hw.turret.targetVelocity);
         ptelemetry.addData("Avg velocity",           avgVelocity);
         ptelemetry.addData("Left velocity",          leftVelocity);
         ptelemetry.addData("Right velocity",         rightVelocity);
@@ -241,7 +241,7 @@ public class DataGatheringTeleOpCTS extends OpMode {
 
         ptelemetry.update();
 
-        telemetry.addData("Target velocity",  hw.turret.velocity);
+        telemetry.addData("Target velocity",  hw.turret.targetVelocity);
         telemetry.addData("Avg velocity",     avgVelocity);
         telemetry.addLine("Hood:     " + String.format(Locale.US, "%.3f", hw.turret.hoodTarget));
         telemetry.addLine("Distance: " + String.format(Locale.US, "%.1f", distance) + " in");
@@ -285,7 +285,7 @@ public class DataGatheringTeleOpCTS extends OpMode {
             csvWriter.write(String.format(Locale.US, "%d,%.2f,%.2f,%.2f,%.4f\n",
                     ++snapshotCount,
                     distance,
-                    hw.turret.velocity,
+                    hw.turret.targetVelocity,
                     avgVelocity,
                     hw.turret.hoodTarget));
             csvWriter.flush();  // write immediately in case of crash

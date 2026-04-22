@@ -256,7 +256,7 @@ public class DataGatheringTeleOp extends OpMode
             hw.turret.toggleFlywheel();
         }
 
-        ptelemetry.addData("Target Flywheel Velocity", hw.turret.velocity);
+        ptelemetry.addData("Target Flywheel Velocity", hw.turret.targetVelocity);
         ptelemetry.addData("Left Flywheel Motor Velocity", hw.turret.launcherL.getVelocity());
         ptelemetry.addData("Right Flywheel Motor Velocity", hw.turret.launcherR.getVelocity());
 
@@ -265,7 +265,7 @@ public class DataGatheringTeleOp extends OpMode
 
         ptelemetry.update();
 
-        telemetry.addData("Target Flywheel Velocity", hw.turret.velocity);
+        telemetry.addData("Target Flywheel Velocity", hw.turret.targetVelocity);
         telemetry.addData("Left Flywheel Motor Velocity", hw.turret.launcherL.getVelocity());
         telemetry.addData("Right Flywheel Motor Velocity", hw.turret.launcherR.getVelocity());
 
