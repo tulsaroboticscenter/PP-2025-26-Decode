@@ -227,7 +227,7 @@ public class Turret
         velocity = MathFunctions.clamp(velocity, 1300, 2500);
 
 //        double averageVelocity = (launcherL.getVelocity() + launcherR.getVelocity()) / 2;
-        double averageVelocity = (launcherL.getVelocity() + launcherR.getVelocity()) / 2;
+        double averageVelocity = velocity;
 
 
         // THIS is where you compute your regression for the hood. Note that x is now the flywheel velocity, not the distance.
@@ -429,7 +429,7 @@ public class Turret
         // this value indicates where the target is relative to the robot's heading
         // if the value is negative, the target is to the left
         // if the value is positive, the target is to the right
-        double degreesToTarget = currentDegrees - targetDegrees;
+        double degreesToTarget = targetDegrees - currentDegrees;
 
         // Sometimes the value of degreesToTarget is greater than 180 degrees, which is never possible.
         // This normalizes the value to be between -180 and 180.
