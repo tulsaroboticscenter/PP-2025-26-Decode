@@ -167,6 +167,8 @@ public class TeleOpCTS extends OpMode {
 
         hw.pinpoint.setPosition(storedLocation);
 
+        hw.turret.seedHeading(storedLocation, goalPosition);  // prime the accumulator
+
         // Issue 3 fix: auto-aim is on from the very first loop — no button press needed
         hw.turret.isTargeting = true;
 
