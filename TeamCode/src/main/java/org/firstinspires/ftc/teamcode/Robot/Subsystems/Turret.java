@@ -293,6 +293,10 @@ public class Turret
         // getDegreesToTarget already returns robot-relative angle to goal.
         // Feed it directly — no accumulator needed.
         currentHeading = getDegreesToTarget(offsetPoseToTurret(currentPose), targetPose, false);
+
+        // add this guard before using currentHeading
+        if(Double.isNaN(currentHeading)) return;
+
         continuousHeading = currentHeading; // keep for telemetry display
 
         double clampedHeading = Range.clip(currentHeading, -(MAX_ANGLE / 2), (MAX_ANGLE / 2));
@@ -507,6 +511,15 @@ public class Turret
     }
 
     public double getHoodTarget() {return hoodTarget;}
+
+    public double headingToServoValue(double heading, AngleUnit angleunit){
+        if(Double.isNaN(heading)) return zeroPosition;  // fail safe to center
+        double startingHeading = heading;
+        if(angleunit == AngleUnit.RADIANS) {
+            startingHeading *= (180.0 / Math.PI);
+        }
+        return MathFunctions.clamp(zeroPosition + (startingHeading / MAX_ANGLE), 0, 1);
+    }
 
     public void seedHeading(Pose2D currentPosition, Pose2D targetPosition) {
         currentPose = currentPosition;
