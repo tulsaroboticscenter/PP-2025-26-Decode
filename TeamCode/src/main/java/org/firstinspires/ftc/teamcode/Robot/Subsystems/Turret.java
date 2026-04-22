@@ -150,6 +150,7 @@ public class Turret
 
     public double HeadingToServoValue(double heading, AngleUnit angleunit)
     {
+        if(Double.isNaN(heading)) return zeroPosition;
         double startingHeading = heading;
         if (angleunit == AngleUnit.RADIANS)
         {
@@ -157,13 +158,14 @@ public class Turret
         }
 
         // flip + to - if rotating wrong way
-        return MathFunctions.clamp(zeroPosition + (startingHeading / MAX_ANGLE), 0, 1);
+        return MathFunctions.clamp(zeroPosition + (-startingHeading / MAX_ANGLE), 0, 1);
     }
 
     public void spinUpFlywheel(){isFlywheelSpinning = true;}
 
     public void setTurretPosition(double position)
     {
+        if(Double.isNaN(position)) return;  // guard against NaN from any caller
         turretRotationServo1.setPosition(MathFunctions.clamp(position, 0, 1));
         turretRotationServo2.setPosition(MathFunctions.clamp(position, 0, 1));
     }
@@ -512,14 +514,6 @@ public class Turret
 
     public double getHoodTarget() {return hoodTarget;}
 
-    public double headingToServoValue(double heading, AngleUnit angleunit){
-        if(Double.isNaN(heading)) return zeroPosition;  // fail safe to center
-        double startingHeading = heading;
-        if(angleunit == AngleUnit.RADIANS) {
-            startingHeading *= (180.0 / Math.PI);
-        }
-        return MathFunctions.clamp(zeroPosition + (startingHeading / MAX_ANGLE), 0, 1);
-    }
 
     public void seedHeading(Pose2D currentPosition, Pose2D targetPosition) {
         currentPose = currentPosition;
