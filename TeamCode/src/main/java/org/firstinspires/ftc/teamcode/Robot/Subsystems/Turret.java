@@ -275,7 +275,7 @@ public class Turret
 
     public void update() {
 
-        // Only push PIDF to motors when values change, not every loop
+        // PIDF update (unchanged)
         if (flywheelkP != lastKP || flywheelkI != lastKI || flywheelkD != lastKD) {
             launcherL.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
                     new PIDFCoefficients(flywheelkP, flywheelkI, flywheelkD, flywheelkF));
@@ -290,22 +290,13 @@ public class Turret
 
         hoodServo.setPosition(MathFunctions.clamp(hoodTarget, 0, 0.87));
 
-        // --- Bug 2 fix: use currentPose/targetPose (set by setTarget() each loop)
+        // getDegreesToTarget already returns robot-relative angle to goal.
+        // Feed it directly — no accumulator needed.
         currentHeading = getDegreesToTarget(offsetPoseToTurret(currentPose), targetPose, false);
+        continuousHeading = currentHeading; // keep for telemetry display
 
-        // --- Bug 4 fix: normalize delta to [-180, 180], no teleporting boundary clamp
-        double delta = currentHeading - lastHeading;
-        while (delta > 180)  delta -= 360;
-        while (delta < -180) delta += 360;
+        double clampedHeading = Range.clip(currentHeading, -(MAX_ANGLE / 2), (MAX_ANGLE / 2));
 
-        continuousHeading += delta;
-        lastHeading = currentHeading;
-
-        // --- Bug 4 fix: clip only at servo command time
-        double clampedHeading = Range.clip(continuousHeading, -(MAX_ANGLE / 2), (MAX_ANGLE / 2));
-
-        // --- Bug 3 fix: no second polarity flip here — getDegreesToTarget handles it
-        // --- Bug 1 fix: isTargeting must be set to true externally (in start() or loop())
         if (isTargeting && !isManuallySetting)
             setTurretPosition(HeadingToServoValue(clampedHeading, AngleUnit.DEGREES));
         else if (!isManuallySetting)
@@ -517,10 +508,8 @@ public class Turret
 
     public double getHoodTarget() {return hoodTarget;}
 
-    public void seedHeading(Pose2D currentPosition, Pose2D targetPostion) {
+    public void seedHeading(Pose2D currentPosition, Pose2D targetPosition) {
         currentPose = currentPosition;
-        targetPose = targetPostion;
-        lastHeading = getDegreesToTarget(offsetPoseToTurret(currentPose), targetPose, false);
-        continuousHeading = lastHeading;
+        targetPose  = targetPosition;
     }
 }
