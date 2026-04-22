@@ -302,7 +302,7 @@ public class Turret
         else                    setFlywheelMotorVelocity(0);
 
 
-        if(Double.isNaN(hoodTarget)) return;
+//        if(Double.isNaN(hoodTarget)) return;
 //        {
 //            // temporary debug
 //            // guard against NaN from any caller
@@ -313,6 +313,7 @@ public class Turret
 //                    +" trOffset=" + trOffset);
 //        }
 
+        if (Double.isNaN(hoodTarget)) hoodTarget = 0;
         hoodServo.setPosition(MathFunctions.clamp(hoodTarget, 0, 0.87));
 
         // getDegreesToTarget already returns robot-relative angle to goal.
@@ -322,8 +323,15 @@ public class Turret
         // add this guard before using currentHeading
         if(Double.isNaN(currentHeading)) return;
 
-        continuousHeading = currentHeading; // keep for telemetry display
+        // Unwrap only — accumulate delta to track continuous rotation past ±180°
+        // This prevents snap when goal crosses behind the robot
+        double delta = currentHeading - lastHeading;
+        while (delta > 180)  delta -= 360;
+        while (delta < -180) delta += 360;
+        continuousHeading += delta;
+        lastHeading = currentHeading;
 
+        // Clamp only at servo command time — never teleport the accumulator
         double clampedHeading = Range.clip(currentHeading, -(MAX_ANGLE / 2), (MAX_ANGLE / 2));
 
         if (isTargeting && !isManuallySetting)
@@ -545,5 +553,8 @@ public class Turret
     public void seedHeading(Pose2D currentPosition, Pose2D targetPosition) {
         currentPose = currentPosition;
         targetPose  = targetPosition;
+        lastHeading = getDegreesToTarget(offsetPoseToTurret(currentPose), targetPose, false);
+        if (Double.isNaN(lastHeading)) lastHeading = 0;
+        continuousHeading = lastHeading;
     }
 }
