@@ -61,14 +61,14 @@ public class Turret
     @Sorter(sort = 9)
     public static double flywheelTolerance = 5;
 
-    public double flywheelA = -0.0081341;
-    public double flywheelB = 7.34548;
-    public double flywheelC = 1161.1835;
+    public double flywheelA = -0.00228584;
+    public double flywheelB = 7.6883;
+    public double flywheelC = 1088.81631;
 
-    public double hoodA = 1.87929e-9;
-    public double hoodB = -0.0000123511;
-    public double hoodC = 0.026961;
-    public double hoodD = -18.67335;
+    public double hoodA = 9.33907e-10;
+    public double hoodB = -0.00000675112;
+    public double hoodC = 0.0160059;
+    public double hoodD = -11.6092;
 
     public double trOffset = 0;
 
