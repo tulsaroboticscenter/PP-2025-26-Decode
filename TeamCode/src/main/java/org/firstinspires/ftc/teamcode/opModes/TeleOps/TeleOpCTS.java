@@ -365,6 +365,14 @@ public class TeleOpCTS extends OpMode {
         ptelemetry.addData("Turret (A)",         String.format(Locale.US, "%.2f", turretCurrentTotal));
         ptelemetry.addData("TOTAL (A)",          String.format(Locale.US, "%.2f", totalRobotCurrent));
 
+        ptelemetry.addLine("--- field positioning ---");
+        ptelemetry.addData("xPosition",          String.format(Locale.US, "%.2f", hw.pinpoint.getPosition().getX(DistanceUnit.INCH)));
+        ptelemetry.addData("yPosition",          String.format(Locale.US, "%.2f", hw.pinpoint.getPosition().getY(DistanceUnit.INCH)));
+        ptelemetry.addData("currentHeading",          String.format(Locale.US, "%.2f", hw.turret.currentHeading));
+        ptelemetry.addData("continuousHeading",          String.format(Locale.US, "%.2f", hw.turret.continuousHeading));
+        ptelemetry.addLine("Position: " + PoseUtils.poseToString(pos, DistanceUnit.INCH, AngleUnit.DEGREES));
+//        ptelemetry.addData("currentPose",          String.format(Locale.US, "%.2f", hw.turret.currentPose));
+
         ptelemetry.update();
 
         // Driver station telemetry — lean, only what the drive team needs mid-match

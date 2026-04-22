@@ -158,6 +158,7 @@ public class Turret
         }
 
         // flip + to - if rotating wrong way
+        startingHeading += 180.0;
         return MathFunctions.clamp(zeroPosition + (-startingHeading / MAX_ANGLE), 0, 1);
     }
 
@@ -165,7 +166,17 @@ public class Turret
 
     public void setTurretPosition(double position)
     {
-        if(Double.isNaN(position)) return;  // guard against NaN from any caller
+        if(Double.isNaN(position)) return;
+
+            //        {
+//            // temporary debug
+//            // guard against NaN from any caller
+//            throw new RuntimeException("NaN servo position.  current Heading=" + currentHeading
+//            + " continuousHeading=" + continuousHeading
+//            + "hoodTarget= " + hoodTarget
+//            +"zeroPosition=" + zeroPosition
+//            +" trOffset=" + trOffset);
+//        }
         turretRotationServo1.setPosition(MathFunctions.clamp(position, 0, 1));
         turretRotationServo2.setPosition(MathFunctions.clamp(position, 0, 1));
     }
@@ -290,6 +301,18 @@ public class Turret
         if (isFlywheelSpinning) setFlywheelMotorVelocity(velocity);
         else                    setFlywheelMotorVelocity(0);
 
+
+        if(Double.isNaN(hoodTarget)) return;
+//        {
+//            // temporary debug
+//            // guard against NaN from any caller
+//            throw new RuntimeException("NaN servo position.  current Heading=" + currentHeading
+//                    + " continuousHeading=" + continuousHeading
+//                    + "hoodTarget= " + hoodTarget
+//                    +"zeroPosition=" + zeroPosition
+//                    +" trOffset=" + trOffset);
+//        }
+
         hoodServo.setPosition(MathFunctions.clamp(hoodTarget, 0, 0.87));
 
         // getDegreesToTarget already returns robot-relative angle to goal.
@@ -401,6 +424,10 @@ public class Turret
         // Grabs change in Y and change in X to calculate slope to target
         double deltaY = (targetLocation.getY(DistanceUnit.MM) - currentLocation.getY(DistanceUnit.MM));
         double deltaX = (targetLocation.getX(DistanceUnit.MM) - currentLocation.getX(DistanceUnit.MM));
+
+        // If robot is exactly on teh goal, deltaX and deltaY are both 0 -> atan2(0,0) = NaN.
+        // Return 0 as a safe fallback - turret holds current position.
+        if(deltaX == 0 && deltaY ==0) return 0;
 
         // converts slope into heading to target in radians
         double targetRadians = Math.atan2(deltaY, deltaX);
