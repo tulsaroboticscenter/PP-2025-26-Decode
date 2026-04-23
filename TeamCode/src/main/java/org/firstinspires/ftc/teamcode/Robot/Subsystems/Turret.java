@@ -40,7 +40,7 @@ public class Turret
 
     public double targetVelocity = 2400; // Refactored from velocity to targetVelocity for clarity
     public double hoodTarget = 0;
-    public double lastHeading = getDegreesToTarget(currentPose, targetPose, false);
+    public double lastHeading;
     public double currentHeading = 0;
     public double continuousHeading = 0;
 
@@ -235,12 +235,13 @@ public class Turret
         targetVelocity = ((flywheelA * Math.pow(distanceInches, 2)) + (flywheelB * distanceInches) + flywheelC);
         targetVelocity = MathFunctions.clamp(targetVelocity, 1300, 2500);
 
-        double averageVelocity = (launcherL.getVelocity() + launcherR.getVelocity()) / 2;
+//        double averageVelocity = (launcherL.getVelocity() + launcherR.getVelocity()) / 2;
 
         // THIS is where you compute your regression for the hood. Note that x is now the flywheel velocity, not the distance.
         // Cubic Example: ((hoodA * Math.pow(averageVelocity, 3)) + (hoodB * Math.pow(averageVelocity, 2)) + (hoodC * averageVelocity) + hoodD)
 
-        tempTarget = ((hoodA * Math.pow(averageVelocity, 3)) + (hoodB * Math.pow(averageVelocity, 2)) + (hoodC * averageVelocity) + hoodD);
+        tempTarget = ((hoodA * Math.pow(targetVelocity, 3)) + (hoodB * Math.pow(targetVelocity, 2)) + (hoodC * targetVelocity) + hoodD);
+//        tempTarget = ((hoodA * Math.pow(averageVelocity, 3)) + (hoodB * Math.pow(averageVelocity, 2)) + (hoodC * averageVelocity) + hoodD);
         hoodTarget = MathFunctions.clamp(tempTarget, 0, 0.87);
     }
 
@@ -317,15 +318,16 @@ public class Turret
 
         // We first grab the robot-relative degrees to target.
         currentHeading = getDegreesToTarget(offsetPoseToTurret(currentPose), targetPose, false);
+//        lastHeading = getDegreesToTarget(currentPose, targetPose, false);
 
         // Then we find the difference from the last cycle to the current cycle.
         double delta = currentHeading - lastHeading;
 
         // If the pinpoint has flipped from 180 to -180, or vice versa,
         // we add or subtract 360 to ignore the pinpoint's IMU limits.
-        if (delta > 270)
+        if (delta > 180)
             delta -= 360;
-        else if (delta < -270)
+        else if (delta < -180)
             delta += 360;
 
         // Then we add it to our continuous heading.
@@ -335,21 +337,19 @@ public class Turret
 
         // THEN, we check if the heading we give to the servos are beyond their physical limits
         // If they are, we flip it back.
-        if (continuousHeading > (MAX_ANGLE / 2))
-        {
-            continuousHeading -= 360;
-        }
-        else if (continuousHeading < -(MAX_ANGLE / 2))
-        {
-            continuousHeading += 360;
-        }
+//        if (continuousHeading > (MAX_ANGLE / 2))
+//        {
+//            continuousHeading -= 360;
+//        }
+//        else if (continuousHeading < -(MAX_ANGLE / 2))
+//        {
+//            continuousHeading += 360;
+//        }
 
         // Then we tell the servos to run to the calculated position.
         if (isTargeting && !isManuallySetting)
             // Check if the polarity of the turret is flipped. If it is, then assign the polar opposite value.
-            setTurretPosition(HeadingToServoValue(reversePolarity ?
-                    (continuousHeading > 0 ? continuousHeading - 180 : continuousHeading + 180)
-                    : continuousHeading, AngleUnit.DEGREES));
+            setTurretPosition(HeadingToServoValue(continuousHeading, AngleUnit.DEGREES));
         else if (!isManuallySetting)
             setTurretPosition(HeadingToServoValue(0, AngleUnit.DEGREES));
 
@@ -443,15 +443,70 @@ public class Turret
         return new Pose2D(DistanceUnit.INCH, pose.getX(), pose.getY(), AngleUnit.RADIANS, pose.getHeading());
     }
 
+//    public static double getDegreesToTarget(Pose2D currentLocation, Pose2D targetLocation, boolean convertToRadians)
+//    {
+//        // Grabs change in Y and change in X to calculate slope to target
+//        double deltaY = (targetLocation.getY(DistanceUnit.MM) - currentLocation.getY(DistanceUnit.MM));
+//        double deltaX = (targetLocation.getX(DistanceUnit.MM) - currentLocation.getX(DistanceUnit.MM));
+//
+//        // If robot is exactly on teh goal, deltaX and deltaY are both 0 -> atan2(0,0) = NaN.
+//        // Return 0 as a safe fallback - turret holds current position.
+//        if(deltaX == 0 && deltaY ==0) return 0;
+//
+//        // converts slope into heading to target in radians
+//        double targetRadians = Math.atan2(deltaY, deltaX);
+//        double targetDegrees = Math.toDegrees(targetRadians);
+//
+//        double currentDegrees;
+//        if (reversePolarity)
+//        {
+//            if (currentLocation.getHeading(AngleUnit.DEGREES) > 0)
+//            {
+//                currentDegrees = currentLocation.getHeading(AngleUnit.DEGREES) - 180;
+//            }
+//            else
+//            {
+//                currentDegrees = currentLocation.getHeading(AngleUnit.DEGREES) + 180;
+//            }
+//        }
+//        else
+//        {
+//            currentDegrees = currentLocation.getHeading(AngleUnit.DEGREES);
+//        }
+//
+//        // this value indicates where the target is relative to the robot's heading
+//        // if the value is negative, the target is to the left
+//        // if the value is positive, the target is to the right
+//        double degreesToTarget = targetDegrees - currentDegrees;
+//
+//        // Sometimes the value of degreesToTarget is greater than 180 degrees, which is never possible.
+//        // This normalizes the value to be between -180 and 180.
+//        while (degreesToTarget > 180) {
+//            degreesToTarget -= 360;
+//        }
+//        while (degreesToTarget < -180) {
+//            degreesToTarget += 360;
+//        }
+//
+//        if (convertToRadians)
+//        {
+//            return Math.toRadians(degreesToTarget);
+//        }
+//        else
+//        {
+//            return degreesToTarget;
+//        }
+//    }
+
     public static double getDegreesToTarget(Pose2D currentLocation, Pose2D targetLocation, boolean convertToRadians)
     {
         // Grabs change in Y and change in X to calculate slope to target
         double deltaY = (targetLocation.getY(DistanceUnit.MM) - currentLocation.getY(DistanceUnit.MM));
         double deltaX = (targetLocation.getX(DistanceUnit.MM) - currentLocation.getX(DistanceUnit.MM));
 
-        // If robot is exactly on teh goal, deltaX and deltaY are both 0 -> atan2(0,0) = NaN.
+        // If robot is exactly on the goal, deltaX and deltaY are both 0 -> atan2(0,0) = NaN.
         // Return 0 as a safe fallback - turret holds current position.
-        if(deltaX == 0 && deltaY ==0) return 0;
+        if (deltaX == 0 && deltaY == 0) return 0;
 
         // converts slope into heading to target in radians
         double targetRadians = Math.atan2(deltaY, deltaX);
@@ -479,8 +534,7 @@ public class Turret
         // if the value is positive, the target is to the right
         double degreesToTarget = targetDegrees - currentDegrees;
 
-        // Sometimes the value of degreesToTarget is greater than 180 degrees, which is never possible.
-        // This normalizes the value to be between -180 and 180.
+        // Normalizes the value to be between -180 and 180.
         while (degreesToTarget > 180) {
             degreesToTarget -= 360;
         }
@@ -500,62 +554,12 @@ public class Turret
 
     public static double getDegreesToTarget(Pose currentLocation, Pose2D targetLocation, boolean convertToRadians)
     {
-        Pose2D currentLocation2D = new Pose2D(DistanceUnit.MM, currentLocation.getX(), currentLocation.getY(), AngleUnit.RADIANS, currentLocation.getHeading());
-        return getDegreesToTarget(currentLocation2D, targetLocation, convertToRadians);
+        return getDegreesToTarget(toPose2D(currentLocation), targetLocation, convertToRadians);
     }
 
     public static double getDegreesToTarget(Pose currentLocation, Pose targetLocation, boolean convertToRadians)
     {
-        Pose2D currentLocation2D = new Pose2D(DistanceUnit.MM, currentLocation.getX(), currentLocation.getY(), AngleUnit.RADIANS, currentLocation.getHeading());
-        Pose2D targetLocation2D = new Pose2D(DistanceUnit.MM, targetLocation.getX(), targetLocation.getY(), AngleUnit.RADIANS, targetLocation.getHeading());
-
-        // Grabs change in Y and change in X to calculate slope to target
-        double deltaY = (targetLocation2D.getY(DistanceUnit.MM) - currentLocation2D.getY(DistanceUnit.MM));
-        double deltaX = (targetLocation2D.getX(DistanceUnit.MM) - currentLocation2D.getX(DistanceUnit.MM));
-
-        // converts slope into heading to target in radians
-        double targetRadians = Math.atan2(deltaY, deltaX);
-        double targetDegrees = Math.toDegrees(targetRadians);
-
-        double currentDegrees;
-        if (reversePolarity)
-        {
-            if (currentLocation2D.getHeading(AngleUnit.DEGREES) > 0)
-            {
-                currentDegrees = currentLocation2D.getHeading(AngleUnit.DEGREES) - 180;
-            }
-            else
-            {
-                currentDegrees = currentLocation2D.getHeading(AngleUnit.DEGREES) + 180;
-            }
-        }
-        else
-        {
-            currentDegrees = currentLocation2D.getHeading(AngleUnit.DEGREES);
-        }
-
-        // this value indicates where the target is relative to the robot's heading
-        // if the value is negative, the target is to the left
-        // if the value is positive, the target is to the right
-        double degreesToTarget = targetDegrees - currentDegrees;
-
-        // Sometimes the value of degreesToTarget is greater than 180 degrees, which is never possible.
-        // This normalizes the value to be between -180 and 180.
-        while (degreesToTarget > 180) {
-            degreesToTarget -= 360;
-        }
-        while (degreesToTarget < -180) {
-            degreesToTarget += 360;
-        }
-
-        if (convertToRadians)
-        {
-            return Math.toRadians(degreesToTarget);
-        }
-        else
-        {
-            return degreesToTarget;
-        }
+        return getDegreesToTarget(toPose2D(currentLocation), toPose2D(targetLocation), convertToRadians);
     }
 
     public double getCurrentVelocity()
