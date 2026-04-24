@@ -338,13 +338,9 @@ public class Turret
         // THEN, we check if the heading we give to the servos are beyond their physical limits
         // If they are, we flip it back.
         if (continuousHeading > (MAX_ANGLE / 2))
-        {
             continuousHeading -= 360;
-        }
         else if (continuousHeading < -(MAX_ANGLE / 2))
-        {
             continuousHeading += 360;
-        }
 
         // Then we tell the servos to run to the calculated position.
         if (isTargeting && !isManuallySetting)

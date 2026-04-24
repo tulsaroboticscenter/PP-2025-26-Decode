@@ -206,6 +206,8 @@ public class TeleOpCTS extends OpMode {
         hw.updateTeleOp(this);
         hw.turret.updateFlywheelAndHood(pos, goalPosition);
 
+        hw.drivetrain.isTargeting = gamepad1.square;
+
         // --- 2. Cache all motor reads once — reused in telemetry (Issue 7 fix) ---
         distance         = hw.turret.getDistanceToTarget(hw.turret.offsetPoseToTurret(pos), goalPosition);
         leftVelocity     = hw.turret.launcherL.getVelocity();
