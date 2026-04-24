@@ -197,7 +197,7 @@ public class TeleOpCTS extends OpMode {
         if (isParking) {
             hw.turret.setTarget(hw.turret.HeadingToServoValue(0, AngleUnit.DEGREES));
             hw.intake.stop();
-        } else if (hw.turret.isTargeting) {
+        } else if (hw.turret.isTargeting && !hw.drivetrain.isTargeting) {
             hw.turret.setTarget(pos, goalPosition);
         } else {
             hw.turret.setTarget(hw.turret.HeadingToServoValue(0, AngleUnit.DEGREES));
