@@ -270,7 +270,7 @@ public class DataGatheringTeleOp extends OpMode
         telemetry.addData("Right Flywheel Motor Velocity", hw.turret.launcherR.getVelocity());
 
         telemetry.addLine("Hood Target Position: " + String.format(Locale.US, "%.2f", hw.turret.hoodTarget));
-        telemetry.addLine("Flywheel Target Velocity: " + String.format(Locale.US, "%.2f", hw.turret.getCurrentVelocity()));
+        telemetry.addLine("Flywheel Target Velocity: " + String.format(Locale.US, "%.2f", hw.turret.getTargetVelocity()));
         telemetry.addLine();
         telemetry.addData("Distance to target:", hw.turret.getDistanceToTarget(hw.turret.offsetPoseToTurret(pos), goalPosition));
         telemetry.addLine("Position" + PoseUtils.poseToString(pos, DistanceUnit.INCH, AngleUnit.DEGREES));

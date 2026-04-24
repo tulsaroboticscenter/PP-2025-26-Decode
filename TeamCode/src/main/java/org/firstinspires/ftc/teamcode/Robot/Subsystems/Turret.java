@@ -247,7 +247,7 @@ public class Turret
 
     public void updateFlywheelAndHood(Pose currentPosition, Pose2D goalPosition)
     {
-        updateFlywheelAndHood(new Pose2D(DistanceUnit.MM, currentPosition.getX(), currentPosition.getY(), AngleUnit.RADIANS, currentPosition.getHeading()), goalPosition);
+        updateFlywheelAndHood(new Pose2D(DistanceUnit.INCH, currentPosition.getX(), currentPosition.getY(), AngleUnit.RADIANS, currentPosition.getHeading()), goalPosition);
     }
 
     public double getAverageFlywheelVelocity()
@@ -515,14 +515,8 @@ public class Turret
         double currentDegrees;
         if (reversePolarity)
         {
-            if (currentLocation.getHeading(AngleUnit.DEGREES) > 0)
-            {
-                currentDegrees = currentLocation.getHeading(AngleUnit.DEGREES) - 180;
-            }
-            else
-            {
-                currentDegrees = currentLocation.getHeading(AngleUnit.DEGREES) + 180;
-            }
+            currentDegrees = currentLocation.getHeading(AngleUnit.DEGREES) + 180;
+            if (currentDegrees > 180) currentDegrees -= 360;
         }
         else
         {
@@ -562,7 +556,7 @@ public class Turret
         return getDegreesToTarget(toPose2D(currentLocation), toPose2D(targetLocation), convertToRadians);
     }
 
-    public double getCurrentVelocity()
+    public double getTargetVelocity()
     {
         return targetVelocity;
     }
