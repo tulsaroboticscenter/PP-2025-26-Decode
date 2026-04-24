@@ -148,6 +148,7 @@ public class TeleOpCTS extends OpMode {
         if (gamepad1.optionsWasPressed()) testing = !testing;
 
         telemetry.addLine("Test mode: " + testing + "  |  [options] to toggle.");
+        telemetry.addLine("Pinpoint Ready: " + hw.pinpoint.isReady());
         telemetry.update();
     }
 

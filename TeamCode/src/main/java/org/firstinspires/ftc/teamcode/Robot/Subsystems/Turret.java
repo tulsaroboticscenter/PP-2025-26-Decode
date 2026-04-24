@@ -155,7 +155,7 @@ public class Turret
             startingHeading = Math.toDegrees(startingHeading);
 
         // flip + to - if rotating wrong way
-        return MathFunctions.clamp(zeroPosition + (startingHeading / MAX_ANGLE), 0, 1);
+        return MathFunctions.clamp(zeroPosition - (startingHeading / MAX_ANGLE), 0, 1);
     }
 
     public void spinUpFlywheel(){isFlywheelSpinning = true;}
@@ -337,14 +337,14 @@ public class Turret
 
         // THEN, we check if the heading we give to the servos are beyond their physical limits
         // If they are, we flip it back.
-//        if (continuousHeading > (MAX_ANGLE / 2))
-//        {
-//            continuousHeading -= 360;
-//        }
-//        else if (continuousHeading < -(MAX_ANGLE / 2))
-//        {
-//            continuousHeading += 360;
-//        }
+        if (continuousHeading > (MAX_ANGLE / 2))
+        {
+            continuousHeading -= 360;
+        }
+        else if (continuousHeading < -(MAX_ANGLE / 2))
+        {
+            continuousHeading += 360;
+        }
 
         // Then we tell the servos to run to the calculated position.
         if (isTargeting && !isManuallySetting)

@@ -82,8 +82,8 @@ public class Intake
         else
         {
             isIntaking = true;
-            innerIntakeMotor.setPower(1);
-            outerIntakeMotor.setPower(1);
+            innerIntakeMotor.setPower(0.9);
+            outerIntakeMotor.setPower(0.9);
         }
     }
 
@@ -119,7 +119,7 @@ public class Intake
 
     public void update() {
         if (isForceIntaking) {
-            innerIntakeMotor.setPower(1);
+            innerIntakeMotor.setPower(0.9);
             outerIntakeMotor.setPower(1);
         } else if (isIntaking) {
             if (innerIntakeMotor.getCurrent(CurrentUnit.AMPS) > innerAmperageLimit) {

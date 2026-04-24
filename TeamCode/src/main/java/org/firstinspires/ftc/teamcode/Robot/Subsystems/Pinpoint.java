@@ -24,12 +24,10 @@ public class Pinpoint
             throw new IllegalStateException("pinpoint not found in hardware map. Check robot configuration.");
         }
 
-
         pinpoint.resetPosAndIMU();
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         pinpoint.setOffsets(130, 104);
         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.REVERSED);
-        pinpoint.recalibrateIMU();
     }
 
     public boolean isReady() {return pinpoint.getDeviceStatus() == GoBildaPinpointDriver.DeviceStatus.READY;}
