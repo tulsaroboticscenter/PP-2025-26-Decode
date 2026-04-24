@@ -72,7 +72,7 @@ public class Drivetrain
     @Sorter(sort = 4)
     public static double KfVal = 0.0;
 
-    PIDFController rotationPID = new PIDFController(KpVal, KiVal, KdVal, KfVal, -1, 1);
+    PIDFController rotationPID = new PIDFController(KpVal, KiVal, KdVal, KfVal, -1.0, 1.0);
 
     // --------------
     // INITIALIZATION
@@ -188,21 +188,19 @@ public class Drivetrain
         double strafe = opmode.gamepad1.left_stick_x;
         double rotate = opmode.gamepad1.right_stick_x;
 
-        double currentHeadingRadians = currentPosition.getHeading(AngleUnit.RADIANS);
+        double currentHeadingDegrees = currentPosition.getHeading(AngleUnit.DEGREES);
 
         double theta = Math.atan2(forward, strafe);
         double r = Math.hypot(strafe, forward);
 
         offset = ((side == Field.Side.RED) ? Math.toRadians(0) : Math.toRadians(179.9));
-        theta = AngleUnit.normalizeRadians((theta + offset) - currentHeadingRadians);
+        theta = AngleUnit.normalizeRadians((theta + offset) - currentHeadingDegrees);
 
         double newForward = r * Math.sin(theta);
         double newStrafe = r * Math.cos(theta);
 
-        rotationPID.setTarget(Math.atan2(targetPosition.getY(DistanceUnit.INCH) - currentPosition.getY(DistanceUnit.INCH), targetPosition.getX(DistanceUnit.INCH) - currentPosition.getX(DistanceUnit.INCH)));
-
         if (isTargeting)
-            robotCentricDrive(newForward, newStrafe, rotationPID.calculate(currentHeadingRadians));
+            robotCentricDrive(newForward, newStrafe, rotationPID.calculate(currentHeadingDegrees));
         else
             robotCentricDrive(newForward, newStrafe, rotate);
     }

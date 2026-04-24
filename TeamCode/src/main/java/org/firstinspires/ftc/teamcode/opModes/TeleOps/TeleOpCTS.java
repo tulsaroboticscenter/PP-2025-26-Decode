@@ -197,7 +197,7 @@ public class TeleOpCTS extends OpMode {
         if (isParking) {
             hw.turret.setTarget(hw.turret.HeadingToServoValue(0, AngleUnit.DEGREES));
             hw.intake.stop();
-        } else if (hw.turret.isTargeting) {
+        } else if (hw.turret.isTargeting && !hw.drivetrain.isTargeting) {
             hw.turret.setTarget(pos, goalPosition);
         } else {
             hw.turret.setTarget(hw.turret.HeadingToServoValue(0, AngleUnit.DEGREES));
@@ -205,6 +205,8 @@ public class TeleOpCTS extends OpMode {
 
         hw.updateTeleOp(this);
         hw.turret.updateFlywheelAndHood(pos, goalPosition);
+
+        hw.drivetrain.isTargeting = gamepad1.square;
 
         // --- 2. Cache all motor reads once — reused in telemetry (Issue 7 fix) ---
         distance         = hw.turret.getDistanceToTarget(hw.turret.offsetPoseToTurret(pos), goalPosition);
