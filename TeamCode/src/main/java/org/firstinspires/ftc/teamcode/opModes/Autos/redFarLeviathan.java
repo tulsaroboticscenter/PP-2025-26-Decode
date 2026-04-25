@@ -24,7 +24,7 @@ public class redFarLeviathan extends OpMode {
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
 
-    private HardwareManager hw = new HardwareManager(hardwareMap);
+    private HardwareManager hw;
 
     private Timer shooterTimer;
 
@@ -37,18 +37,21 @@ public class redFarLeviathan extends OpMode {
     private final Pose scorePose = new Pose(90.065, 15, 90);
     private final Pose startPose = Field.toPedro(Field.redSmallZone);
     private final Pose park = new Pose(108, 15.5, Math.toRadians(90));
+    private final Pose intakePrep = new Pose(100,40,Math.toRadians(0));
+    private final Pose intakeLine = new Pose (120,40, Math.toRadians(0));
 
 
-    public PathChain Movetointake, Movetoshoot, Movetointake2, Movetoshoot2, Park;
+
+    public PathChain Movetointake, Movetoshoot, Movetointake2, Movetoshoot2, Movetointake3, Park;
 
     public void buildPaths() {
         Movetointake = follower
                 .pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(83.286, 9.146),
-                                new Pose(79.784, 40.281),
-                                new Pose(128, 40)
+                                new Pose(100,40),
+                                new Pose (110,40),
+                                new Pose(129, 40)
                         )
                 )
                 .setConstantHeadingInterpolation(0)
@@ -57,26 +60,20 @@ public class redFarLeviathan extends OpMode {
         Movetoshoot = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(133.881, 34.249), scorePose)
+                        new BezierLine(new Pose(130, 34.249), scorePose)
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(90))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
 
         Movetointake2 = follower
                 .pathBuilder()
                 .addPath(
                         new BezierLine(
-                                new Pose(84.065, 10.508),
-                                new Pose(120, 30)
+                                new Pose(100, 5),
+                                new Pose(115, 5)
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(-80))
-                .addPath(
-                        new BezierLine(
-                                new Pose(136, 25),
-                                new Pose(136, 13))
-                )
-                .setConstantHeadingInterpolation(Math.toRadians(-80))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
 
         Movetoshoot2 = follower
@@ -85,9 +82,20 @@ public class redFarLeviathan extends OpMode {
                         new BezierLine(new Pose(134.659, 9.341), scorePose)
                 )
                 .setLinearHeadingInterpolation(
-                        Math.toRadians(-80),
-                        Math.toRadians(90)
+                        Math.toRadians(0),
+                        Math.toRadians(0)
                 )
+                .build();
+
+        Movetointake3 = follower
+                .pathBuilder()
+                .addPath(
+                        new BezierLine(
+                                new Pose(100, 5),
+                                new Pose(115, 5)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
 
         Park = follower
@@ -95,7 +103,7 @@ public class redFarLeviathan extends OpMode {
                 .addPath(
                         new BezierLine(new Pose(83.286, 10.897),park)
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(90))
+                .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(0))
                 .build();
     }
 
@@ -112,13 +120,14 @@ public class redFarLeviathan extends OpMode {
             case 1:
                 if (!follower.isBusy())
                 {
-                    if (shooterTimer.getElapsedTime() > 2000)
+                    hw.intake.openGate();
+                    if (shooterTimer.getElapsedTime() > 1000)
                     {
-                        hw.intake.partialIntake();
-                        hw.intake.openGate();
+                        hw.intake.intake();
+
                     }
 
-                    if (shooterTimer.getElapsedTime() > 3500)
+                    if (shooterTimer.getElapsedTime() > 4000)
                     {
                         hw.intake.closeGate();
                         hw.intake.intake();
@@ -183,11 +192,11 @@ public class redFarLeviathan extends OpMode {
                 {
                     shooterTimer.resetTimer();
                 }
-                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 750) {
+                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 500) {
                     hw.intake.partialIntake();
                     hw.intake.openGate();
 
-                    if (shooterTimer.getElapsedTime() > 3500)
+                    if (shooterTimer.getElapsedTime() > 2000)
                     {
                         hw.intake.closeGate();
                         hw.intake.stop();
@@ -212,7 +221,34 @@ public class redFarLeviathan extends OpMode {
                 {
                     shooterTimer.resetTimer();
                 }
-                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 750) {
+                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 500) {
+                    hw.intake.partialIntake();
+                    hw.intake.openGate();
+
+                    if (shooterTimer.getElapsedTime() > 3500)
+                    {
+                        hw.intake.closeGate();
+                        hw.intake.stop();
+                        hw.intake.intake();
+                        follower.followPath(Movetointake3, true);
+                        setPathState(8);
+                    }
+                }
+                break;
+            /// park
+            case 8:
+            if (!follower.isBusy()) {
+                hw.intake.intake();
+                follower.followPath(Movetoshoot2, true);
+                shooterTimer.resetTimer();
+                setPathState(9);
+            }
+            case 9:
+                if (follower.isBusy())
+                {
+                    shooterTimer.resetTimer();
+                }
+                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 500) {
                     hw.intake.partialIntake();
                     hw.intake.openGate();
 
@@ -222,12 +258,11 @@ public class redFarLeviathan extends OpMode {
                         hw.intake.stop();
                         hw.intake.intake();
                         follower.followPath(Park, true);
-                        setPathState(8);
+                        setPathState(10);
                     }
                 }
-                break;
-            /// park
-            case 8:
+
+            case 10:
                 if (!follower.isBusy()) {
                     setPathState(-1);
                     stop();
@@ -250,6 +285,7 @@ public class redFarLeviathan extends OpMode {
 
         hw.lights.update();
         hw.turret.update();
+        hw.intake.update();
 
         hw.turret.setTarget(follower.getPose(), goalPosition);
 
@@ -279,6 +315,8 @@ public class redFarLeviathan extends OpMode {
         setPathState(0);
         goalPosition = Field.redGoal;
 
+        hw.turret.isTargeting = true;
+
         // Save the selected alliance side, so TeleOp can read it and automatically load the goal position.
         Field.lastAllianceSide = Field.Side.RED;
     }
@@ -291,6 +329,7 @@ public class redFarLeviathan extends OpMode {
         shooterTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
+        hw = new HardwareManager(hardwareMap);
         follower = Constants.createFollower(hardwareMap);
         buildPaths();
         follower.setPose(startPose);
@@ -316,6 +355,7 @@ public class redFarLeviathan extends OpMode {
     {
         hw.lights.update();
         hw.turret.update();
+        hw.intake.update();
 
         telemetry.addLine("Side: " + ((currentSide == Field.Side.RED) ? "Red" : "Blue"));
         telemetry.addLine("Starting Position: " + ((currentStartingPosition == Field.StartingPosition.NEAR) ? "Near" : "Far"));

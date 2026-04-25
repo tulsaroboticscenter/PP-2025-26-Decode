@@ -24,7 +24,7 @@ public class redFar extends OpMode {
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
 
-    private HardwareManager hw = new HardwareManager(hardwareMap);
+    private HardwareManager hw;
 
     private Timer shooterTimer;
 
@@ -35,7 +35,7 @@ public class redFar extends OpMode {
     public Pose2D goalPosition = null;
 
     private final Pose startPose = Field.toPedro(Field.redSmallZone);
-    private final Pose park = new Pose(108, 15.5, Math.toRadians(90));
+    private final Pose park = new Pose(108, 15.5, Math.toRadians(0));
 
 
     private PathChain parkPath, intakeCurve1, scoreLine1, intakeCurve2, scoreLine2, intakeCurve3, scoreLine3;
@@ -59,7 +59,7 @@ public class redFar extends OpMode {
                 .addPath(
                         new BezierLine(new Pose(135.438, 35.805), new Pose(83.481, 10.314))
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(80))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         intakeCurve2 = follower
@@ -79,7 +79,7 @@ public class redFar extends OpMode {
                 .addPath(
                         new BezierLine(new Pose(135.243, 59.935), new Pose(84.065, 10.314))
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(80))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         intakeCurve3 = follower
@@ -99,7 +99,7 @@ public class redFar extends OpMode {
                 .addPath(
                         new BezierLine(new Pose(129.989, 83.870), new Pose(84.065, 10.508))
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(80))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
     }
 
@@ -118,6 +118,7 @@ public class redFar extends OpMode {
             // Back up to shoot
             case 0:
                 hw.turret.spinUpFlywheel();
+
                 shooterTimer.resetTimer();
                 setPathState(1);
                 break;
@@ -283,8 +284,11 @@ public class redFar extends OpMode {
         autonomousPathRedUpdate();
         telemetry.addLine("RED");
 
+
+
         hw.lights.update();
         hw.turret.update();
+
 
         hw.turret.setTarget(follower.getPose(), goalPosition);
 
@@ -312,6 +316,8 @@ public class redFar extends OpMode {
         setPathState(0);
         goalPosition = Field.redGoal;
 
+        hw.turret.isTargeting = true;
+
         // Save the selected alliance side, so TeleOp can read it and automatically load the goal position.
         Field.lastAllianceSide = Field.Side.RED;
     }
@@ -324,6 +330,8 @@ public class redFar extends OpMode {
         shooterTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
+        hw = new HardwareManager(hardwareMap);
+
         follower = Constants.createFollower(hardwareMap);
         buildPaths();
         follower.setPose(startPose);
@@ -349,6 +357,7 @@ public class redFar extends OpMode {
     {
         hw.lights.update();
         hw.turret.update();
+        hw.intake.update();
 
         telemetry.addLine("Press up or down on the D-Pad to select number of spikes");
         telemetry.addLine("Number of spikes selected: " + numOfSpikes);
