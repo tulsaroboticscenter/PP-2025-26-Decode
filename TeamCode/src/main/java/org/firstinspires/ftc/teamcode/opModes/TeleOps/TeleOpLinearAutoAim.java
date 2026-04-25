@@ -190,17 +190,21 @@ public class TeleOpLinearAutoAim extends OpMode {
         hw.updateInitTeleOp();
 
         if (!testing) {
-            telemetry.addLine(loaded ? "Position loaded." : "No position — defaulted Red.");
-            telemetry.addLine("Pos: " + PoseUtils.poseToString(storedLocation, DistanceUnit.INCH, AngleUnit.DEGREES));
+            telemetry.addLine(loaded
+                    ? "Position found!"
+                    : "Position not found. Defaulted to Red Far Zone.");
+            telemetry.addLine("Position: "
+                    + PoseUtils.poseToString(storedLocation, DistanceUnit.INCH, AngleUnit.DEGREES));
         } else {
-            telemetry.addLine("Test side: " + (testingSide == Field.Side.RED ? "RED" : "BLUE"));
-            telemetry.addLine("[Square] to switch sides.");
+            telemetry.addLine("Testing side: " + (testingSide == Field.Side.RED ? "Red" : "Blue"));
+            telemetry.addLine("Press [Square] to switch sides.");
             if (gamepad1.xWasPressed()) {
                 testingSide = (testingSide == Field.Side.RED) ? Field.Side.BLUE : Field.Side.RED;
                 hw.lights.setLightColor(testingSide == Field.Side.BLUE
                         ? RGBLightController.BLUE : RGBLightController.RED);
             }
         }
+
 
         if (gamepad1.optionsWasPressed()) testing = !testing;
         telemetry.addLine("[Options] test mode: " + testing);
@@ -216,12 +220,15 @@ public class TeleOpLinearAutoAim extends OpMode {
     @Override
     public void start() {
         if (testing) {
-            storedLocation = (testingSide == Field.Side.RED) ? Field.redSmallZone  : Field.blueSmallZone;
-            goalPosition   = (testingSide == Field.Side.RED) ? Field.redGoal       : Field.blueGoal;
+            storedLocation = (testingSide == Field.Side.RED)
+                    ? Field.redSmallZone : Field.blueSmallZone;
+            goalPosition   = (testingSide == Field.Side.RED)
+                    ? Field.redGoal : Field.blueGoal;
             startingSide   = testingSide;
         }
 
         hw.pinpoint.setPosition(storedLocation);
+
         hw.turret.setTarget(hw.turret.HeadingToServoValue(0, AngleUnit.DEGREES));
 
         autoAimEnabled = false;
@@ -292,7 +299,7 @@ public class TeleOpLinearAutoAim extends OpMode {
         // 6. Field-centric mecanum drive
         //    When auto-aim is ON:  rotation = PIDF output, right stick ignored
         //    When auto-aim is OFF: rotation = right stick
-        double drive  = -gamepad1.left_stick_y;
+        double drive  = gamepad1.left_stick_y;
         double strafe =  gamepad1.left_stick_x * 1.1; // strafe boost for mecanum
         double rotate = autoAimEnabled
                 ? rotationOutput
