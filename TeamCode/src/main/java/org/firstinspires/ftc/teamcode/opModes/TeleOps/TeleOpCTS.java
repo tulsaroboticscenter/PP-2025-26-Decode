@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Robot.HardwareManager;
 
 import java.util.Locale;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "tele - CTS", group = "Robot")
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "tele - CTS Version 2", group = "Robot")
 public class TeleOpCTS extends OpMode {
 
     // -------------------------------------------------------------------------
