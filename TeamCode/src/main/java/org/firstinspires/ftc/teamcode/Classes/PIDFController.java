@@ -3,126 +3,115 @@ package org.firstinspires.ftc.teamcode.Classes;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
- * Fixed PIDFController — replaces both the original PIDFController AND
- * PIDFControllerCTS. Use this single file everywhere in the codebase.
+ * Simple, correct PIDF controller.
  *
- * Three bugs fixed vs. the original:
- *
- *  FIX 1 — Derivative computed on error delta, not raw error.
- *           Original: Kd * error / dt  → spikes every loop on heading control
- *           Fixed:    Kd * (error - previousError) / dt  → smooth damping
- *
- *  FIX 2 — Timer no longer resets inside the tolerance dead-band.
- *           Original: timer reset on tolerance exit → dt ≈ 0 → derivative explosion
- *           Fixed:    timer always resets at top of calculate(), dt is always valid
- *
- *  FIX 3 — Integral anti-windup.
- *           Original: integralSum grows unbounded → overshoot → oscillation
- *           Fixed:    integral only accumulates when output is not saturated
+ * Design decisions:
+ *  - Timer is read and reset at the TOP of every calculate() call, unconditionally.
+ *    This means deltaTime is always valid and the derivative never blows up.
+ *  - Derivative is on the MEASUREMENT (processVariable), not the error.
+ *    This eliminates "derivative kick" when the setpoint changes every loop.
+ *  - Integral has clamping anti-windup — the sum is clamped to a range that
+ *    prevents it from growing beyond what the output limits can use.
+ *  - Tolerance dead-band returns 0 and clears state cleanly.
  */
-public class PIDFController
-{
-    private double Kp;
-    private double Ki;
-    private double Kd;
-    private double Kf;
+public class PIDFController {
 
-    private double setpoint;
-    private double previousError;
-    private double integralSum;
+    private double kP, kI, kD, kF;
+    private double minOutput, maxOutput;
+    private double tolerance = 0.0;
 
-    private double tolerance = 0;
-
-    private double minOutput;
-    private double maxOutput;
+    private double setpoint        = 0.0;
+    private double integralSum     = 0.0;
+    private double lastMeasurement = 0.0;
+    private boolean firstRun       = true;
 
     private final ElapsedTime timer = new ElapsedTime();
 
-    private static final double MAX_DELTA_TIME = 0.5;   // seconds — clamps stale first read
-    private static final double MIN_DELTA_TIME = 1e-6;  // prevents divide-by-zero
-
-    public PIDFController(double Kp, double Ki, double Kd, double Kf,
-                          double minOutput, double maxOutput)
-    {
-        this.Kp        = Kp;
-        this.Ki        = Ki;
-        this.Kd        = Kd;
-        this.Kf        = Kf;
+    public PIDFController(double kP, double kI, double kD, double kF,
+                          double minOutput, double maxOutput) {
+        this.kP        = kP;
+        this.kI        = kI;
+        this.kD        = kD;
+        this.kF        = kF;
         this.minOutput = minOutput;
         this.maxOutput = maxOutput;
-        reset();
     }
 
-    public void setTarget(double setpoint)
-    {
+    public void setTarget(double setpoint) {
         this.setpoint = setpoint;
     }
 
-    public double calculate(double processVariable)
-    {
-        // FIX 2: always read and reset timer here — never inside the tolerance block
-        double deltaTime = timer.seconds();
+    /**
+     * Call once per loop with the current sensor reading.
+     * Returns motor power in [minOutput, maxOutput].
+     */
+    public double calculate(double measurement) {
+
+        // Always read dt first — never gate this behind a tolerance check
+        double dt = timer.seconds();
         timer.reset();
-        deltaTime = Math.max(MIN_DELTA_TIME, Math.min(MAX_DELTA_TIME, deltaTime));
 
-        double error = setpoint - processVariable;
+        // On the very first call dt will be huge — clamp it
+        if (firstRun) {
+            dt       = 0.02; // assume one normal loop length
+            firstRun = false;
+            lastMeasurement = measurement;
+        }
+        dt = Math.max(0.001, Math.min(0.5, dt));
 
-        // Tolerance dead-band — keep previousError current so derivative is
-        // smooth when the system leaves the band
-        if (Math.abs(error) <= tolerance)
-        {
-            previousError = error;
-            integralSum   = 0;
-            return 0;
+        double error = setpoint - measurement;
+
+        // Dead-band — inside tolerance, stop and reset integrator
+        if (Math.abs(error) <= tolerance) {
+            integralSum     = 0.0;
+            lastMeasurement = measurement;
+            return 0.0;
         }
 
-        // Proportional
-        double proportionalTerm = Kp * error;
+        // P term
+        double P = kP * error;
 
-        // Integral (speculative accumulation for anti-windup check)
-        double prospectiveIntegral = integralSum + error * deltaTime;
-        double integralTerm        = Ki * prospectiveIntegral;
+        // I term with simple clamp anti-windup
+        integralSum += error * dt;
+        // Clamp integral contribution so it can never exceed half the output range
+        double maxIntegral = (maxOutput - minOutput) / 2.0;
+        integralSum = Math.max(-maxIntegral / (kI == 0 ? 1 : kI),
+                Math.min( maxIntegral / (kI == 0 ? 1 : kI), integralSum));
+        double I = kI * integralSum;
 
-        // FIX 1: derivative on error delta, not raw error
-        double derivativeTerm = Kd * ((error - previousError) / deltaTime);
+        // D term — derivative on MEASUREMENT, not error
+        // This prevents a spike when setpoint changes every loop
+        double dMeasurement = (measurement - lastMeasurement) / dt;
+        double D = -kD * dMeasurement;   // negative because rising measurement
+        // with positive error means converging
 
-        // Feed-forward
-        double feedforwardTerm = Kf * setpoint;
+        // F term
+        double F = kF * setpoint;
 
-        double output = proportionalTerm + integralTerm + derivativeTerm + feedforwardTerm;
+        double output = P + I + D + F;
 
-        // FIX 3: only commit integral when output is not saturated
-        boolean saturated = (output > maxOutput && error > 0)
-                || (output < minOutput && error < 0);
-        if (!saturated)
-        {
-            integralSum = prospectiveIntegral;
-        }
-
+        // Clamp output
         output = Math.max(minOutput, Math.min(maxOutput, output));
 
-        previousError = error;
-
+        lastMeasurement = measurement;
         return output;
     }
 
-    public void setTolerance(double tolerance)
-    {
+    public void setTolerance(double tolerance) {
         this.tolerance = tolerance;
     }
 
-    public void setPIDFCoefficients(double p, double i, double d, double f)
-    {
-        Kp = p;
-        Ki = i;
-        Kd = d;
-        Kf = f;
+    public void setPIDFCoefficients(double p, double i, double d, double f) {
+        this.kP = p;
+        this.kI = i;
+        this.kD = d;
+        this.kF = f;
     }
 
-    public void reset()
-    {
-        integralSum   = 0;
-        previousError = 0;
+    /** Call this whenever you change targets or re-enable the controller. */
+    public void reset() {
+        integralSum     = 0.0;
+        firstRun        = true;
         timer.reset();
     }
 }
