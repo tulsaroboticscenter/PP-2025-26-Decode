@@ -30,12 +30,12 @@ public class RedFarLeviathanCTS extends OpMode {
     public Pose2D goalPosition = null;
 
     // ── Poses ────────────────────────────────────────────────────────────────
-    private final Pose scorePose      = new Pose(90.065, 15, Math.toRadians(90));
+    private final Pose scorePose      = new Pose(90.065, 15, Math.toRadians(0));
     private final Pose startPose      = Field.toPedro(Field.redSmallZone);
-    private final Pose park           = new Pose(108, 15.5, Math.toRadians(90));
+    private final Pose park           = new Pose(115, 15.5, Math.toRadians(90));
 
     // HPZ intake end-point (where the robot sits while waiting for a ring)
-    private final Pose hpzPose        = new Pose(95, 5, Math.toRadians(0));
+    private final Pose hpzPose        = new Pose(125, 5, Math.toRadians(0));
 
     // ── Paths ────────────────────────────────────────────────────────────────
     /** Spike-mark sweep: arcs out to collect the 3 pre-loaded rings */
@@ -63,11 +63,11 @@ public class RedFarLeviathanCTS extends OpMode {
 
     // ── Timing constants (ms) ────────────────────────────────────────────────
     private static final long PRELOAD_GATE_OPEN_MS  = 1000;
-    private static final long PRELOAD_SHOOT_MS       = 2500;
+    private static final long PRELOAD_SHOOT_MS       = 2000;
     private static final long SHOOT_SETTLE_MS        = 750;
-    private static final long SHOOT_DURATION_MS      = 2000;
+    private static final long SHOOT_DURATION_MS      = 1750;
     private static final long HPZ_COLLECT_MS         = 1500; // wait at HPZ for ring
-    private static final long TIME_LIMIT_MS          = 28_000; // stop starting new HPZ runs after this
+    private static final long TIME_LIMIT_MS          = 27_000; // stop starting new HPZ runs after this
 
     public void buildPaths() {
 
@@ -83,7 +83,7 @@ public class RedFarLeviathanCTS extends OpMode {
         // Spike mark → score
         spikeMarkToShoot = follower.pathBuilder()
                 .addPath(new BezierLine(new Pose(129, 35), scorePose))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(90))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
 
         // Score → HPZ  (gentle curve to avoid field walls)
@@ -92,19 +92,19 @@ public class RedFarLeviathanCTS extends OpMode {
                         scorePose,
                         new Pose(95, 15),
                         hpzPose))
-                .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
 
         // HPZ → Score
         hpzToShoot = follower.pathBuilder()
                 .addPath(new BezierLine(hpzPose, scorePose))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(90))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
 
         // Park
         parkPath = follower.pathBuilder()
                 .addPath(new BezierLine(scorePose, park))
-                .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(90))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
     }
 
@@ -153,11 +153,12 @@ public class RedFarLeviathanCTS extends OpMode {
             // ── STATE 3: Shoot spike-mark rings, then head to HPZ ────────────
             case 3:
                 if (follower.isBusy()) {
+                    hw.intake.partialIntake();
                     shooterTimer.resetTimer();
                     break;
                 }
                 if (shooterTimer.getElapsedTime() > SHOOT_SETTLE_MS) {
-                    hw.intake.partialIntake();
+                    hw.intake.intake();
                     hw.intake.openGate();
                 }
                 if (shooterTimer.getElapsedTime() > SHOOT_DURATION_MS) {
@@ -193,12 +194,12 @@ public class RedFarLeviathanCTS extends OpMode {
                     break;
                 }
                 if (shooterTimer.getElapsedTime() > SHOOT_SETTLE_MS) {
-                    hw.intake.partialIntake();
+                    hw.intake.intake();
                     hw.intake.openGate();
                 }
                 if (shooterTimer.getElapsedTime() > SHOOT_DURATION_MS) {
                     hw.intake.closeGate();
-                    hw.intake.stop();
+                    hw.intake.intake();
 
                     // If we still have time for another HPZ run, loop back.
                     // Otherwise, go park.
