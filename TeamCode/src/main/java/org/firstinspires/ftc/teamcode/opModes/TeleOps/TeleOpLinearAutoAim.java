@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Classes.Field;
-import org.firstinspires.ftc.teamcode.Classes.PIDFControllerCTS;
+import org.firstinspires.ftc.teamcode.Classes.PIDFController;
 import org.firstinspires.ftc.teamcode.Classes.PoseUtils;
 import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
 import org.firstinspires.ftc.teamcode.Robot.HardwareManager;
@@ -124,7 +124,7 @@ public class TeleOpLinearAutoAim extends OpMode {
      * Gains are re-applied every loop from HeadingPIDFConfig so live edits
      * in Panels take effect immediately without restarting the opmode.
      */
-    private PIDFControllerCTS headingPID;
+    private PIDFController headingPID;
 
     // Parking state machine (mirrors CTS)
     private boolean isParking = false;
@@ -190,7 +190,7 @@ public class TeleOpLinearAutoAim extends OpMode {
         hw.lights.setLightMode(RGBLightController.LEDMode.WAKE);
 
         // Build the heading PIDF with the current (default) config values.
-        headingPID = new PIDFControllerCTS(
+        headingPID = new PIDFController(
                 HeadingPIDFConfig.Kp,
                 HeadingPIDFConfig.Ki,
                 HeadingPIDFConfig.Kd,
