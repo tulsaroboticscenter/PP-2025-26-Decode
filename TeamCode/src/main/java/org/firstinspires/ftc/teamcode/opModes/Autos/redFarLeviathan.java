@@ -69,8 +69,8 @@ public class redFarLeviathan extends OpMode {
                 .pathBuilder()
                 .addPath(
                         new BezierLine(
-                                new Pose(100, 5),
-                                new Pose(95, 5)
+                                new Pose(135, 5),
+                                new Pose(125, 5)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
@@ -91,8 +91,8 @@ public class redFarLeviathan extends OpMode {
                 .pathBuilder()
                 .addPath(
                         new BezierLine(
-                                new Pose(100, 5),
-                                new Pose(95, 5)
+                                new Pose(130, 5),
+                                new Pose(125, 5)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
@@ -243,6 +243,8 @@ public class redFarLeviathan extends OpMode {
                 shooterTimer.resetTimer();
                 setPathState(9);
             }
+            break;
+
             case 9:
                 if (follower.isBusy())
                 {
@@ -261,12 +263,15 @@ public class redFarLeviathan extends OpMode {
                         setPathState(10);
                     }
                 }
+            break;
 
             case 10:
                 if (!follower.isBusy()) {
                     setPathState(-1);
                     stop();
                 }
+
+                break;
         }
     }
     /** These change the states of the paths and actions. It will also reset the timers of the individual switches **/
