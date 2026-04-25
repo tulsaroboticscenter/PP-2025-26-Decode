@@ -18,13 +18,13 @@ public class Lights
 
     public void init(HardwareMap hwMap, boolean TeleOp)
     {
-        rgb1 = hwMap.get(Servo.class, "rgb1");
+        rgb1 = hwMap.get(Servo.class, "rgb1"); //
         if (rgb1 == null)
         {
             throw new IllegalStateException("rgb1 light not found in hardware map. Check robot configuration.");
         }
 
-        rgb2 = hwMap.get(Servo.class, "rgb2");
+        rgb2 = hwMap.get(Servo.class, "rgb2"); //
         if (rgb2 == null)
         {
             throw new IllegalStateException("rgb2 light not found in hardware map. Check robot configuration.");

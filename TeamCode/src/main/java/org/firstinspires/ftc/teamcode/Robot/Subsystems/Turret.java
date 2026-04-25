@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.Classes.Field;
 
 public class Turret
 {
@@ -60,6 +61,10 @@ public class Turret
     public static double flywheelkF = 0;
     @Sorter(sort = 9)
     public static double flywheelTolerance = 5;
+    @Sorter(sort = 10)
+    public static double redAimOffsetDegrees = 0.0;
+    @Sorter(sort = 11)
+    public static double blueAimOffsetDegrees = 0.0;
 
     public double flywheelA = -0.00228584;
     public double flywheelB = 7.6883;
@@ -82,31 +87,31 @@ public class Turret
 
     public void init(HardwareMap hwMap, boolean TeleOp)
     {
-        turretRotationServo1 = hwMap.get(Servo.class, "trServo1");
+        turretRotationServo1 = hwMap.get(Servo.class, "trServo1"); //
         if (turretRotationServo1 == null)
         {
             throw new IllegalStateException("turretRotationalServo1 not found in hardware map. Check robot configuration.");
         }
 
-        turretRotationServo2 = hwMap.get(Servo.class, "trServo2");
+        turretRotationServo2 = hwMap.get(Servo.class, "trServo2"); //
         if (turretRotationServo2 == null)
         {
             throw new IllegalStateException("turretRotationalServo2 motor not found in hardware map. Check robot configuration.");
         }
 
-        launcherL = hwMap.get(DcMotorEx.class, "launcherL");
+        launcherL = hwMap.get(DcMotorEx.class, "launcherL"); //
         if (launcherL == null)
         {
             throw new IllegalStateException("launcherL motor not found in hardware map. Check robot configuration.");
         }
 
-        launcherR = hwMap.get(DcMotorEx.class, "launcherR");
+        launcherR = hwMap.get(DcMotorEx.class, "launcherR"); //
         if (launcherR == null)
         {
             throw new IllegalStateException("launcherR motor not found in hardware map. Check robot configuration.");
         }
 
-        hoodServo = hwMap.get(Servo.class, "hood");
+        hoodServo = hwMap.get(Servo.class, "hood"); //
         if (hoodServo == null)
         {
             throw new IllegalStateException("hoodServo not found in hardware map. Check robot configuration.");
@@ -318,6 +323,10 @@ public class Turret
 
         // We first grab the robot-relative degrees to target.
         currentHeading = getDegreesToTarget(offsetPoseToTurret(currentPose), targetPose, false);
+        if(Field.lastAllianceSide == Field.Side.RED)
+            currentHeading += redAimOffsetDegrees; //apply aim trim
+        else currentHeading += blueAimOffsetDegrees; //apply aim trim
+
 //        lastHeading = getDegreesToTarget(currentPose, targetPose, false);
 
         // Then we find the difference from the last cycle to the current cycle.
@@ -331,6 +340,7 @@ public class Turret
             delta += 360;
 
         // Then we add it to our continuous heading.
+
         continuousHeading += delta;
         // And update the last heading.
         lastHeading = currentHeading;

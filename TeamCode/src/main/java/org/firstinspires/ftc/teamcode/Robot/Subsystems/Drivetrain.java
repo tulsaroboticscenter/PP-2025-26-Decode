@@ -84,19 +84,19 @@ public class Drivetrain
 
     public void init(HardwareMap hwMap)
     {
-        leftFront = hwMap.get(DcMotorEx.class, "driveLF");
+        leftFront = hwMap.get(DcMotorEx.class, "driveLF"); //
         if (leftFront == null)
             throw new IllegalStateException("leftFront motor not found. Check robot configuration.");
 
-        rightFront = hwMap.get(DcMotorEx.class, "driveRF");
+        rightFront = hwMap.get(DcMotorEx.class, "driveRF"); //
         if (rightFront == null)
             throw new IllegalStateException("rightFront motor not found. Check robot configuration.");
 
-        leftBack = hwMap.get(DcMotorEx.class, "driveLR");
+        leftBack = hwMap.get(DcMotorEx.class, "driveLR"); //
         if (leftBack == null)
             throw new IllegalStateException("leftBack motor not found. Check robot configuration.");
 
-        rightBack = hwMap.get(DcMotorEx.class, "driveRR");
+        rightBack = hwMap.get(DcMotorEx.class, "driveRR"); //
         if (rightBack == null)
             throw new IllegalStateException("rightBack motor not found. Check robot configuration.");
 

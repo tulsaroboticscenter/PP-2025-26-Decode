@@ -18,7 +18,7 @@ public class Pinpoint
 
     public void init(HardwareMap hwMap, boolean TeleOp)
     {
-        pinpoint = hwMap.get(GoBildaPinpointDriver.class, "pinpoint");
+        pinpoint = hwMap.get(GoBildaPinpointDriver.class, "pinpoint"); //
         if (pinpoint == null)
         {
             throw new IllegalStateException("pinpoint not found in hardware map. Check robot configuration.");

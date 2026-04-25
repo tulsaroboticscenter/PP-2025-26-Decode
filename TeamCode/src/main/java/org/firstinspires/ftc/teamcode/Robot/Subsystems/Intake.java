@@ -36,7 +36,7 @@ public class Intake
 
     public void init(HardwareMap hwMap)
     {
-        innerIntakeMotor = hwMap.get(DcMotorEx.class, "innerIntake");
+        innerIntakeMotor = hwMap.get(DcMotorEx.class, "innerIntake"); //
         if (innerIntakeMotor == null)
         {
             throw new IllegalStateException("innerIntake motor not found in hardware map. Check robot configuration.");
@@ -45,7 +45,7 @@ public class Intake
         innerIntakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         innerIntakeMotor.setPower(0);
 
-        outerIntakeMotor = hwMap.get(DcMotorEx.class, "outerIntake");
+        outerIntakeMotor = hwMap.get(DcMotorEx.class, "outerIntake"); //
         if (outerIntakeMotor == null)
         {
             throw new IllegalStateException("outerIntake motor not found in hardware map. Check robot configuration.");

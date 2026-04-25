@@ -186,6 +186,10 @@ public class turretTestCTS extends OpMode
     public void loop()
     {
         pos = hw.pinpoint.getPosition();
+        if(Double.isNaN(continuousHeading)){
+            continuousHeading = pos.getHeading(AngleUnit.DEGREES);
+        }
+
         // Update Methods
         hw.turret.setTarget(pos, goalPosition);
         hw.updateTeleOp(this);
