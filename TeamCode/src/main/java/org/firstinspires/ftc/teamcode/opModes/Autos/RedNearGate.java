@@ -35,14 +35,14 @@ public class RedNearGate extends OpMode {
     public Pose2D goalPosition = null;
 
     private final Pose startPose = new Pose(117.18446601941747, 133.11650485436894, Math.toRadians(-53.322));
-    private final Pose scorePose = new Pose(90, 77, Math.toRadians(225));
-    private final Pose intake1 = new Pose(120.7, 80, Math.toRadians(0));
-    private final Pose clearGate = new Pose(125, 70, Math.toRadians(0));
+    private final Pose scorePose = new Pose(90, 77, Math.toRadians(235));
+    private final Pose intake1 = new Pose(121, 80, Math.toRadians(0));
+    private final Pose clearGate = new Pose(126, 73, Math.toRadians(0));
     private final Pose gateControlPoint = new Pose(110, 71);
-    private final Pose prepIntake2 = new Pose(95.2, 54, Math.toRadians(0));
-    private final Pose intake2 = new Pose(125.4, 57, Math.toRadians(0));
-    private final Pose prepIntake3 = new Pose(95.2, 30, Math.toRadians(0));
-    private final Pose intake3 = new Pose(125.4, 33, Math.toRadians(0));
+    private final Pose prepIntake2 = new Pose(95.4, 60, Math.toRadians(0));
+    private final Pose intake2 = new Pose(126, 60, Math.toRadians(0));
+    private final Pose prepIntake3 = new Pose(95.2, 35, Math.toRadians(0));
+    private final Pose intake3 = new Pose(126, 35, Math.toRadians(0));
     private final Pose park = new Pose(120.942, 90, Math.toRadians(-90));
 
     private PathChain scorePreload, parkPath, intakeLine1, scoreLine1, lineupIntake2, intakeLine2, scoreLine2, lineupIntake3, intakeLine3, scoreLine3, clearGatePath;
@@ -63,7 +63,7 @@ public class RedNearGate extends OpMode {
 
                 scoreLine3 = follower.pathBuilder()
                         .addPath(new BezierLine(intake3, scorePose))
-                        .setConstantHeadingInterpolation(Math.toRadians(0))
+                        .setConstantHeadingInterpolation(Math.toRadians(240))
                         .build();
 
             case 2:
@@ -79,7 +79,7 @@ public class RedNearGate extends OpMode {
 
                 scoreLine2 = follower.pathBuilder()
                         .addPath(new BezierLine(intake2, scorePose))
-                        .setConstantHeadingInterpolation(Math.toRadians(0))
+                        .setConstantHeadingInterpolation(Math.toRadians(240))
                         .build();
 
             case 1:
@@ -95,7 +95,7 @@ public class RedNearGate extends OpMode {
 
                 scoreLine1 = follower.pathBuilder()
                         .addPath(new BezierLine(intake1, scorePose))
-                        .setConstantHeadingInterpolation(Math.toRadians(0))
+                        .setConstantHeadingInterpolation(Math.toRadians(240))
                         .build();
 
             case 0:
@@ -330,6 +330,10 @@ public class RedNearGate extends OpMode {
         hw.turret.update();
         hw.intake.update();
 
+        hw.intake.innerIntakeMotor.setPower(1);
+        hw.intake.outerIntakeMotor.setPower(1);
+
+
         hw.turret.setTarget(follower.getPose(), goalPosition);
         // Constantly save the last known position
         Field.lastKnownPosition = new Pose2D(DistanceUnit.INCH, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.RADIANS, follower.getHeading());
@@ -396,6 +400,7 @@ public class RedNearGate extends OpMode {
     {
         hw.lights.update();
         hw.turret.update();
+        hw.intake.update();
 
         telemetry.addLine("Press up or down on the D-Pad to select number of spikes");
         telemetry.addLine("Number of spikes selected: " + numOfSpikes);
