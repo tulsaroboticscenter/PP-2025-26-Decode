@@ -2,6 +2,24 @@ package org.firstinspires.ftc.teamcode.Classes;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+/**
+ * Fixed PIDFController — replaces both the original PIDFController AND
+ * PIDFControllerCTS. Use this single file everywhere in the codebase.
+ *
+ * Three bugs fixed vs. the original:
+ *
+ *  FIX 1 — Derivative computed on error delta, not raw error.
+ *           Original: Kd * error / dt  → spikes every loop on heading control
+ *           Fixed:    Kd * (error - previousError) / dt  → smooth damping
+ *
+ *  FIX 2 — Timer no longer resets inside the tolerance dead-band.
+ *           Original: timer reset on tolerance exit → dt ≈ 0 → derivative explosion
+ *           Fixed:    timer always resets at top of calculate(), dt is always valid
+ *
+ *  FIX 3 — Integral anti-windup.
+ *           Original: integralSum grows unbounded → overshoot → oscillation
+ *           Fixed:    integral only accumulates when output is not saturated
+ */
 public class PIDFController
 {
     private double Kp;
@@ -20,23 +38,11 @@ public class PIDFController
 
     private final ElapsedTime timer = new ElapsedTime();
 
-    // Guard against an enormous dt on the very first loop (or after a reset)
-    // which would blow up the derivative term.
-    private static final double MAX_DELTA_TIME = 0.5;  // seconds
-    private static final double MIN_DELTA_TIME = 1e-6; // prevent divide-by-zero
+    private static final double MAX_DELTA_TIME = 0.5;   // seconds — clamps stale first read
+    private static final double MIN_DELTA_TIME = 1e-6;  // prevents divide-by-zero
 
-    /**
-     * Constructor for the PIDFController.
-     *
-     * @param Kp        Proportional gain
-     * @param Ki        Integral gain
-     * @param Kd        Derivative gain
-     * @param Kf        Feed-forward gain
-     * @param minOutput Minimum output value
-     * @param maxOutput Maximum output value
-     */
     public PIDFController(double Kp, double Ki, double Kd, double Kf,
-                             double minOutput, double maxOutput)
+                          double minOutput, double maxOutput)
     {
         this.Kp        = Kp;
         this.Ki        = Ki;
@@ -47,90 +53,54 @@ public class PIDFController
         reset();
     }
 
-    /**
-     * Sets the desired setpoint for the controller.
-     *
-     * @param setpoint The target value
-     */
     public void setTarget(double setpoint)
     {
         this.setpoint = setpoint;
     }
 
-    /**
-     * Calculates the control output based on the current process variable.
-     *
-     * FIX 1 — Derivative is now computed on the ERROR DELTA, not the raw error
-     * vs previousError divided by a timer that may have just been reset. This
-     * eliminates derivative kick from setpoint changes and near-zero dt spikes.
-     *
-     * FIX 2 — The timer no longer resets inside the tolerance check. Previously
-     * the timer was reset every time the process variable was inside tolerance,
-     * so on the next loop deltaTime was near-zero and the derivative term
-     * exploded — kicking the robot back into oscillation.
-     *
-     * FIX 3 — Integral anti-windup: the integral only accumulates when the
-     * output is not saturated (i.e. not already hitting the min/max limit).
-     * This prevents the integralSum from growing unbounded and causing overshoot.
-     *
-     * @param processVariable The current measured value
-     * @return The calculated control output
-     */
     public double calculate(double processVariable)
     {
+        // FIX 2: always read and reset timer here — never inside the tolerance block
         double deltaTime = timer.seconds();
-        timer.reset();  // Always reset — timer is now purely for dt measurement,
-        // not gated behind the tolerance check (FIX 2).
-
-        // Clamp deltaTime so a stale first reading or a paused loop can't
-        // produce a garbage derivative spike.
+        timer.reset();
         deltaTime = Math.max(MIN_DELTA_TIME, Math.min(MAX_DELTA_TIME, deltaTime));
 
         double error = setpoint - processVariable;
 
-        // --- Tolerance dead-band ---
-        // Return 0 but keep previousError updated so the derivative is smooth
-        // when the robot leaves the tolerance band again.
+        // Tolerance dead-band — keep previousError current so derivative is
+        // smooth when the system leaves the band
         if (Math.abs(error) <= tolerance)
         {
-            previousError = error;  // don't freeze previousError at an old value
-            integralSum   = 0;      // bleed the integral while we're on target
+            previousError = error;
+            integralSum   = 0;
             return 0;
         }
 
-        // --- Proportional ---
+        // Proportional
         double proportionalTerm = Kp * error;
 
-        // --- Integral with anti-windup (FIX 3) ---
-        // Speculatively accumulate, then undo if output would be saturated.
+        // Integral (speculative accumulation for anti-windup check)
         double prospectiveIntegral = integralSum + error * deltaTime;
         double integralTerm        = Ki * prospectiveIntegral;
 
-        // --- Derivative on error delta (FIX 1) ---
-        // Use (error - previousError) / dt rather than raw error / dt.
-        // This means Kd damps the *rate of change of error*, not the error itself.
-        double errorDelta      = error - previousError;
-        double derivativeTerm  = Kd * (errorDelta / deltaTime);
+        // FIX 1: derivative on error delta, not raw error
+        double derivativeTerm = Kd * ((error - previousError) / deltaTime);
 
-        // --- Feed-forward ---
+        // Feed-forward
         double feedforwardTerm = Kf * setpoint;
 
-        // --- Total output ---
         double output = proportionalTerm + integralTerm + derivativeTerm + feedforwardTerm;
 
-        // --- Anti-windup: only commit the integral if output is not saturated ---
+        // FIX 3: only commit integral when output is not saturated
         boolean saturated = (output > maxOutput && error > 0)
                 || (output < minOutput && error < 0);
         if (!saturated)
         {
             integralSum = prospectiveIntegral;
         }
-        // If saturated, integralSum is NOT updated — prevents wind-up.
 
-        // --- Clamp output ---
         output = Math.max(minOutput, Math.min(maxOutput, output));
 
-        // --- Store error for next loop ---
         previousError = error;
 
         return output;
@@ -149,11 +119,6 @@ public class PIDFController
         Kf = f;
     }
 
-    /**
-     * Resets the controller state. Call this when switching targets or
-     * toggling the controller on/off to prevent stale integral and derivative
-     * values from causing a startup kick.
-     */
     public void reset()
     {
         integralSum   = 0;

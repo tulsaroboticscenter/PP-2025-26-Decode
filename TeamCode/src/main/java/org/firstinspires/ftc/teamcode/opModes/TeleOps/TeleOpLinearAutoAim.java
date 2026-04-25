@@ -19,89 +19,69 @@ import org.firstinspires.ftc.teamcode.Robot.HardwareManager;
 import java.util.Locale;
 
 /**
- * TeleOpPeacock — Emergency / backup teleop for Project Peacock.
+ * TeleOpLinearAutoAim — Emergency / backup teleop for Project Peacock.
  *
- * KEY DIFFERENCES FROM TeleOpCTS:
- *  - Turret is LOCKED at 0° (forward) for the entire match — no turret movement.
- *  - Auto-aim rotates the ENTIRE CHASSIS to face the goal via a heading PIDF loop.
- *  - [Square] on Gamepad 1 toggles chassis auto-aim ON / OFF.
- *  - While auto-aim is active the driver retains FULL translational control.
- *  - Drive is always field-centric mecanum, same as CTS.
- *  - Alliance side / goal coordinates loaded exactly the same way as CTS.
+ * Auto-aim rotates the ENTIRE CHASSIS to face the goal using a heading PIDF.
+ * [Square] toggles auto-aim ON / OFF. Full translational control is always
+ * available regardless of auto-aim state.
  *
- * PIDF TUNING VIA PANELS:
- *  - All heading PIDF gains and limits live in the inner @Configurable class
- *    HeadingPIDFConfig below.
- *  - Open the Configurables widget in Panels, find "HeadingPIDFConfig", and
- *    edit the values live — no reupload needed.
- *  - Coefficients are re-applied to the controller every loop, so changes take
- *    effect immediately.
+ * KEY ARCHITECTURE CHANGE (fixes oscillation):
+ *   driveFieldCentricWithAutoAim() has been REMOVED. The teleop now routes
+ *   all drive through hw.drivetrain.fieldOrientedDrive() exclusively, using
+ *   the new hw.drivetrain.setExternalRotation() hook to inject the PIDF
+ *   correction. This means one drive path, one rotation convention, no
+ *   duplicate field-centric math that could fight itself.
+ *
+ * SIGN CHAIN (verified):
+ *   wrappedError > 0  →  robot needs to turn CCW to face goal
+ *   headingPID.setTarget(wrappedTarget), calculate(currentHeading)
+ *   →  error = wrappedTarget - currentHeading = +wrappedError
+ *   →  PID output > 0
+ *   →  setExternalRotation(+value)
+ *   →  robotCentricDrive rotate > 0
+ *   →  left motors faster than right  →  CCW  ✓
  */
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "tele - Linear Auto Aim", group = "Robot")
 public class TeleOpLinearAutoAim extends OpMode {
 
     // =========================================================================
-    // Live-tunable PIDF config — edit these in the Panels Configurables widget
+    // Live-tunable PIDF config — edit in Panels Configurables widget
     // =========================================================================
 
     /**
-     * All fields here are {@code public static} so Panels can read and write
-     * them at runtime without any code reupload.
-     *
-     * IMPORTANT: The opmode reads these values fresh every loop and calls
-     * headingPID.setPIDFCoefficients() each iteration, so any change you make
-     * in the Panels dashboard takes effect on the very next control loop.
-     * You will NOT need to restart the opmode after adjusting gains.
-     *
-     * Tuning guide (start here):
-     *   1. Set Kp = 0.6, Ki = 0, Kd = 0, Kf = 0.
-     *   2. Raise Kp in Panels until the robot oscillates when locking to goal,
-     *      then back it off ~30%.
-     *   3. Raise Kd to damp any remaining oscillation.
-     *   4. Ki and Kf should stay at 0 for heading control in almost all cases.
-     *   5. Adjust MAX_ROTATION_POWER if the correction feels too aggressive or
-     *      too weak vs. the driver's translation inputs.
-     *   6. Adjust HEADING_TOLERANCE_DEG if the robot micro-corrects constantly
-     *      (raise it) or stops short of the goal heading (lower it).
+     * Tuning guide:
+     *   1. Set Kp = 0.3, Ki = 0, Kd = 0, Kf = 0. MAX_ROTATION_POWER = 0.4.
+     *   2. Enable auto-aim, place robot 45° off target, watch it settle.
+     *   3. Raise Kp until you see overshoot/oscillation, then back off ~30%.
+     *   4. Raise Kd slowly to damp any remaining oscillation.
+     *   5. Ki and Kf should stay at 0 for heading control.
+     *   6. If robot snaps too hard, lower MAX_ROTATION_POWER first before
+     *      touching Kp — it's a safer first lever.
      */
-
     @Configurable
     public static class HeadingPIDFConfig {
 
-        /** Proportional gain — primary tuning knob. Start at 0.6. */
         @Sorter(sort = 1)
-        public static double Kp = 0.60;
+        public static double Kp = 0.30;   // start LOW — raise gradually
 
-        /** Integral gain — leave at 0 for heading control. */
         @Sorter(sort = 2)
         public static double Ki = 0.00;
 
-        /** Derivative gain — raise to damp oscillation after Kp is set. */
         @Sorter(sort = 3)
-        public static double Kd = 0.08;
+        public static double Kd = 0.00;   // add only after Kp is settled
 
-        /** Feed-forward gain — leave at 0; no gravity/friction to overcome. */
         @Sorter(sort = 4)
         public static double Kf = 0.00;
 
-        /**
-         * Maximum fraction of full motor power the rotation correction may use.
-         * Range: [0.0, 1.0].  Lower this if auto-aim spins too hard vs. driving.
-         */
         @Sorter(sort = 5)
-        public static double MAX_ROTATION_POWER = 0.60;
+        public static double MAX_ROTATION_POWER = 0.40;  // first lever to tune
 
-        /**
-         * Dead-band in DEGREES. The PID returns 0 when the heading error is
-         * inside this window — prevents constant micro-corrections while aimed.
-         * ~2–4° is a good range.
-         */
         @Sorter(sort = 6)
-        public static double HEADING_TOLERANCE_DEG = 2.9;
+        public static double HEADING_TOLERANCE_DEG = 3.0;
     }
 
     // =========================================================================
-    // Hardware + subsystem state
+    // Hardware + state
     // =========================================================================
 
     TelemetryManager ptelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
@@ -111,34 +91,24 @@ public class TeleOpLinearAutoAim extends OpMode {
 
     private final ElapsedTime totalRuntime = new ElapsedTime();
 
-    // Position / alliance
     private Pose2D     storedLocation = null;
     private Field.Side startingSide   = null;
     private boolean    loaded         = false;
 
-    // Chassis auto-aim
     private boolean autoAimEnabled = false;
 
-    /**
-     * PIDF controller for chassis heading.
-     * Gains are re-applied every loop from HeadingPIDFConfig so live edits
-     * in Panels take effect immediately without restarting the opmode.
-     */
     private PIDFController headingPID;
 
-    // Parking state machine (mirrors CTS)
     private boolean isParking = false;
     private enum ParkStatus { NOT_PARKED, MOBILE_PARKED, FULL_PARKED }
     private ParkStatus parkStatus = ParkStatus.NOT_PARKED;
 
-    // Endgame
     private boolean endgame = false;
 
-    // Init-loop testing overrides (same pattern as CTS)
     private boolean    testing     = false;
     private Field.Side testingSide = Field.Side.RED;
 
-    // Cached each loop
+    // Cached per loop for telemetry
     private Pose2D pos;
     private double distance;
     private double headingErrorDeg;
@@ -153,7 +123,6 @@ public class TeleOpLinearAutoAim extends OpMode {
         hw = new HardwareManager(hardwareMap);
         hw.initTeleOp(hardwareMap);
 
-        // --- Alliance + goal — identical logic to CTS ---
         if (Field.lastKnownPosition != null) {
             startingSide = Field.lastAllianceSide;
 
@@ -174,10 +143,6 @@ public class TeleOpLinearAutoAim extends OpMode {
 
             storedLocation = Field.lastKnownPosition;
             loaded = true;
-            telemetry.addLine("Position found: "
-                    + storedLocation.getX(DistanceUnit.INCH) + ", "
-                    + storedLocation.getY(DistanceUnit.INCH) + ", "
-                    + storedLocation.getHeading(AngleUnit.DEGREES));
         } else {
             storedLocation = Field.redSmallZone;
             startingSide   = Field.Side.RED;
@@ -189,7 +154,6 @@ public class TeleOpLinearAutoAim extends OpMode {
         hw.pinpoint.setPosition(storedLocation);
         hw.lights.setLightMode(RGBLightController.LEDMode.WAKE);
 
-        // Build the heading PIDF with the current (default) config values.
         headingPID = new PIDFController(
                 HeadingPIDFConfig.Kp,
                 HeadingPIDFConfig.Ki,
@@ -212,11 +176,8 @@ public class TeleOpLinearAutoAim extends OpMode {
         hw.updateInitTeleOp();
 
         if (!testing) {
-            telemetry.addLine(loaded
-                    ? "Position found!"
-                    : "Position not found. Defaulted to Red Far Zone.");
-            telemetry.addLine("Position: "
-                    + PoseUtils.poseToString(storedLocation, DistanceUnit.INCH, AngleUnit.DEGREES));
+            telemetry.addLine(loaded ? "Position found!" : "Position not found. Defaulted to Red Far Zone.");
+            telemetry.addLine("Position: " + PoseUtils.poseToString(storedLocation, DistanceUnit.INCH, AngleUnit.DEGREES));
         } else {
             telemetry.addLine("Testing side: " + (testingSide == Field.Side.RED ? "Red" : "Blue"));
             telemetry.addLine("Press [Square] to switch sides.");
@@ -242,20 +203,16 @@ public class TeleOpLinearAutoAim extends OpMode {
     @Override
     public void start() {
         if (testing) {
-            storedLocation = (testingSide == Field.Side.RED)
-                    ? Field.redSmallZone : Field.blueSmallZone;
-            goalPosition   = (testingSide == Field.Side.RED)
-                    ? Field.redGoal : Field.blueGoal;
+            storedLocation = (testingSide == Field.Side.RED) ? Field.redSmallZone  : Field.blueSmallZone;
+            goalPosition   = (testingSide == Field.Side.RED) ? Field.redGoal       : Field.blueGoal;
             startingSide   = testingSide;
         }
 
         hw.pinpoint.setPosition(storedLocation);
-
-        // Lock turret at 0° (forward) — it will not move for the entire match.
         hw.turret.setTarget(hw.turret.HeadingToServoValue(0, AngleUnit.DEGREES));
 
-        // Auto-aim starts OFF — driver enables with [Square].
         autoAimEnabled = false;
+        hw.drivetrain.setExternalRotation(null);  // make sure override is clear
         headingPID.reset();
 
         totalRuntime.reset();
@@ -268,44 +225,49 @@ public class TeleOpLinearAutoAim extends OpMode {
     @Override
     public void loop() {
 
-        // --- 1. Re-apply PIDF coefficients from Panels every loop --------------
-        //   This is the key pattern for live Panels tuning: always read the
-        //   static config fields rather than caching them once at init.
-        //   Any edit you make in the Panels Configurables widget is reflected
-        //   on the very next iteration — no opmode restart needed.
+        // --- 1. Update PIDF gains from Panels every loop -----------------------
         headingPID.setPIDFCoefficients(
                 HeadingPIDFConfig.Kp,
                 HeadingPIDFConfig.Ki,
                 HeadingPIDFConfig.Kd,
                 HeadingPIDFConfig.Kf);
         headingPID.setTolerance(Math.toRadians(HeadingPIDFConfig.HEADING_TOLERANCE_DEG));
-        // Note: MAX_ROTATION_POWER is applied as a manual clamp below rather
-        // than via the PIDFController constructor limits, so it also responds
-        // to live Panels edits without rebuilding the controller object.
 
         // --- 2. Read pose -------------------------------------------------------
         pos = hw.pinpoint.getPosition();
 
-        // --- 3. Keep turret locked at 0° every loop ----------------------------
+        // --- 3. Keep turret locked at 0° ---------------------------------------
         hw.turret.setTarget(hw.turret.HeadingToServoValue(0, AngleUnit.DEGREES));
 
-        // --- 4. Cache distance for telemetry -----------------------------------
+        // --- 4. Distance for telemetry -----------------------------------------
         distance = hw.turret.getDistanceToTarget(
                 hw.turret.offsetPoseToTurret(pos), goalPosition);
 
-        // --- 5. [Square] toggles chassis auto-aim ------------------------------
+        // --- 5. [Square] toggles auto-aim --------------------------------------
         if (gamepad1.squareWasPressed()) {
             autoAimEnabled = !autoAimEnabled;
-            headingPID.reset(); // clear integral wind-up on every toggle
+            headingPID.reset();
+
+            if (!autoAimEnabled) {
+                hw.drivetrain.setExternalRotation(null);  // restore driver rotation
+            }
 
             hw.lights.setLightMode(autoAimEnabled
                     ? RGBLightController.LEDMode.FLASH
                     : RGBLightController.LEDMode.SOLID);
         }
 
-        // --- 6. Compute heading correction -------------------------------------
-        //   Target heading = angle from robot to goal in the field frame.
-        //   Wrapped to [-π, π] so the robot always takes the shortest rotation.
+        // --- 6. Compute heading correction and inject into drivetrain ----------
+        //
+        // SIGN CHAIN:
+        //   targetHeadingRad = atan2(goalY-robotY, goalX-robotX)
+        //   wrappedError     = shortest angular distance robot must rotate
+        //   wrappedTarget    = currentHeading + wrappedError
+        //                      (keeps both values in the same numeric range
+        //                       so PID error = wrappedTarget - currentHeading
+        //                                    = wrappedError, correctly signed)
+        //   PID output > 0   → rotate CCW → left motors faster → CCW ✓
+        //
         rotationCorrection = 0.0;
         headingErrorDeg    = 0.0;
 
@@ -317,32 +279,39 @@ public class TeleOpLinearAutoAim extends OpMode {
 
             double targetHeadingRad  = Math.atan2(goalY - robotY, goalX - robotX);
             double currentHeadingRad = pos.getHeading(AngleUnit.RADIANS);
-            double wrappedError      = wrapAngle(targetHeadingRad - currentHeadingRad);
 
+            // Shortest-path error, always in [-π, π]
+            double wrappedError = wrapAngle(targetHeadingRad - currentHeadingRad);
             headingErrorDeg = Math.toDegrees(wrappedError);
 
-            // Setpoint = 0, process variable = -error → positive output = CCW
-            headingPID.setTarget(0.0);
-            rotationCorrection = headingPID.calculate(-wrappedError);
+            // Shift target into the same numeric neighborhood as currentHeading
+            // so the PID never sees a spurious ~2π jump in error
+            double wrappedTarget = currentHeadingRad + wrappedError;
 
-            // Clamp to live MAX_ROTATION_POWER so Panels edits take effect here too
+            headingPID.setTarget(wrappedTarget);
+            rotationCorrection = headingPID.calculate(currentHeadingRad);
+
+            // Apply live MAX_ROTATION_POWER clamp
             rotationCorrection = Math.max(
                     -HeadingPIDFConfig.MAX_ROTATION_POWER,
                     Math.min(HeadingPIDFConfig.MAX_ROTATION_POWER, rotationCorrection));
+
+            // Inject into drivetrain — fieldOrientedDrive will use this instead
+            // of the driver's right stick or the internal rotationPID
+            hw.drivetrain.setExternalRotation(rotationCorrection);
         }
 
-        // --- 7. Field-centric mecanum drive ------------------------------------
-        if (autoAimEnabled) {
-            driveFieldCentricWithAutoAim(rotationCorrection);
-        } else {
-            hw.drivetrain.fieldOrientedDrive(this, pos, goalPosition,
-                    storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
-        }
+        // --- 7. Single unified drive path --------------------------------------
+        //   Always calls the same fieldOrientedDrive. When auto-aim is ON the
+        //   rotation axis is the PIDF correction (set above). When OFF it is
+        //   the driver's right stick. No separate drive path, no duplicate math.
+        hw.drivetrain.fieldOrientedDrive(this, pos, goalPosition,
+                storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
 
-        // --- 8. Update all other subsystems ------------------------------------
+        // --- 8. Update subsystems ----------------------------------------------
         hw.updateTeleOp(this);
 
-        // --- 9. Intake toggle [A] ----------------------------------------------
+        // --- 9. Intake [A] -----------------------------------------------------
         if (gamepad1.aWasPressed()) hw.intake.toggle();
 
         // --- 10. Firing [right trigger] ----------------------------------------
@@ -378,7 +347,7 @@ public class TeleOpLinearAutoAim extends OpMode {
         if (gamepad1.left_bumper) hw.drivetrain.slowDown();
         else                      hw.drivetrain.speedUp();
 
-        // --- 13. Real-time goal adjustment [dpad] — same as CTS ---------------
+        // --- 13. Goal adjustment [dpad] ----------------------------------------
         double goalX = goalPosition.getX(DistanceUnit.INCH);
         double goalY = goalPosition.getY(DistanceUnit.INCH);
         boolean goalChanged = false;
@@ -400,13 +369,13 @@ public class TeleOpLinearAutoAim extends OpMode {
                     AngleUnit.RADIANS, goalPosition.getHeading(AngleUnit.RADIANS));
         }
 
-        // --- 14. Pinpoint position reset [options] -----------------------------
+        // --- 14. Pinpoint reset [options] --------------------------------------
         if (gamepad1.optionsWasPressed()) {
             hw.pinpoint.setPosition(startingSide == Field.Side.BLUE
                     ? Field.blueHumanPlayerZone : Field.redHumanPlayerZone);
         }
 
-        // --- 15. Endgame alerts ------------------------------------------------
+        // --- 15. Endgame -------------------------------------------------------
         if (totalRuntime.seconds() > 100 && !endgame) {
             endgame = true;
             hw.lights.setLightColor(1);
@@ -424,78 +393,44 @@ public class TeleOpLinearAutoAim extends OpMode {
         ptelemetry.addData("Turret", "LOCKED (0°)");
 
         ptelemetry.addLine("--- chassis auto-aim ---");
-        ptelemetry.addData("Auto-Aim",        autoAimEnabled ? "ON  [Square to toggle]" : "OFF [Square to toggle]");
+        ptelemetry.addData("Auto-Aim",        autoAimEnabled ? "ON  [Square]" : "OFF [Square]");
         ptelemetry.addData("Heading error",   String.format(Locale.US, "%.1f°", headingErrorDeg));
-        ptelemetry.addData("Rotation output", String.format(Locale.US, "%.3f", rotationCorrection));
-        ptelemetry.addData("Distance (in)",   String.format(Locale.US, "%.1f", distance));
+        ptelemetry.addData("Rotation output", String.format(Locale.US, "%.3f",  rotationCorrection));
+        ptelemetry.addData("Distance (in)",   String.format(Locale.US, "%.1f",  distance));
 
-        ptelemetry.addLine("--- live PIDF gains (edit in Panels Configurables) ---");
+        ptelemetry.addLine("--- PIDF (edit in Panels) ---");
         ptelemetry.addData("Kp",               String.format(Locale.US, "%.4f", HeadingPIDFConfig.Kp));
         ptelemetry.addData("Ki",               String.format(Locale.US, "%.4f", HeadingPIDFConfig.Ki));
         ptelemetry.addData("Kd",               String.format(Locale.US, "%.4f", HeadingPIDFConfig.Kd));
         ptelemetry.addData("Kf",               String.format(Locale.US, "%.4f", HeadingPIDFConfig.Kf));
-        ptelemetry.addData("Max rotation pwr", String.format(Locale.US, "%.2f",  HeadingPIDFConfig.MAX_ROTATION_POWER));
-        ptelemetry.addData("Tolerance (deg)",  String.format(Locale.US, "%.1f°", HeadingPIDFConfig.HEADING_TOLERANCE_DEG));
+        ptelemetry.addData("Max rotation pwr", String.format(Locale.US, "%.2f", HeadingPIDFConfig.MAX_ROTATION_POWER));
+        ptelemetry.addData("Tolerance (deg)",  String.format(Locale.US, "%.1f", HeadingPIDFConfig.HEADING_TOLERANCE_DEG));
 
-        ptelemetry.addLine("--- field positioning ---");
-        ptelemetry.addData("xPosition", String.format(Locale.US, "%.2f", pos.getX(DistanceUnit.INCH)));
-        ptelemetry.addData("yPosition", String.format(Locale.US, "%.2f", pos.getY(DistanceUnit.INCH)));
-        ptelemetry.addData("Heading",   String.format(Locale.US, "%.2f°", pos.getHeading(AngleUnit.DEGREES)));
-        ptelemetry.addLine("Position: " + PoseUtils.poseToString(pos, DistanceUnit.INCH, AngleUnit.DEGREES));
+        ptelemetry.addLine("--- field position ---");
+        ptelemetry.addData("X",       String.format(Locale.US, "%.2f", pos.getX(DistanceUnit.INCH)));
+        ptelemetry.addData("Y",       String.format(Locale.US, "%.2f", pos.getY(DistanceUnit.INCH)));
+        ptelemetry.addData("Heading", String.format(Locale.US, "%.2f°", pos.getHeading(AngleUnit.DEGREES)));
 
         ptelemetry.update();
 
-        // Driver-station telemetry (lean)
         telemetry.addLine("** PEACOCK EMERGENCY — TURRET LOCKED **");
-        telemetry.addLine("Auto-Aim: " + (autoAimEnabled ? "ON" : "OFF") + "  |  [Square] to toggle");
-        telemetry.addLine("Heading error: " + String.format(Locale.US, "%.1f°", headingErrorDeg));
+        telemetry.addLine("Auto-Aim: " + (autoAimEnabled ? "ON" : "OFF") + "  |  [Square]");
+        telemetry.addLine("Error: "    + String.format(Locale.US, "%.1f°", headingErrorDeg)
+                + "  Output: " + String.format(Locale.US, "%.3f",  rotationCorrection));
         telemetry.addLine("Kp=" + HeadingPIDFConfig.Kp + "  Kd=" + HeadingPIDFConfig.Kd);
         telemetry.addLine("Distance: " + String.format(Locale.US, "%.1f", distance) + " in");
-        telemetry.addLine("Position: " + PoseUtils.poseToString(pos, DistanceUnit.INCH, AngleUnit.DEGREES));
+        telemetry.addLine("Pos: " + PoseUtils.poseToString(pos, DistanceUnit.INCH, AngleUnit.DEGREES));
         telemetry.addLine("Goal: " + String.format(Locale.US, "(%.1f, %.1f)",
                 goalPosition.getX(DistanceUnit.INCH), goalPosition.getY(DistanceUnit.INCH)));
-        telemetry.addLine("Parked: " + hw.drivetrain.isParked);
         telemetry.addLine("Time: " + String.format(Locale.US, "%.1f", totalRuntime.seconds()) + "s");
         telemetry.update();
     }
 
     // =========================================================================
-    // Private helpers
+    // Helpers
     // =========================================================================
 
-    /**
-     * Field-centric mecanum drive with chassis rotation override from the
-     * auto-aim PIDF. Translation comes from the driver's left stick; rotation
-     * is replaced by {@code aimRotation} so the robot faces the goal while
-     * the driver steers freely anywhere on the field.
-     */
-    private void driveFieldCentricWithAutoAim(double aimRotation) {
-        double y  = -gamepad1.left_stick_y;  // forward / backward
-        double x  =  gamepad1.left_stick_x;  // strafe
-        double rx =  aimRotation;            // rotation from PIDF
-
-        double botHeading = pos.getHeading(AngleUnit.RADIANS);
-
-        // Rotate translation vector into field frame
-        double rotX =  x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
-        double rotY =  x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
-        rotX *= 1.1; // slight strafe boost for mecanum imperfection
-
-        double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1.0);
-
-        double frontLeftPower  = (rotY + rotX + rx) / denominator;
-        double backLeftPower   = (rotY - rotX + rx) / denominator;
-        double frontRightPower = (rotY - rotX - rx) / denominator;
-        double backRightPower  = (rotY + rotX - rx) / denominator;
-
-        double scale = 1;
-        hw.drivetrain.leftFront.setPower(frontLeftPower   * scale);
-        hw.drivetrain.leftBack.setPower(backLeftPower     * scale);
-        hw.drivetrain.rightFront.setPower(frontRightPower * scale);
-        hw.drivetrain.rightBack.setPower(backRightPower   * scale);
-    }
-
-    /** Wraps an angle to [-π, π] — ensures the PID takes the shortest path. */
+    /** Wraps an angle to [-π, π]. */
     private static double wrapAngle(double angleRad) {
         while (angleRad >  Math.PI) angleRad -= 2.0 * Math.PI;
         while (angleRad < -Math.PI) angleRad += 2.0 * Math.PI;
