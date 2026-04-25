@@ -122,6 +122,9 @@ public class Intake
             innerIntakeMotor.setPower(0.9);
             outerIntakeMotor.setPower(1);
         } else if (isIntaking) {
+            // Set power first
+            innerIntakeMotor.setPower(0.9);
+            outerIntakeMotor.setPower(0.9);
             if (innerIntakeMotor.getCurrent(CurrentUnit.AMPS) > innerAmperageLimit) {
                 innerIntakeMotor.setPower(0);
                 if (Math.abs(outerIntakeMotor.getPower()) < 0.001) {
