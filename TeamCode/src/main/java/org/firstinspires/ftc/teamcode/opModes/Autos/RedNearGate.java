@@ -35,17 +35,18 @@ public class RedNearGate extends OpMode {
     public Pose2D goalPosition = null;
 
     private final Pose startPose = new Pose(117.18446601941747, 133.11650485436894, Math.toRadians(-53.322));
-    private final Pose scorePose = new Pose(90, 77, Math.toRadians(235));
-    private final Pose intake1 = new Pose(121, 80, Math.toRadians(0));
-    private final Pose clearGate = new Pose(126, 73, Math.toRadians(0));
-    private final Pose gateControlPoint = new Pose(110, 71);
-    private final Pose prepIntake2 = new Pose(95.4, 60, Math.toRadians(0));
-    private final Pose intake2 = new Pose(126, 60, Math.toRadians(0));
-    private final Pose prepIntake3 = new Pose(95.2, 35, Math.toRadians(0));
-    private final Pose intake3 = new Pose(126, 35, Math.toRadians(0));
+    private final Pose scorePose = new Pose(88, 80, Math.toRadians(0));
+    private final Pose intake1 = new Pose(128, 81, Math.toRadians(0));
+    private final Pose clearGate = new Pose(128, 73, Math.toRadians(0));
+    private final Pose clearGate2 = new Pose(128, 73, Math.toRadians(0));
+    private final Pose gateControlPoint = new Pose(115, 71);
+    private final Pose prepIntake2 = new Pose(95.4, 62.5, Math.toRadians(0));
+    private final Pose intake2 = new Pose(135, 60, Math.toRadians(0));
+    private final Pose prepIntake3 = new Pose(95.2, 37.5, Math.toRadians(0));
+    private final Pose intake3 = new Pose(135, 34, Math.toRadians(0));
     private final Pose park = new Pose(120.942, 90, Math.toRadians(-90));
 
-    private PathChain scorePreload, parkPath, intakeLine1, scoreLine1, lineupIntake2, intakeLine2, scoreLine2, lineupIntake3, intakeLine3, scoreLine3, clearGatePath;
+    private PathChain scorePreload, parkPath, intakeLine1, scoreLine1, lineupIntake2, intakeLine2, clearGatePath2, scoreLine2, lineupIntake3, intakeLine3, scoreLine3, clearGatePath;
 
     public void buildPaths() {
         switch (numOfSpikes)
@@ -63,7 +64,7 @@ public class RedNearGate extends OpMode {
 
                 scoreLine3 = follower.pathBuilder()
                         .addPath(new BezierLine(intake3, scorePose))
-                        .setConstantHeadingInterpolation(Math.toRadians(240))
+                        .setConstantHeadingInterpolation(Math.toRadians(0))
                         .build();
 
             case 2:
@@ -77,9 +78,14 @@ public class RedNearGate extends OpMode {
                         .setConstantHeadingInterpolation(Math.toRadians(0))
                         .build();
 
+                clearGatePath2 = follower.pathBuilder()
+                        .addPath(new BezierCurve(intake2, gateControlPoint, clearGate2))
+                        .setConstantHeadingInterpolation(Math.toRadians(0))
+                        .build();
+
                 scoreLine2 = follower.pathBuilder()
-                        .addPath(new BezierLine(intake2, scorePose))
-                        .setConstantHeadingInterpolation(Math.toRadians(240))
+                        .addPath(new BezierLine(clearGate2, scorePose))
+                        .setConstantHeadingInterpolation(Math.toRadians(0))
                         .build();
 
             case 1:
@@ -95,7 +101,7 @@ public class RedNearGate extends OpMode {
 
                 scoreLine1 = follower.pathBuilder()
                         .addPath(new BezierLine(intake1, scorePose))
-                        .setConstantHeadingInterpolation(Math.toRadians(240))
+                        .setConstantHeadingInterpolation(Math.toRadians(0))
                         .build();
 
             case 0:
@@ -123,7 +129,7 @@ public class RedNearGate extends OpMode {
             // Back up to shoot
             case 0:
                 hw.turret.spinUpFlywheel();
-                hw.intake.intake();
+                hw.intake.partialIntake();
                 telemetry.addLine("spinning up flywheel-completed");
 
                 follower.followPath(scorePreload, true);
@@ -135,13 +141,14 @@ public class RedNearGate extends OpMode {
             case 1:
                 if (!follower.isBusy())
                 {
+                    hw.intake.openGate();
 
-                    if (shooterTimer.getElapsedTime() > 1500)
+                    if (shooterTimer.getElapsedTime() > 10)
                     {
                         hw.intake.intake();
-                        hw.intake.openGate();
+
                     }
-                    if (shooterTimer.getElapsedTime() > 2750)
+                    if (shooterTimer.getElapsedTime() > 2000)
                     {
                         hw.intake.closeGate();
                         hw.intake.intake();
@@ -175,7 +182,7 @@ public class RedNearGate extends OpMode {
             case 3:
                 if (!follower.isBusy()) {
                     hw.intake.closeGate();
-                    hw.intake.intake();
+                    hw.intake.stop();
                     follower.followPath(scoreLine1, true);
                     setPathState(4);
                 }
@@ -184,13 +191,14 @@ public class RedNearGate extends OpMode {
                 // Shoot
             case 4:
                 if (!follower.isBusy()) {
+                    hw.intake.openGate();
 
-                    if (shooterTimer.getElapsedTime() > 1500)
+                    if (shooterTimer.getElapsedTime() > 500)
                     {
                         hw.intake.intake();
-                        hw.intake.openGate();
+
                     }
-                    if (shooterTimer.getElapsedTime() > 2750)
+                    if (shooterTimer.getElapsedTime() > 2000)
                     {
                         hw.intake.closeGate();
                         hw.intake.stop();
@@ -221,29 +229,36 @@ public class RedNearGate extends OpMode {
                 }
                 break;
 
-                // Go back
             case 6:
+                if (!follower.isBusy() || follower.isRobotStuck()) {
+                    follower.followPath(clearGatePath2);
+                    setPathState(7);
+                }
+
+                // Go back
+            case 7:
                 if (!follower.isBusy()) {
+                    hw.intake.stop();
                     hw.turret.spinUpFlywheel();
                     follower.followPath(scoreLine2, true);
-                    setPathState(7);
+                    setPathState(8);
                 }
                 break;
 
                 // Shoot
-            case 7:
+            case 8:
                 if (follower.isBusy())
                 {
                     shooterTimer.resetTimer();
                 }
                 if (!follower.isBusy()) {
-
-                    if (shooterTimer.getElapsedTime() > 1500)
+                    hw.intake.openGate();
+                    if (shooterTimer.getElapsedTime() > 500)
                     {
                         hw.intake.intake();
-                        hw.intake.openGate();
+
                     }
-                    if (shooterTimer.getElapsedTime() > 2750)
+                    if (shooterTimer.getElapsedTime() > 2000)
                     {
                         hw.intake.closeGate();
                         hw.intake.stop();
@@ -251,60 +266,62 @@ public class RedNearGate extends OpMode {
                         if (numOfSpikes > 2)
                         {
                             follower.followPath(lineupIntake3, true);
-                            setPathState(8);
+                            setPathState(9);
                         }
                         else
                         {
                             Park();
-                            setPathState(11);
+                            setPathState(12);
                         }
                     }
                 }
                 break;
 
                 // Intake again
-            case 8:
+            case 9:
                 if (!follower.isBusy()) {
                     hw.intake.intake();
                     follower.followPath(intakeLine3, true);
-                    setPathState(9);
-                }
-                break;
-
-                // Go back
-            case 9:
-                if (!follower.isBusy()) {
-                    hw.turret.spinUpFlywheel();
-                    follower.followPath(scoreLine3, true);
-                    shooterTimer.resetTimer();
                     setPathState(10);
                 }
                 break;
 
-                // Shoot
+                // Go back
             case 10:
+                if (!follower.isBusy()) {
+                    hw.intake.stop();
+                    hw.turret.spinUpFlywheel();
+                    follower.followPath(scoreLine3, true);
+                    shooterTimer.resetTimer();
+                    setPathState(11);
+                }
+                break;
+
+                // Shoot
+            case 11:
                 if (follower.isBusy())
                 {
                     shooterTimer.resetTimer();
                 }
                 if (!follower.isBusy()) {
-                    if (shooterTimer.getElapsedTime() > 1500)
+                    hw.intake.openGate();
+                    if (shooterTimer.getElapsedTime() > 500)
                     {
                         hw.intake.intake();
-                        hw.intake.openGate();
+
                     }
-                    if (shooterTimer.getElapsedTime() > 2750)
+                    if (shooterTimer.getElapsedTime() > 2000)
                     {
                         hw.intake.closeGate();
                         shooterTimer.resetTimer();
                         Park();
-                        setPathState(11);
+                        setPathState(12);
                     }
                 }
                 break;
 
                 // Park
-            case 11:
+            case 12:
                 if (!follower.isBusy() && shooterTimer.getElapsedTimeSeconds() > 2)
                 {
                     setPathState(-1);
@@ -330,11 +347,10 @@ public class RedNearGate extends OpMode {
         hw.turret.update();
         hw.intake.update();
 
-        hw.intake.innerIntakeMotor.setPower(1);
-        hw.intake.outerIntakeMotor.setPower(1);
 
 
         hw.turret.setTarget(follower.getPose(), goalPosition);
+        hw.turret.updateFlywheelAndHood(follower.getPose(),goalPosition);
         // Constantly save the last known position
         Field.lastKnownPosition = new Pose2D(DistanceUnit.INCH, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.RADIANS, follower.getHeading());
 
@@ -358,6 +374,7 @@ public class RedNearGate extends OpMode {
         opmodeTimer.resetTimer();
         setPathState(0);
         goalPosition = Field.redGoal;
+        hw.turret.isTargeting = true;
 
         // Save the selected alliance side, so TeleOp can read it and automatically load the goal position.
         Field.lastAllianceSide = Field.Side.RED;

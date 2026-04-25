@@ -48,6 +48,7 @@ public class HardwareManager {
     public final double ROTATION_TOLERANCE_DEG = 5; // per second
     public final double TOLERANCE_DETECTION_HZ = 240.0;
 
+
     public final double TRANSALATIONAL_TOLERANCE_MM_PER_SEC = 5.0;
 
     public Pose2D lastPose = new Pose2D(DistanceUnit.MM, 0, 0, AngleUnit.RADIANS, 0);
