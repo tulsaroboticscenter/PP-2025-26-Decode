@@ -37,7 +37,7 @@ import java.util.Locale;
  *  - Coefficients are re-applied to the controller every loop, so changes take
  *    effect immediately.
  */
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "tele - Peacock (Emergency)", group = "Robot")
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "tele - Linear Auto Aim", group = "Robot")
 public class TeleOpLinearAutoAim extends OpMode {
 
     // =========================================================================
@@ -88,6 +88,7 @@ public class TeleOpLinearAutoAim extends OpMode {
          * Maximum fraction of full motor power the rotation correction may use.
          * Range: [0.0, 1.0].  Lower this if auto-aim spins too hard vs. driving.
          */
+        @Sorter(sort = 5)
         public static double MAX_ROTATION_POWER = 0.60;
 
         /**
@@ -95,6 +96,7 @@ public class TeleOpLinearAutoAim extends OpMode {
          * inside this window — prevents constant micro-corrections while aimed.
          * ~2–4° is a good range.
          */
+        @Sorter(sort = 6)
         public static double HEADING_TOLERANCE_DEG = 2.9;
     }
 
