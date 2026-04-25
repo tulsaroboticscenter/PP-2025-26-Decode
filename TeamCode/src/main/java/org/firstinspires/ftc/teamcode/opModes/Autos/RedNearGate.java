@@ -24,7 +24,7 @@ public class RedNearGate extends OpMode {
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
 
-    private HardwareManager hw = new HardwareManager(hardwareMap);
+    private HardwareManager hw;
 
     private Timer shooterTimer;
 
@@ -366,6 +366,9 @@ public class RedNearGate extends OpMode {
         shooterTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
+
+        hw = new HardwareManager(hardwareMap);
+
         follower = Constants.createFollower(hardwareMap);
         follower.setPose(startPose);
         buildPaths();
