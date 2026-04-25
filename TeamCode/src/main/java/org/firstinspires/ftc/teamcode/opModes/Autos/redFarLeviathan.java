@@ -49,9 +49,9 @@ public class redFarLeviathan extends OpMode {
                 .pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(100,40),
-                                new Pose (110,40),
-                                new Pose(129, 40)
+                                new Pose(90,35),
+                                new Pose (110,35),
+                                new Pose(129, 35)
                         )
                 )
                 .setConstantHeadingInterpolation(0)
@@ -70,7 +70,7 @@ public class redFarLeviathan extends OpMode {
                 .addPath(
                         new BezierLine(
                                 new Pose(100, 5),
-                                new Pose(115, 5)
+                                new Pose(95, 5)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
@@ -92,7 +92,7 @@ public class redFarLeviathan extends OpMode {
                 .addPath(
                         new BezierLine(
                                 new Pose(100, 5),
-                                new Pose(115, 5)
+                                new Pose(95, 5)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
@@ -127,7 +127,7 @@ public class redFarLeviathan extends OpMode {
 
                     }
 
-                    if (shooterTimer.getElapsedTime() > 4000)
+                    if (shooterTimer.getElapsedTime() > 2500)
                     {
                         hw.intake.closeGate();
                         hw.intake.intake();
@@ -161,7 +161,7 @@ public class redFarLeviathan extends OpMode {
                         hw.intake.openGate();
                     }
 
-                    if (shooterTimer.getElapsedTime() > 3000)
+                    if (shooterTimer.getElapsedTime() > 2000)
                     {
                         hw.intake.closeGate();
                         hw.intake.intake();
@@ -248,7 +248,7 @@ public class redFarLeviathan extends OpMode {
                 {
                     shooterTimer.resetTimer();
                 }
-                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 500) {
+                if (!follower.isBusy() && shooterTimer.getElapsedTime() > 1500) {
                     hw.intake.partialIntake();
                     hw.intake.openGate();
 
@@ -288,6 +288,7 @@ public class redFarLeviathan extends OpMode {
         hw.intake.update();
 
         hw.turret.setTarget(follower.getPose(), goalPosition);
+        hw.turret.updateFlywheelAndHood(follower.getPose(),goalPosition);
 
         // Constantly save the last known position
         Field.lastKnownPosition = new Pose2D(DistanceUnit.INCH, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.RADIANS, follower.getHeading());
