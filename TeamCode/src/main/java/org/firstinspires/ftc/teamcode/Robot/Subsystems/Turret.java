@@ -431,7 +431,7 @@ public class Turret
     }
     public double getDistanceToTarget(Pose currentPosition, Pose2D targetPosition)
     {
-        return getDistanceToTarget(new Pose2D(DistanceUnit.MM, currentPosition.getX(), currentPosition.getY(), AngleUnit.RADIANS, currentPosition.getHeading()), targetPosition);
+        return getDistanceToTarget(new Pose2D(DistanceUnit.INCH, currentPosition.getX(), currentPosition.getY(), AngleUnit.RADIANS, currentPosition.getHeading()), targetPosition);
     }
 
     public static double getHeading(Pose pose1, Pose2D pose2)
