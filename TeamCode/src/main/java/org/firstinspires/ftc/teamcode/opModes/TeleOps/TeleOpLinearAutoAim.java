@@ -281,8 +281,8 @@ public class TeleOpLinearAutoAim extends OpMode {
         if (autoAimEnabled) {
             // Angle FROM robot TO goal
             double angleToGoal = Math.atan2(
-                    goalPosition.getY(DistanceUnit.INCH) - pos.getY(DistanceUnit.INCH),
-                    goalPosition.getX(DistanceUnit.INCH) - pos.getX(DistanceUnit.INCH));
+                    goalPosition.getX(DistanceUnit.INCH) - pos.getX(DistanceUnit.INCH),
+                    goalPosition.getY(DistanceUnit.INCH) - pos.getY(DistanceUnit.INCH));
 
             // We want the BACK of the robot facing the goal.
             // Red and blue use opposite coordinate orientations so the target
@@ -325,8 +325,8 @@ public class TeleOpLinearAutoAim extends OpMode {
         // Alliance offset so field-centric "forward" is always away from
         // the driver, regardless of which side of the field the robot starts on
         double allianceOffset = (startingSide == Field.Side.RED)
-                ? 0.0 : Math.PI;
-        
+                ? -Math.PI / 2.0 : Math.PI / 2.0;
+
         double fieldX =  drive  * Math.cos(allianceOffset) - strafe * Math.sin(allianceOffset);
         double fieldY =  drive  * Math.sin(allianceOffset) + strafe * Math.cos(allianceOffset);
 
