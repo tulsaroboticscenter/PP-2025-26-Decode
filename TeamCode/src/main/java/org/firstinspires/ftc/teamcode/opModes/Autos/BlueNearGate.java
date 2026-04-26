@@ -34,15 +34,15 @@ public class BlueNearGate extends OpMode {
 
     public Pose2D goalPosition = null;
 
-    private final Pose startPose = new Pose(27.0873786407767, 133.11650485436894, Math.toRadians(-126.678));
-    private final Pose scorePose = new Pose(47, 84.1, Math.toRadians(-45));
-    private final Pose intake1 = new Pose(25, 70, Math.toRadians(180));
-    private final Pose clearGate = new Pose(16, 67, Math.toRadians(180));
+    private final Pose startPose = new Pose(5, 133.11650485436894, Math.toRadians(-126.678));
+    private final Pose scorePose = new Pose(35, 84.1, Math.toRadians(-45));
+    private final Pose intake1 = new Pose(6, 70, Math.toRadians(180));
+    private final Pose clearGate = new Pose(10, 67, Math.toRadians(180));
     private final Pose gateControlPoint = new Pose(30, 61);
-    private final Pose prepIntake2 = new Pose(42.8, 53, Math.toRadians(180));
-    private final Pose intake2 = new Pose(20, 49, Math.toRadians(180));
-    private final Pose prepIntake3 = new Pose(45, 28, Math.toRadians(180));
-    private final Pose intake3 = new Pose(20, 28, Math.toRadians(180));
+    private final Pose prepIntake2 = new Pose(25, 53, Math.toRadians(180));
+    private final Pose intake2 = new Pose(15, 49, Math.toRadians(180));
+    private final Pose prepIntake3 = new Pose(20, 28, Math.toRadians(180));
+    private final Pose intake3 = new Pose(10, 28, Math.toRadians(180));
     private final Pose park = new Pose(29.058, 85.796, Math.toRadians(-90));
 
 
