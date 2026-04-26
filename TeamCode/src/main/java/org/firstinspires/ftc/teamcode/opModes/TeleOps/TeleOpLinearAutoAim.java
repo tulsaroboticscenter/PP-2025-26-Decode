@@ -291,7 +291,6 @@ public class TeleOpLinearAutoAim extends OpMode {
             // Hard cap
             rotationOutput = Math.max(-HeadingPConfig.MAX_TURN_POWER,
                     Math.min( HeadingPConfig.MAX_TURN_POWER, rotationOutput));
-            rotationOutput = -rotationOutput;
         } else {
             headingErrorDeg = 0;
             rotationOutput  = 0;
@@ -313,7 +312,7 @@ public class TeleOpLinearAutoAim extends OpMode {
         // Apply alliance offset so field-centric "forward" is always away from
         // the driver, regardless of which side of the field the robot starts on
         double allianceOffset = (startingSide == Field.Side.RED)
-                ? 0.0 : Math.PI;
+                ? Math.PI : 0.0;
 
         double fieldX =  drive  * Math.cos(allianceOffset) - strafe * Math.sin(allianceOffset);
         double fieldY =  drive  * Math.sin(allianceOffset) + strafe * Math.cos(allianceOffset);
@@ -322,11 +321,11 @@ public class TeleOpLinearAutoAim extends OpMode {
         double rotY = fieldX * sinH + fieldY * cosH;
 
         // Mix into wheel powers
-        double fl = rotY + rotX + rotate;
-        double fr = rotY - rotX - rotate;
-        double bl = rotY - rotX + rotate;
-        double br = rotY + rotX - rotate;
-
+        double fl = rotY + rotX - rotate;
+        double fr = rotY - rotX + rotate;
+        double bl = rotY - rotX - rotate;
+        double br = rotY + rotX + rotate;
+        
         // Normalize so no wheel exceeds 1.0
         double max = Math.max(1.0, Math.max(
                 Math.max(Math.abs(fl), Math.abs(fr)),
