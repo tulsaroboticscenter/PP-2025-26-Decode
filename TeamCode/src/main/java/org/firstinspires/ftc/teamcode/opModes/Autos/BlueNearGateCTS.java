@@ -37,16 +37,16 @@ public class BlueNearGateCTS extends OpMode {
     // All x-coordinates mirrored: x_blue = 192 - x_red
     // All non-vertical headings mirrored: heading_blue = π - heading_red
     private final Pose startPose  = new Pose(10, 133.117, Math.toRadians(180 - (-53.322)));  // ~233.3°
-    private final Pose scorePose  = new Pose(44,    80,      Math.toRadians(180));
-    private final Pose intake1    = new Pose(34,     81,      Math.toRadians(180));
-    private final Pose clearGate  = new Pose(24,     73,      Math.toRadians(180));
-    private final Pose clearGate2 = new Pose(24,     73,      Math.toRadians(180));
-    private final Pose gateControlPoint = new Pose(37, 71);
-    private final Pose prepIntake2 = new Pose(40,  62.5,   Math.toRadians(180));
-    private final Pose intake2    = new Pose(34,     60,      Math.toRadians(180));
-    private final Pose prepIntake3 = new Pose(40,  37.5,   Math.toRadians(180));
-    private final Pose intake3    = new Pose(34,     34,      Math.toRadians(180));
-    private final Pose park       = new Pose(50, 90,      Math.toRadians(-90));
+    private final Pose scorePose  = new Pose(35,    80,      Math.toRadians(180));
+    private final Pose intake1    = new Pose(-5,     81,      Math.toRadians(180));
+    private final Pose clearGate  = new Pose(0,     73,      Math.toRadians(180));
+    private final Pose clearGate2 = new Pose(0,     73,      Math.toRadians(180));
+    private final Pose gateControlPoint = new Pose(10, 71);
+    private final Pose prepIntake2 = new Pose(25,  62.5,   Math.toRadians(180));
+    private final Pose intake2    = new Pose(-5,     60,      Math.toRadians(180));
+    private final Pose prepIntake3 = new Pose(25,  37.5,   Math.toRadians(180));
+    private final Pose intake3    = new Pose(-5,     34,      Math.toRadians(180));
+    private final Pose park       = new Pose(15 , 90,      Math.toRadians(-90));
 
     private PathChain scorePreload, parkPath, intakeLine1, scoreLine1, lineupIntake2, intakeLine2,
             clearGatePath2, scoreLine2, lineupIntake3, intakeLine3, scoreLine3, clearGatePath;

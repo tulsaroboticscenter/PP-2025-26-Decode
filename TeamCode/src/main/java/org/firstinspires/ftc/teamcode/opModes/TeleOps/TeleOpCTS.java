@@ -269,6 +269,13 @@ public class TeleOpCTS extends OpMode {
         if (gamepad1.right_trigger > 0.5) {
             hw.intake.isForceIntaking = true;
             hw.intake.openGate();
+
+            if (distance > 100) { // adjust inch threshold as needed
+                hw.intake.partialIntakeTeleop(); // adjust speed as needed
+            } else {
+                hw.intake.openGate();
+            }
+
         } else {
             hw.intake.isForceIntaking = false;
             hw.intake.closeGate();
@@ -298,7 +305,7 @@ public class TeleOpCTS extends OpMode {
         }
 
         // --- 11. Speed (left bumper hold) ----------------------------------------
-        if (gamepad1.left_bumper) hw.drivetrain.slowDown();
+        if (gamepad1.left_trigger > 0.1) hw.drivetrain.slowDown();
         else                      hw.drivetrain.speedUp();
 
         // --- 12. Real-time goal adjustment (dpad) — Issue 5 fix -----------------

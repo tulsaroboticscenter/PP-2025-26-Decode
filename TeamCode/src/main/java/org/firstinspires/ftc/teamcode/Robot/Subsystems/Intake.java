@@ -94,7 +94,10 @@ public class Intake
     }
     public void forceIntake() {isForceIntaking = true;}
     public void partialIntake() {
-        innerIntakeMotor.setPower(0.9);
+        innerIntakeMotor.setPower(0.8);
+    }
+    public void partialIntakeTeleop() {
+        innerIntakeMotor.setPower(0.7);
     }
     public void outtake() {
         innerIntakeMotor.setPower(-1);

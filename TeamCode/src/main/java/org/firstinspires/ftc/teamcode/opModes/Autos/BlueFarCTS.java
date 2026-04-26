@@ -30,12 +30,13 @@ public class BlueFarCTS extends OpMode {
     public Pose2D goalPosition = null;
 
     // ── Poses ────────────────────────────────────────────────────────────────
-    private final Pose scorePose      = new Pose(90.065, 129, Math.toRadians(0));
+    private final Pose scorePose      = new Pose(51, 10, Math.toRadians(180));
     private final Pose startPose      = Field.toPedro(Field.blueSmallZone);
-    private final Pose park           = new Pose(115, 128.5, Math.toRadians(90));
+    private final Pose park           = new Pose(30, 10, Math.toRadians(180));
+    private final Pose intakePose = new Pose(6,37, Math.toRadians(180));
 
     // HPZ intake end-point (where the robot sits while waiting for a ring)
-    private final Pose hpzPose        = new Pose(125, 139, Math.toRadians(0));
+    private final Pose hpzPose        = new Pose(6, 10, Math.toRadians(180));
 
     // ── Paths ────────────────────────────────────────────────────────────────
     /** Spike-mark sweep: arcs out to collect the 3 pre-loaded rings */
@@ -63,7 +64,7 @@ public class BlueFarCTS extends OpMode {
 
     // ── Timing constants (ms) ────────────────────────────────────────────────
     private static final long PRELOAD_GATE_OPEN_MS  = 1000;
-    private static final long PRELOAD_SHOOT_MS       = 2000;
+    private static final long PRELOAD_SHOOT_MS       = 2500;
     private static final long SHOOT_SETTLE_MS        = 750;
     private static final long SHOOT_DURATION_MS      = 1750;
     private static final long HPZ_COLLECT_MS         = 1500;
@@ -73,49 +74,52 @@ public class BlueFarCTS extends OpMode {
 
         // Spike mark sweep (mirrored across Y = 72)
         moveToSpikeMark = follower.pathBuilder()
-                .addPath(new BezierCurve(
-                        new Pose(90, 109),
-                        new Pose(110, 109),
-                        new Pose(129, 109)))
-                .setConstantHeadingInterpolation(0)
+                .addPath(new BezierLine(new Pose(43, 35), intakePose))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
 
         // Spike mark → score
         spikeMarkToShoot = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(129, 109), scorePose))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .addPath(new BezierLine(new Pose(8, 15), scorePose))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
 
         // Score → HPZ (gentle curve to avoid field walls)
         shootToHPZ = follower.pathBuilder()
                 .addPath(new BezierCurve(
                         scorePose,
-                        new Pose(95, 129),
+                        new Pose(10, 8),
                         hpzPose))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
 
         // HPZ → Score
         hpzToShoot = follower.pathBuilder()
                 .addPath(new BezierLine(hpzPose, scorePose))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
 
         // Park
         parkPath = follower.pathBuilder()
                 .addPath(new BezierLine(scorePose, park))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
     }
 
     // ── State machine ────────────────────────────────────────────────────────
 
     public void autonomousPathBlueUpdate() {
+        if (opmodeTimer.getElapsedTime() > 28_000 && pathState != 20 && pathState != -1) {
+            follower.followPath(parkPath, true);
+            setPathState(20);
+            return;
+        }
         switch (pathState) {
 
             // ── STATE 0: Spin up flywheel, open gate for preload shot ─────────
             case 0:
                 hw.turret.spinUpFlywheel();
+                hw.intake.openGate();
                 shooterTimer.resetTimer();
                 setPathState(1);
                 break;
@@ -123,6 +127,8 @@ public class BlueFarCTS extends OpMode {
             // ── STATE 1: Shoot preloads ───────────────────────────────────────
             case 1:
                 if (follower.isBusy()) {
+                    hw.intake.intake();
+
                     shooterTimer.resetTimer();
                     break;
                 }
@@ -144,6 +150,7 @@ public class BlueFarCTS extends OpMode {
                     hw.intake.closeGate();
                     hw.intake.intake();
                     follower.followPath(spikeMarkToShoot, true);
+                    hw.intake.partialIntake();
                     setPathState(3);
                 }
                 break;
@@ -152,12 +159,13 @@ public class BlueFarCTS extends OpMode {
             case 3:
                 if (follower.isBusy()) {
                     hw.intake.partialIntake();
+
                     shooterTimer.resetTimer();
                     break;
                 }
                 if (shooterTimer.getElapsedTime() > SHOOT_SETTLE_MS) {
-                    hw.intake.intake();
                     hw.intake.openGate();
+                    hw.intake.partialIntake();
                 }
                 if (shooterTimer.getElapsedTime() > SHOOT_DURATION_MS) {
                     hw.intake.closeGate();
@@ -172,6 +180,7 @@ public class BlueFarCTS extends OpMode {
                 if (!follower.isBusy() && pathTimer.getElapsedTime() > HPZ_COLLECT_MS) {
                     hw.intake.intake();
                     follower.followPath(hpzToShoot, true);
+                    hw.intake.partialIntake();
                     shooterTimer.resetTimer();
                     setPathState(11);
                 }
@@ -180,12 +189,15 @@ public class BlueFarCTS extends OpMode {
             // ── STATE 11: Arrive at score, shoot, decide next action ──────────
             case 11:
                 if (follower.isBusy()) {
+                    hw.intake.partialIntake();
+
                     shooterTimer.resetTimer();
                     break;
                 }
                 if (shooterTimer.getElapsedTime() > SHOOT_SETTLE_MS) {
-                    hw.intake.intake();
                     hw.intake.openGate();
+                    hw.intake.partialIntake();
+
                 }
                 if (shooterTimer.getElapsedTime() > SHOOT_DURATION_MS) {
                     hw.intake.closeGate();
