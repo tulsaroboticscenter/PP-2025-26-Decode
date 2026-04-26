@@ -6,7 +6,6 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -24,12 +23,10 @@ import java.util.Locale;
 /**
  * TeleOpLinearAutoAim — Peacock emergency teleop.
  *
- * Completely rewritten from scratch for clarity and correctness.
- *
  * DRIVE:
  *   Standard goBILDA mecanum field-centric drive.
  *   Left stick = translate, Right stick = rotate.
- *   Left bumper held = slow mode.
+ *   Left trigger held = slow mode.
  *
  * AUTO-AIM:
  *   [Square] toggles chassis auto-aim. When ON the right stick rotation is
@@ -38,6 +35,8 @@ import java.util.Locale;
  *
  * TURRET:
  *   Locked at 0° (forward) for the entire match.
+ *   [Triangle] toggles turret targeting (hw.turret.isTargeting).
+ *   [PS] toggles flywheel.
  *
  * TUNING (in Panels Configurables → HeadingPConfig):
  *   Start with Kp = 1.0, everything else 0.
@@ -124,6 +123,7 @@ public class TeleOpLinearAutoAim extends OpMode {
     private Pose2D pos;
     private double headingErrorDeg  = 0;
     private double rotationOutput   = 0;
+    private double distance         = 0;
 
     // =========================================================================
     // Init
@@ -140,7 +140,7 @@ public class TeleOpLinearAutoAim extends OpMode {
         motorBL = hw.drivetrain.leftBack;
         motorBR = hw.drivetrain.rightBack;
 
-        // Alliance + goal — same logic as CTS
+        // Alliance + goal
         if (Field.lastKnownPosition != null) {
             startingSide = Field.lastAllianceSide;
             if (startingSide == Field.Side.BLUE) {
@@ -205,7 +205,6 @@ public class TeleOpLinearAutoAim extends OpMode {
             }
         }
 
-
         if (gamepad1.optionsWasPressed()) testing = !testing;
         telemetry.addLine("[Options] test mode: " + testing);
         telemetry.addLine("Pinpoint ready: " + hw.pinpoint.isReady());
@@ -228,7 +227,6 @@ public class TeleOpLinearAutoAim extends OpMode {
         }
 
         hw.pinpoint.setPosition(storedLocation);
-
         hw.turret.setTarget(hw.turret.HeadingToServoValue(0, AngleUnit.DEGREES));
 
         autoAimEnabled = false;
@@ -254,10 +252,13 @@ public class TeleOpLinearAutoAim extends OpMode {
         // 2. Read pose
         pos = hw.pinpoint.getPosition();
 
-        // 3. Lock turret
+        // 3. Cache distance for firing logic
+        distance = hw.turret.getDistanceToTarget(hw.turret.offsetPoseToTurret(pos), goalPosition);
+
+        // 4. Lock turret
         hw.turret.setTarget(hw.turret.HeadingToServoValue(0, AngleUnit.DEGREES));
 
-        // 4. Toggle auto-aim with Square
+        // 5. Toggle chassis auto-aim with Square
         if (gamepad1.squareWasPressed()) {
             autoAimEnabled = !autoAimEnabled;
             headingPID.reset();
@@ -266,7 +267,15 @@ public class TeleOpLinearAutoAim extends OpMode {
                     : RGBLightController.LEDMode.SOLID);
         }
 
-        // 5. Compute rotation — either from auto-aim PID or driver stick
+        // 6. Toggle turret targeting with Triangle
+        if (gamepad1.triangleWasPressed()) {
+            hw.turret.isTargeting = !hw.turret.isTargeting;
+        }
+
+        // 7. Toggle flywheel with PS
+        if (gamepad1.psWasPressed()) hw.turret.toggleFlywheel();
+
+        // 8. Compute rotation — either from auto-aim PID or driver stick
         double currentHeading = pos.getHeading(AngleUnit.RADIANS);
 
         if (autoAimEnabled) {
@@ -275,11 +284,12 @@ public class TeleOpLinearAutoAim extends OpMode {
                     goalPosition.getY(DistanceUnit.INCH) - pos.getY(DistanceUnit.INCH),
                     goalPosition.getX(DistanceUnit.INCH) - pos.getX(DistanceUnit.INCH));
 
-            // We want the BACK of the robot facing the goal,
-            // so the target heading is the angle pointing AWAY from the goal
+            // We want the BACK of the robot facing the goal.
+            // Red and blue use opposite coordinate orientations so the target
+            // heading offset is alliance-specific.
             double targetHeading = (startingSide == Field.Side.RED)
-                    ? angleToGoal
-                    : angleToGoal + Math.PI;
+                    ? angleToGoal + Math.PI
+                    : angleToGoal;
 
             // Wrap target into the same circle as currentHeading so the PID
             // always sees the shortest path and never a ±360° jump
@@ -290,20 +300,22 @@ public class TeleOpLinearAutoAim extends OpMode {
             headingPID.setTarget(wrappedTarget);
             rotationOutput = headingPID.calculate(currentHeading);
 
+            // Negate: PID output sign convention vs mecanum rotation convention
+            rotationOutput = -rotationOutput;
+
             // Hard cap
             rotationOutput = Math.max(-HeadingPConfig.MAX_TURN_POWER,
                     Math.min( HeadingPConfig.MAX_TURN_POWER, rotationOutput));
-            rotationOutput = -rotationOutput;
         } else {
             headingErrorDeg = 0;
             rotationOutput  = 0;
         }
 
-        // 6. Field-centric mecanum drive
+        // 9. Field-centric mecanum drive
         //    When auto-aim is ON:  rotation = PIDF output, right stick ignored
         //    When auto-aim is OFF: rotation = right stick
         double drive  = gamepad1.left_stick_y;
-        double strafe =  gamepad1.left_stick_x * 1.1; // strafe boost for mecanum
+        double strafe = gamepad1.left_stick_x * 1.1; // strafe boost for mecanum
         double rotate = autoAimEnabled
                 ? rotationOutput
                 : gamepad1.right_stick_x;
@@ -312,10 +324,10 @@ public class TeleOpLinearAutoAim extends OpMode {
         double sinH = Math.sin(-currentHeading);
         double cosH = Math.cos(-currentHeading);
 
-        // Apply alliance offset so field-centric "forward" is always away from
+        // Alliance offset so field-centric "forward" is always away from
         // the driver, regardless of which side of the field the robot starts on
         double allianceOffset = (startingSide == Field.Side.RED)
-                ? Math.PI : 0.0;
+                ? 0.0 : Math.PI;
 
         double fieldX =  drive  * Math.cos(allianceOffset) - strafe * Math.sin(allianceOffset);
         double fieldY =  drive  * Math.sin(allianceOffset) + strafe * Math.cos(allianceOffset);
@@ -334,7 +346,8 @@ public class TeleOpLinearAutoAim extends OpMode {
                 Math.max(Math.abs(fl), Math.abs(fr)),
                 Math.max(Math.abs(bl), Math.abs(br))));
 
-        double speed = gamepad1.left_bumper
+        // Left trigger = slow mode (matches CTS)
+        double speed = (gamepad1.left_trigger > 0.1)
                 ? hw.drivetrain.SLOW_DRIVING_SPEED
                 : 1.0;
 
@@ -343,22 +356,27 @@ public class TeleOpLinearAutoAim extends OpMode {
         motorBL.setPower(bl / max * speed);
         motorBR.setPower(br / max * speed);
 
-        // 7. Update subsystems
+        // 10. Update subsystems
         hw.updateTeleOp(this);
 
-        // 8. Intake [A]
+        // 11. Intake [A]
         if (gamepad1.aWasPressed()) hw.intake.toggle();
 
-        // 9. Firing [right trigger]
+        // 12. Firing [right trigger] — with distance-based partial intake (matches CTS)
         if (gamepad1.right_trigger > 0.5) {
             hw.intake.isForceIntaking = true;
             hw.intake.openGate();
+            if (distance > 100) {
+                hw.intake.partialIntakeTeleop();
+            } else {
+                hw.intake.openGate();
+            }
         } else {
             hw.intake.isForceIntaking = false;
             hw.intake.closeGate();
         }
 
-        // 10. Parking [right bumper]
+        // 13. Parking [right bumper]
         if (gamepad1.rightBumperWasPressed()) {
             switch (parkStatus) {
                 case NOT_PARKED:
@@ -378,7 +396,7 @@ public class TeleOpLinearAutoAim extends OpMode {
             }
         }
 
-        // 11. Goal fine-adjustment [dpad]
+        // 14. Goal fine-adjustment [dpad]
         double goalX = goalPosition.getX(DistanceUnit.INCH);
         double goalY = goalPosition.getY(DistanceUnit.INCH);
         boolean goalChanged = false;
@@ -398,13 +416,13 @@ public class TeleOpLinearAutoAim extends OpMode {
                     AngleUnit.RADIANS, goalPosition.getHeading(AngleUnit.RADIANS));
         }
 
-        // 12. Pinpoint reset [options]
+        // 15. Pinpoint reset [options]
         if (gamepad1.optionsWasPressed()) {
             hw.pinpoint.setPosition(startingSide == Field.Side.BLUE
                     ? Field.blueHumanPlayerZone : Field.redHumanPlayerZone);
         }
 
-        // 13. Endgame
+        // 16. Endgame
         if (runtime.seconds() > 100 && !endgame) {
             endgame = true;
             hw.lights.setLightColor(1);
@@ -415,30 +433,37 @@ public class TeleOpLinearAutoAim extends OpMode {
             hw.lights.setLightMode(RGBLightController.LEDMode.PULSE);
         }
 
-        // 14. Telemetry
+        // 17. Telemetry
         ptelemetry.setUpdateInterval(50);
         ptelemetry.addLine("--- PEACOCK — TURRET LOCKED ---");
-        ptelemetry.addData("Auto-Aim", autoAimEnabled ? "ON [Square]" : "OFF [Square]");
+        ptelemetry.addData("Auto-Aim",            autoAimEnabled ? "ON [Square]" : "OFF [Square]");
+        ptelemetry.addData("Turret targeting",    hw.turret.isTargeting ? "ON [Triangle]" : "OFF [Triangle]");
         ptelemetry.addData("Heading error (deg)", String.format(Locale.US, "%.1f", headingErrorDeg));
         ptelemetry.addData("Rotation output",     String.format(Locale.US, "%.3f", rotationOutput));
         ptelemetry.addLine("--- PIDF (Panels: HeadingPConfig) ---");
-        ptelemetry.addData("Kp",            HeadingPConfig.Kp);
-        ptelemetry.addData("Kd",            HeadingPConfig.Kd);
-        ptelemetry.addData("MAX_TURN_POWER",HeadingPConfig.MAX_TURN_POWER);
-        ptelemetry.addData("TOLERANCE_DEG", HeadingPConfig.TOLERANCE_DEG);
+        ptelemetry.addData("Kp",             HeadingPConfig.Kp);
+        ptelemetry.addData("Kd",             HeadingPConfig.Kd);
+        ptelemetry.addData("MAX_TURN_POWER", HeadingPConfig.MAX_TURN_POWER);
+        ptelemetry.addData("TOLERANCE_DEG",  HeadingPConfig.TOLERANCE_DEG);
         ptelemetry.addLine("--- Position ---");
         ptelemetry.addData("X",       String.format(Locale.US, "%.2f", pos.getX(DistanceUnit.INCH)));
         ptelemetry.addData("Y",       String.format(Locale.US, "%.2f", pos.getY(DistanceUnit.INCH)));
         ptelemetry.addData("Heading", String.format(Locale.US, "%.1f°", Math.toDegrees(currentHeading)));
+        ptelemetry.addData("Distance (in)", String.format(Locale.US, "%.1f", distance));
+        ptelemetry.addData("Goal", String.format(Locale.US, "(%.1f, %.1f)",
+                goalPosition.getX(DistanceUnit.INCH), goalPosition.getY(DistanceUnit.INCH)));
         ptelemetry.update();
 
         telemetry.addLine("PEACOCK — TURRET LOCKED");
         telemetry.addLine("Auto-Aim: " + (autoAimEnabled ? "ON" : "OFF") + "  [Square]");
+        telemetry.addLine("Turret: " + (hw.turret.isTargeting ? "ON" : "OFF") + "  [Triangle]");
         telemetry.addLine("Error: " + String.format(Locale.US, "%.1f°", headingErrorDeg)
                 + "  Out: " + String.format(Locale.US, "%.3f", rotationOutput));
         telemetry.addLine("Kp=" + HeadingPConfig.Kp + "  Kd=" + HeadingPConfig.Kd
                 + "  Max=" + HeadingPConfig.MAX_TURN_POWER);
         telemetry.addLine("Pos: " + PoseUtils.poseToString(pos, DistanceUnit.INCH, AngleUnit.DEGREES));
+        telemetry.addLine("Goal: " + String.format(Locale.US, "(%.1f, %.1f)",
+                goalPosition.getX(DistanceUnit.INCH), goalPosition.getY(DistanceUnit.INCH)));
         telemetry.update();
     }
 
@@ -448,7 +473,6 @@ public class TeleOpLinearAutoAim extends OpMode {
 
     /**
      * Wraps an angle into [-π, π].
-     * This is the ONLY place angle wrapping happens — keeps it easy to reason about.
      */
     private static double wrapAngle(double radians) {
         while (radians >  Math.PI) radians -= 2.0 * Math.PI;
