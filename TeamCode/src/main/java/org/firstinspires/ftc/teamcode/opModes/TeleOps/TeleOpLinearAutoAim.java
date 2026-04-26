@@ -287,9 +287,7 @@ public class TeleOpLinearAutoAim extends OpMode {
             // We want the BACK of the robot facing the goal.
             // Red and blue use opposite coordinate orientations so the target
             // heading offset is alliance-specific.
-            double targetHeading = (startingSide == Field.Side.RED)
-                    ? angleToGoal + Math.PI
-                    : angleToGoal;
+            double targetHeading = angleToGoal + Math.PI;
 
             // Wrap target into the same circle as currentHeading so the PID
             // always sees the shortest path and never a ±360° jump
@@ -327,8 +325,8 @@ public class TeleOpLinearAutoAim extends OpMode {
         // Alliance offset so field-centric "forward" is always away from
         // the driver, regardless of which side of the field the robot starts on
         double allianceOffset = (startingSide == Field.Side.RED)
-                ? 0.0 : Math.PI;
-
+                ? Math.PI : 0.0;
+        
         double fieldX =  drive  * Math.cos(allianceOffset) - strafe * Math.sin(allianceOffset);
         double fieldY =  drive  * Math.sin(allianceOffset) + strafe * Math.cos(allianceOffset);
 
@@ -358,6 +356,8 @@ public class TeleOpLinearAutoAim extends OpMode {
 
         // 10. Update subsystems
         hw.updateTeleOp(this);
+
+        hw.turret.updateFlywheelAndHood(pos, goalPosition);
 
         // 11. Intake [A]
         if (gamepad1.aWasPressed()) hw.intake.toggle();
