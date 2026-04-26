@@ -277,8 +277,10 @@ public class TeleOpLinearAutoAim extends OpMode {
 
             // We want the BACK of the robot facing the goal,
             // so the target heading is the angle pointing AWAY from the goal
-            double targetHeading = angleToGoal + Math.PI;
-
+            double targetHeading = (startingSide == Field.Side.RED)
+                    ? angleToGoal
+                    : angleToGoal + Math.PI;
+            
             // Wrap target into the same circle as currentHeading so the PID
             // always sees the shortest path and never a ±360° jump
             double wrappedTarget = currentHeading + wrapAngle(targetHeading - currentHeading);
