@@ -325,8 +325,8 @@ public class TeleOpLinearAutoAim extends OpMode {
         // Alliance offset so field-centric "forward" is always away from
         // the driver, regardless of which side of the field the robot starts on
         double allianceOffset = (startingSide == Field.Side.RED)
-                ? Math.PI : 0.0;
-        
+                ? 0.0 : Math.PI;
+
         double fieldX =  drive  * Math.cos(allianceOffset) - strafe * Math.sin(allianceOffset);
         double fieldY =  drive  * Math.sin(allianceOffset) + strafe * Math.cos(allianceOffset);
 

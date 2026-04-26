@@ -35,8 +35,8 @@ public class Field {
         // Points of Interest
         public static final Pose2D blueGoal = new Pose2D(DistanceUnit.INCH, 5, 129, AngleUnit.DEGREES, 0);
         public static final Pose2D redGoal = new Pose2D(DistanceUnit.INCH, 139, 137, AngleUnit.DEGREES, 0);
-        public static final Pose2D blueGoalLocal = new Pose2D(DistanceUnit.INCH, -79, -46, AngleUnit.DEGREES, 0);
-        public static final Pose2D redGoalLocal = new Pose2D(DistanceUnit.INCH, 217, -2, AngleUnit.DEGREES, 0);        public static final Pose2D blueHumanPlayerZone = new Pose2D(DistanceUnit.INCH, 136.5, 7.7, AngleUnit.DEGREES, 90);
+        public static final Pose2D blueGoalLocal = new Pose2D(DistanceUnit.INCH, -79, -40, AngleUnit.DEGREES, 0);
+        public static final Pose2D redGoalLocal = new Pose2D(DistanceUnit.INCH, 250, -2, AngleUnit.DEGREES, 0);        public static final Pose2D blueHumanPlayerZone = new Pose2D(DistanceUnit.INCH, 136.5, 7.7, AngleUnit.DEGREES, 90);
         public static final Pose2D redHumanPlayerZone = new Pose2D(DistanceUnit.INCH, 7.5, 7.7, AngleUnit.DEGREES, 90);
         public static final Pose2D redBase = new Pose2D(DistanceUnit.INCH, -21, -36, AngleUnit.DEGREES, 0);
         public static final Pose2D blueBase = new Pose2D(DistanceUnit.INCH, 21, -36, AngleUnit.DEGREES, 0);
