@@ -144,16 +144,16 @@ public class TeleOpLinearAutoAim extends OpMode {
         if (Field.lastKnownPosition != null) {
             startingSide = Field.lastAllianceSide;
             if (startingSide == Field.Side.BLUE) {
-                goalPosition = Field.blueGoal;
+                goalPosition = Field.blueGoalLocal;
                 hw.lights.setLightColor(RGBLightController.BLUE);
                 telemetry.addLine("Blue side.");
             } else if (startingSide == Field.Side.RED) {
-                goalPosition = Field.redGoal;
+                goalPosition = Field.redGoalLocal;
                 hw.lights.setLightColor(RGBLightController.RED);
                 telemetry.addLine("Red side.");
             } else {
                 startingSide = Field.Side.RED;
-                goalPosition = Field.redGoal;
+                goalPosition = Field.redGoalLocal;
                 hw.lights.setLightColor(RGBLightController.RED);
                 telemetry.addLine("Alliance unknown — defaulting Red.");
             }
@@ -161,7 +161,7 @@ public class TeleOpLinearAutoAim extends OpMode {
             loaded = true;
         } else {
             startingSide   = Field.Side.RED;
-            goalPosition   = Field.redGoal;
+            goalPosition   = Field.redGoalLocal;
             storedLocation = Field.redSmallZone;
             hw.lights.setLightColor(RGBLightController.RED);
             telemetry.addLine("No saved position — defaulting Red.");
@@ -223,7 +223,7 @@ public class TeleOpLinearAutoAim extends OpMode {
             storedLocation = (testingSide == Field.Side.RED)
                     ? Field.redSmallZone : Field.blueSmallZone;
             goalPosition   = (testingSide == Field.Side.RED)
-                    ? Field.redGoal : Field.blueGoal;
+                    ? Field.redGoalLocal : Field.blueGoalLocal;
             startingSide   = testingSide;
         }
 
@@ -291,6 +291,7 @@ public class TeleOpLinearAutoAim extends OpMode {
             // Hard cap
             rotationOutput = Math.max(-HeadingPConfig.MAX_TURN_POWER,
                     Math.min( HeadingPConfig.MAX_TURN_POWER, rotationOutput));
+            rotationOutput = -rotationOutput;
         } else {
             headingErrorDeg = 0;
             rotationOutput  = 0;
@@ -321,11 +322,11 @@ public class TeleOpLinearAutoAim extends OpMode {
         double rotY = fieldX * sinH + fieldY * cosH;
 
         // Mix into wheel powers
-        double fl = rotY + rotX - rotate;
-        double fr = rotY - rotX + rotate;
-        double bl = rotY - rotX - rotate;
-        double br = rotY + rotX + rotate;
-        
+        double fl = rotY + rotX + rotate;
+        double fr = rotY - rotX - rotate;
+        double bl = rotY - rotX + rotate;
+        double br = rotY + rotX - rotate;
+
         // Normalize so no wheel exceeds 1.0
         double max = Math.max(1.0, Math.max(
                 Math.max(Math.abs(fl), Math.abs(fr)),
