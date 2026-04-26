@@ -291,6 +291,7 @@ public class TeleOpLinearAutoAim extends OpMode {
             // Hard cap
             rotationOutput = Math.max(-HeadingPConfig.MAX_TURN_POWER,
                     Math.min( HeadingPConfig.MAX_TURN_POWER, rotationOutput));
+            rotationOutput = -rotationOutput;
         } else {
             headingErrorDeg = 0;
             rotationOutput  = 0;
