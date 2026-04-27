@@ -298,9 +298,6 @@ public class TeleOpLinearAutoAim extends OpMode {
             headingPID.setTarget(wrappedTarget);
             rotationOutput = headingPID.calculate(currentHeading);
 
-            // Negate: PID output sign convention vs mecanum rotation convention
-            rotationOutput = -rotationOutput;
-
             // Hard cap
             rotationOutput = Math.max(-HeadingPConfig.MAX_TURN_POWER,
                     Math.min( HeadingPConfig.MAX_TURN_POWER, rotationOutput));
