@@ -240,13 +240,19 @@ public class Turret
         targetVelocity = ((flywheelA * Math.pow(distanceInches, 2)) + (flywheelB * distanceInches) + flywheelC);
         targetVelocity = MathFunctions.clamp(targetVelocity, 1300, 2500);
 
-//        double averageVelocity = (launcherL.getVelocity() + launcherR.getVelocity()) / 2;
+        double averageVelocity = (launcherL.getVelocity() + launcherR.getVelocity()) / 2;
 
         // THIS is where you compute your regression for the hood. Note that x is now the flywheel velocity, not the distance.
         // Cubic Example: ((hoodA * Math.pow(averageVelocity, 3)) + (hoodB * Math.pow(averageVelocity, 2)) + (hoodC * averageVelocity) + hoodD)
 
-        tempTarget = ((hoodA * Math.pow(targetVelocity, 3)) + (hoodB * Math.pow(targetVelocity, 2)) + (hoodC * targetVelocity) + hoodD);
-//        tempTarget = ((hoodA * Math.pow(averageVelocity, 3)) + (hoodB * Math.pow(averageVelocity, 2)) + (hoodC * averageVelocity) + hoodD);
+//        tempTarget = ((hoodA * Math.pow(targetVelocity, 3)) +
+//                (hoodB * Math.pow(targetVelocity, 2)) +
+//                (hoodC * targetVelocity) + hoodD);
+
+        tempTarget = ((hoodA * Math.pow(averageVelocity, 3)) +
+        (hoodB * Math.pow(averageVelocity, 2)) +
+        (hoodC * averageVelocity) + hoodD);
+
         hoodTarget = MathFunctions.clamp(tempTarget, 0, 0.87);
     }
 

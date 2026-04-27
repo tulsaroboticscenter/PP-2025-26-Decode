@@ -79,6 +79,8 @@ public class LinearTeleopNewCTS extends OpMode {
     private Field.Side startingSide   = null;
     private boolean    loaded         = false;
 
+    double angleToGoal = 0;
+
     private boolean autoAimEnabled = false;
 
     // Heading controller — P only to start, D available in Panels
@@ -254,30 +256,31 @@ public class LinearTeleopNewCTS extends OpMode {
         // 8. Compute rotation — either from auto-aim PID or driver stick
         double currentHeading = pos.getHeading(AngleUnit.RADIANS);
 
+        // In your auto-aim block, replace everything with this temporarily:
+
         if (autoAimEnabled) {
-            // Angle FROM robot TO goal
-            double angleToGoal = Math.atan2(
+
+            angleToGoal = Math.atan2(
                     goalPosition.getX(DistanceUnit.INCH) - pos.getX(DistanceUnit.INCH),
                     goalPosition.getY(DistanceUnit.INCH) - pos.getY(DistanceUnit.INCH));
-
-            // We want the BACK of the robot facing the goal.
-            // Red and blue use opposite coordinate orientations so the target
-            // heading offset is alliance-specific.
             double targetHeading = angleToGoal + Math.PI;
 
-            // Wrap target into the same circle as currentHeading so the PID
-            // always sees the shortest path and never a ±360° jump
-            double wrappedTarget = currentHeading + wrapAngle(targetHeading - currentHeading);
+            //            if(startingSide == Field.Side.RED) {
+//                angleToGoal = Math.atan2(
+//                        goalPosition.getX(DistanceUnit.INCH) - pos.getX(DistanceUnit.INCH),
+//                        goalPosition.getY(DistanceUnit.INCH) - pos.getY(DistanceUnit.INCH)) + Math.PI;
+//            } else {
+//                angleToGoal = Math.atan2(
+//                        goalPosition.getX(DistanceUnit.INCH) - pos.getX(DistanceUnit.INCH),
+//                        goalPosition.getY(DistanceUnit.INCH) - pos.getY(DistanceUnit.INCH));
+//            }
+//            double targetHeading = angleToGoal + Math.PI;
+            double error = wrapAngle(targetHeading - currentHeading);
+            headingErrorDeg = Math.toDegrees(error);
 
-            headingErrorDeg = Math.toDegrees(wrapAngle(targetHeading - currentHeading));
-
-            headingPID.setTarget(wrappedTarget);
-            rotationOutput = headingPID.calculate(currentHeading);
-
-            // Hard cap
-            rotationOutput = -rotationOutput;
-//            rotationOutput = Math.max(-HeadingPConfig.MAX_TURN_POWER,
-//                    Math.min( HeadingPConfig.MAX_TURN_POWER, rotationOutput));
+            rotationOutput = -(HeadingPConfig.Kp * error);
+            rotationOutput = Math.max(-HeadingPConfig.MAX_TURN_POWER,
+                    Math.min(HeadingPConfig.MAX_TURN_POWER, rotationOutput));
         } else {
             headingErrorDeg = 0;
             rotationOutput  = 0;
@@ -286,12 +289,8 @@ public class LinearTeleopNewCTS extends OpMode {
         // 9. Field-centric mecanum drive
         //    When auto-aim is ON:  rotation = PIDF output, right stick ignored
         //    When auto-aim is OFF: rotation = right stick
-        double drive  = (startingSide == Field.Side.RED)
-                ? -gamepad1.left_stick_y
-                : -gamepad1.left_stick_y;
-        double strafe = (startingSide == Field.Side.RED)
-                ? -gamepad1.left_stick_x * 1.1
-                : -gamepad1.left_stick_x * 1.1;
+        double drive  = -gamepad1.left_stick_y;
+        double strafe = -gamepad1.left_stick_x * 1.1;
 
         double rotate = autoAimEnabled
                 ? rotationOutput
@@ -337,7 +336,8 @@ public class LinearTeleopNewCTS extends OpMode {
         // 10. Update subsystems
         hw.updateTeleOp(this);
 
-        hw.turret.updateFlywheelAndHood(pos, goalPosition);
+        hw.turret.updateFlywheelAndHood(hw.turret.offsetPoseToTurret(pos), goalPosition);
+//        hw.turret.updateFlywheelAndHood(pos, goalPosition);
 
         // 11. Intake [A]
         if (gamepad1.aWasPressed()) hw.intake.toggle();
@@ -435,6 +435,7 @@ public class LinearTeleopNewCTS extends OpMode {
         ptelemetry.update();
 
         telemetry.addLine("PEACOCK — TURRET LOCKED");
+        telemetry.addData("Alliance = ", startingSide);
         telemetry.addLine("Auto-Aim: " + (autoAimEnabled ? "ON" : "OFF") + "  [Square]");
         telemetry.addLine("Turret: " + (hw.turret.isTargeting ? "ON" : "OFF") + "  [Triangle]");
         telemetry.addLine("Error: " + String.format(Locale.US, "%.1f°", headingErrorDeg)
@@ -444,6 +445,10 @@ public class LinearTeleopNewCTS extends OpMode {
         telemetry.addLine("Pos: " + PoseUtils.poseToString(pos, DistanceUnit.INCH, AngleUnit.DEGREES));
         telemetry.addLine("Goal: " + String.format(Locale.US, "(%.1f, %.1f)",
                 goalPosition.getX(DistanceUnit.INCH), goalPosition.getY(DistanceUnit.INCH)));
+        telemetry.addLine("blueGoalLocal: " + String.format(Locale.US, "(%.1f, %.1f)",
+                Field.blueGoalLocal.getX(DistanceUnit.INCH), Field.blueGoalLocal.getY(DistanceUnit.INCH)));
+        telemetry.addLine("redGoalLocal: " + String.format(Locale.US, "(%.1f, %.1f)",
+                Field.redGoalLocal.getX(DistanceUnit.INCH), Field.redGoalLocal.getY(DistanceUnit.INCH)));
         telemetry.update();
     }
 
