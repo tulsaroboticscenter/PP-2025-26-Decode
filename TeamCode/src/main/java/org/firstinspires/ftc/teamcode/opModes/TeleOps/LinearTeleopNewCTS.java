@@ -275,8 +275,9 @@ public class LinearTeleopNewCTS extends OpMode {
             rotationOutput = headingPID.calculate(currentHeading);
 
             // Hard cap
-            rotationOutput = Math.max(-HeadingPConfig.MAX_TURN_POWER,
-                    Math.min( HeadingPConfig.MAX_TURN_POWER, rotationOutput));
+            rotationOutput = -rotationOutput;
+//            rotationOutput = Math.max(-HeadingPConfig.MAX_TURN_POWER,
+//                    Math.min( HeadingPConfig.MAX_TURN_POWER, rotationOutput));
         } else {
             headingErrorDeg = 0;
             rotationOutput  = 0;
