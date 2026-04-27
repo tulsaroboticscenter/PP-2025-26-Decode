@@ -312,8 +312,13 @@ public class TeleOpLinearAutoAim extends OpMode {
         // 9. Field-centric mecanum drive
         //    When auto-aim is ON:  rotation = PIDF output, right stick ignored
         //    When auto-aim is OFF: rotation = right stick
-        double drive  = gamepad1.left_stick_y;
-        double strafe = gamepad1.left_stick_x * 1.1; // strafe boost for mecanum
+        double drive  = (startingSide == Field.Side.RED)
+                ? -gamepad1.left_stick_y
+                : gamepad1.left_stick_y;
+        double strafe = (startingSide == Field.Side.RED)
+                ? -gamepad1.left_stick_x * 1.1
+                : gamepad1.left_stick_x * 1.1;
+
         double rotate = autoAimEnabled
                 ? rotationOutput
                 : gamepad1.right_stick_x;
