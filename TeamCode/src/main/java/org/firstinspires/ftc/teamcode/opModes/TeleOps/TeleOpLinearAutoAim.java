@@ -314,10 +314,10 @@ public class TeleOpLinearAutoAim extends OpMode {
         //    When auto-aim is OFF: rotation = right stick
         double drive  = (startingSide == Field.Side.RED)
                 ? -gamepad1.left_stick_y
-                : gamepad1.left_stick_y;
+                : -gamepad1.left_stick_y;
         double strafe = (startingSide == Field.Side.RED)
                 ? -gamepad1.left_stick_x * 1.1
-                : gamepad1.left_stick_x * 1.1;
+                : -gamepad1.left_stick_x * 1.1;
 
         double rotate = autoAimEnabled
                 ? rotationOutput
