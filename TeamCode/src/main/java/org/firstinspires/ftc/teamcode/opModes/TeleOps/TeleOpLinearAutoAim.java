@@ -318,20 +318,22 @@ public class TeleOpLinearAutoAim extends OpMode {
                 ? rotationOutput
                 : gamepad1.right_stick_x;
 
-        // Rotate the translation vector into the field frame
-        double sinH = Math.sin(-currentHeading);
-        double cosH = Math.cos(-currentHeading);
 
         // Alliance offset so field-centric "forward" is always away from
         // the driver, regardless of which side of the field the robot starts on
-        double allianceOffset = Math.PI / 2.0;
+        double allianceOffset = (startingSide == Field.Side.RED)
+                ? -Math.PI / 2.0 : Math.PI / 2.0;
 
-        double fieldX =  drive  * Math.cos(allianceOffset) - strafe * Math.sin(allianceOffset);
-        double fieldY =  drive  * Math.sin(allianceOffset) + strafe * Math.cos(allianceOffset);
+        // Rotate the translation vector into the field frame
+        double sinH = Math.sin(-(currentHeading + allianceOffset));
+        double cosH = Math.cos(-(currentHeading + allianceOffset));
+
+        double fieldX =  drive ;
+        double fieldY =  strafe ;
 
         double rotX = fieldX * cosH - fieldY * sinH;
         double rotY = fieldX * sinH + fieldY * cosH;
-
+        
         // Mix into wheel powers
         double fl = rotY + rotX + rotate;
         double fr = rotY - rotX - rotate;
