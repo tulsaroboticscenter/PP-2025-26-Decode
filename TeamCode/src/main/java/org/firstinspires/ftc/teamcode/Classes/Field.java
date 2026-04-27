@@ -35,8 +35,8 @@ public class Field {
         // Points of Interest
         public static final Pose2D blueGoal = new Pose2D(DistanceUnit.INCH, 5, 129, AngleUnit.DEGREES, 0);
         public static final Pose2D redGoal = new Pose2D(DistanceUnit.INCH, 139, 137, AngleUnit.DEGREES, 0);
-        public static final Pose2D blueGoalLocal = new Pose2D(DistanceUnit.INCH, 35, 121, AngleUnit.DEGREES, 0);
-        public static final Pose2D redGoalLocal = new Pose2D(DistanceUnit.INCH, 43, -129, AngleUnit.DEGREES, 0);        public static final Pose2D blueHumanPlayerZone = new Pose2D(DistanceUnit.INCH, 136.5, 7.7, AngleUnit.DEGREES, 90);
+        public static final Pose2D blueGoalLocal = new Pose2D(DistanceUnit.INCH, 16, 114, AngleUnit.DEGREES, 0);
+        public static final Pose2D redGoalLocal = new Pose2D(DistanceUnit.INCH, -41, -136, AngleUnit.DEGREES, 0);        public static final Pose2D blueHumanPlayerZone = new Pose2D(DistanceUnit.INCH, 136.5, 7.7, AngleUnit.DEGREES, 90);
         public static final Pose2D redHumanPlayerZone = new Pose2D(DistanceUnit.INCH, 7.5, 7.7, AngleUnit.DEGREES, 90);
         public static final Pose2D redBase = new Pose2D(DistanceUnit.INCH, -21, -36, AngleUnit.DEGREES, 0);
         public static final Pose2D blueBase = new Pose2D(DistanceUnit.INCH, 21, -36, AngleUnit.DEGREES, 0);
@@ -47,8 +47,8 @@ public class Field {
         public static final Pose2D redPlayer = new Pose2D(DistanceUnit.INCH, -24, 48, AngleUnit.DEGREES, 0);
 
         // Starting Positions
-        public static final Pose2D blueSmallZone = new Pose2D(DistanceUnit.INCH, 51, 7.7, AngleUnit.DEGREES, 180);
-        public static final Pose2D redSmallZone = new Pose2D(DistanceUnit.INCH, 84, 7.7, AngleUnit.DEGREES, 180);
+        public static final Pose2D blueSmallZone = new Pose2D(DistanceUnit.INCH, 51, 7.7, AngleUnit.DEGREES, 0);
+        public static final Pose2D redSmallZone = new Pose2D(DistanceUnit.INCH, 84, 7.7, AngleUnit.DEGREES, 0);
         public static final Pose2D blueSmallZoneMovingForward = new Pose2D(DistanceUnit.INCH, 12, -60, AngleUnit.DEGREES, 0);
         public static final Pose2D blueTouchingGoalFacingAway = new Pose2D(DistanceUnit.INCH, -48, 48, AngleUnit.DEGREES, -36.678);
         public static final Pose2D redTouchingGoalFacingAway = new Pose2D(DistanceUnit.INCH, 48, 48, AngleUnit.DEGREES, -143.332);

@@ -283,7 +283,7 @@ public class TeleOpLinearAutoAim extends OpMode {
             double angleToGoal = Math.atan2(
                     goalPosition.getX(DistanceUnit.INCH) - pos.getX(DistanceUnit.INCH),
                     goalPosition.getY(DistanceUnit.INCH) - pos.getY(DistanceUnit.INCH));
-            
+
             // We want the BACK of the robot facing the goal.
             // Red and blue use opposite coordinate orientations so the target
             // heading offset is alliance-specific.
