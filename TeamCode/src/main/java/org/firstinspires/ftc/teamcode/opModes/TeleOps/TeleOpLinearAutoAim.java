@@ -322,7 +322,7 @@ public class TeleOpLinearAutoAim extends OpMode {
         // Alliance offset so field-centric "forward" is always away from
         // the driver, regardless of which side of the field the robot starts on
         double allianceOffset = (startingSide == Field.Side.RED)
-                ? -Math.PI / 2.0 : Math.PI / 2.0;
+                ? 3.0 * Math.PI / 2.0 : -Math.PI / 2.0;
 
         // Rotate the translation vector into the field frame
         double sinH = Math.sin(-(currentHeading + allianceOffset));
@@ -333,7 +333,7 @@ public class TeleOpLinearAutoAim extends OpMode {
 
         double rotX = fieldX * cosH - fieldY * sinH;
         double rotY = fieldX * sinH + fieldY * cosH;
-        
+
         // Mix into wheel powers
         double fl = rotY + rotX + rotate;
         double fr = rotY - rotX - rotate;
