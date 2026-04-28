@@ -177,6 +177,8 @@ public class DataGatheringTeleOp extends OpMode
         hw.turret.setTarget(pos, goalPosition);
         hw.drivetrain.fieldOrientedDrive(this, pos, goalPosition, storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
 
+        hw.drivetrain.isTargeting = gamepad1.square;
+
         if (gamepad1.yWasPressed())
         {
             // Switch Light Mode from solid to flashing, or from flashing to solid
@@ -188,7 +190,7 @@ public class DataGatheringTeleOp extends OpMode
             hw.turret.isTargeting = !hw.turret.isTargeting;
         }
 
-        else if (hw.turret.isTargeting)
+        else if (hw.turret.isTargeting && !hw.drivetrain.isTargeting)
         {
             // if targeting is on, update the turret with the new target
             hw.turret.setTarget(pos, goalPosition);
@@ -225,7 +227,7 @@ public class DataGatheringTeleOp extends OpMode
         else if (gamepad1.dpadRightWasPressed())
             hw.turret.incrementFlywheel(50);
 
-        if (gamepad1.x)
+        if (gamepad1.left_bumper)
         {
             hw.drivetrain.slowDown();
         }

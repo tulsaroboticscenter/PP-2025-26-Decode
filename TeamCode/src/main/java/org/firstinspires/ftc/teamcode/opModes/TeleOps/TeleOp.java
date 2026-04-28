@@ -188,7 +188,7 @@ public class TeleOp extends OpMode
         hw.turret.updateFlywheelAndHood(pos, goalPosition);
         hw.drivetrain.fieldOrientedDrive(this, pos, goalPosition, storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
 
-        //hw.setDrivePowers(gamepad1, true, goalPosition, side);
+        hw.drivetrain.isTargeting = gamepad1.square;
 
         // Switch Light Mode from solid to flashing, or from flashing to solid
         if (gamepad1.triangleWasPressed())
@@ -215,7 +215,7 @@ public class TeleOp extends OpMode
         }
         else
         {
-            hw.turret.setTarget(hw.turret.HeadingToServoValue(0, AngleUnit.DEGREES));
+            hw.turret.setTarget(hw.turret.HeadingToServoValue(180, AngleUnit.DEGREES));
         }
 
         // Right Trigger (Firing)

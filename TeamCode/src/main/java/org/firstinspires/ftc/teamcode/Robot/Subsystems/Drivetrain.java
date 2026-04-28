@@ -51,6 +51,7 @@ public class Drivetrain
     public boolean isParked    = false;
     public boolean isTargeting = false;
 
+
     // Field-Centric
     double offset = 0;
 
@@ -62,9 +63,9 @@ public class Drivetrain
     public final double JOYSTICK_DEADZONE = 0.05;
 
     // Drivetrain Targeting PIDF Values (Tunable in Panels)
-    @Sorter(sort = 1) public static double KpVal = 0.008;
+    @Sorter(sort = 1) public static double KpVal = 0.6;
     @Sorter(sort = 2) public static double KiVal = 0.0;
-    @Sorter(sort = 3) public static double KdVal = 0.0004;
+    @Sorter(sort = 3) public static double KdVal = 0.01;
     @Sorter(sort = 4) public static double KfVal = 0.0;
 
     // Now uses the FIXED PIDFController
@@ -202,6 +203,8 @@ public class Drivetrain
         double newForward = r * Math.sin(theta);
         double newStrafe  = r * Math.cos(theta);
 
+        rotationPID.setPIDFCoefficients(KpVal, KiVal, KdVal, KfVal);
+
         // --- Rotation axis priority ---
         double finalRotate;
         if (externalRotation != null) {
@@ -209,9 +212,8 @@ public class Drivetrain
             finalRotate = externalRotation;
         } else if (isTargeting) {
             // Internal targeting PID (used by CTS-style opmodes)
-            rotationPID.setTarget(Math.atan2(
-                    targetPosition.getY(DistanceUnit.INCH) - currentPosition.getY(DistanceUnit.INCH),
-                    targetPosition.getX(DistanceUnit.INCH) - currentPosition.getX(DistanceUnit.INCH)));
+            rotationPID.setTarget(
+                    Turret.getDegreesToTarget(currentPosition, targetPosition, false));
             finalRotate = rotationPID.calculate(currentHeadingRadians);
         } else {
             // Full driver control

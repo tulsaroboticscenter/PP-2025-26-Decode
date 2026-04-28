@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.Classes.PIDFController;
 import org.firstinspires.ftc.teamcode.Classes.PoseUtils;
 import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
 import org.firstinspires.ftc.teamcode.Robot.HardwareManager;
+import org.firstinspires.ftc.teamcode.Robot.Subsystems.Turret;
 
 import java.util.Locale;
 
@@ -260,9 +261,7 @@ public class LinearTeleopNewCTS extends OpMode {
 
         if (autoAimEnabled) {
 
-            angleToGoal = Math.atan2(
-                    goalPosition.getX(DistanceUnit.INCH) - pos.getX(DistanceUnit.INCH),
-                    goalPosition.getY(DistanceUnit.INCH) - pos.getY(DistanceUnit.INCH));
+            angleToGoal = Turret.getDegreesToTarget(pos, goalPosition, false);
             double targetHeading = angleToGoal + Math.PI;
 
             //            if(startingSide == Field.Side.RED) {
