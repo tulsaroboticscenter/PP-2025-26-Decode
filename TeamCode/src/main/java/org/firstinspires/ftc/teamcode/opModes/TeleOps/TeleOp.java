@@ -208,14 +208,14 @@ public class TeleOp extends OpMode
             //hw.turret.manuallySetFlywheelAndHood(0, 0);
             hw.intake.stop();
         }
-        else if (hw.turret.isTargeting)
+        else if (hw.turret.isTargeting && !hw.drivetrain.isTargeting)
         {
             // if targeting is on, update the turret with the new target
             hw.turret.setTarget(pos, goalPosition);
         }
         else
         {
-            hw.turret.setTarget(hw.turret.HeadingToServoValue(180, AngleUnit.DEGREES));
+            hw.turret.setTarget(0, AngleUnit.DEGREES);
         }
 
         // Right Trigger (Firing)

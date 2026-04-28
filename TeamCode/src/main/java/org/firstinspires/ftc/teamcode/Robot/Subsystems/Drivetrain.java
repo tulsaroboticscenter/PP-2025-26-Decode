@@ -128,7 +128,7 @@ public class Drivetrain
         park2.setPosition(1 - startingParkPosition);
 
         rotationPID.setTarget(0);
-        rotationPID.setTolerance(1.0);
+        rotationPID.setTolerance(Math.toRadians(1.0));
     }
 
     // -------------
@@ -212,9 +212,8 @@ public class Drivetrain
             finalRotate = externalRotation;
         } else if (isTargeting) {
             // Internal targeting PID (used by CTS-style opmodes)
-            rotationPID.setTarget(
-                    Turret.getDegreesToTarget(currentPosition, targetPosition, false));
-            finalRotate = rotationPID.calculate(currentHeadingRadians);
+            rotationPID.setTarget(0);
+            finalRotate = rotationPID.calculate(Turret.getDegreesToTarget(currentPosition, targetPosition, true));
         } else {
             // Full driver control
             finalRotate = rotate;

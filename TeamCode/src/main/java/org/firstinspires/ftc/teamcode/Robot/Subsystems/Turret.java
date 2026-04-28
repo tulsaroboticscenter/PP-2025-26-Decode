@@ -127,13 +127,15 @@ public class Turret
         launcherL.setVelocity(0);
         launcherR.setVelocity(0);
 
-        turretRotationServo1.setPosition(zeroPosition);
-        turretRotationServo2.setPosition(zeroPosition);
-
         turretRotationServo1.setDirection(Servo.Direction.REVERSE);
         turretRotationServo2.setDirection(Servo.Direction.REVERSE);
 
-        if (!TeleOp) hoodServo.setPosition(0);
+        if (!TeleOp) {
+            hoodServo.setPosition(0);
+            turretRotationServo1.setPosition(zeroPosition);
+            turretRotationServo2.setPosition(zeroPosition);
+        }
+
     }
 
     private void setFlywheelMotorVelocity(double velocity)
