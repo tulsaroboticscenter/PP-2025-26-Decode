@@ -49,7 +49,7 @@ public class Field {
     public static final Pose2D redPlayer = new Pose2D(DistanceUnit.INCH, -24, 48, AngleUnit.DEGREES, 0);
 
     // Starting Positions
-    public static final Pose2D blueSmallZone = new Pose2D(DistanceUnit.INCH, 51, 7.7, AngleUnit.DEGREES, 0);
+    public static final Pose2D blueSmallZone = new Pose2D(DistanceUnit.INCH, 51, 7.7, AngleUnit.DEGREES, 180);
     public static final Pose2D redSmallZone = new Pose2D(DistanceUnit.INCH, 84, 7.7, AngleUnit.DEGREES, 0);
     public static final Pose2D blueSmallZoneMovingForward = new Pose2D(DistanceUnit.INCH, 12, -60, AngleUnit.DEGREES, 0);
     public static final Pose2D blueTouchingGoalFacingAway = new Pose2D(DistanceUnit.INCH, -48, 48, AngleUnit.DEGREES, -36.678);
