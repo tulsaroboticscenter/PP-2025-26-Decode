@@ -266,44 +266,27 @@ public class TeleOp extends OpMode
         }
 
 
-        // Real-Time Goal Adjustment
-        if (side == Field.Side.BLUE)
-        {
-            if (gamepad1.dpadUpWasPressed())
-            {
-                goalPosition = new Pose2D(DistanceUnit.INCH, goalPosition.getX(DistanceUnit.INCH) - 1, goalPosition.getY(DistanceUnit.INCH), AngleUnit.RADIANS, goalPosition.getHeading(AngleUnit.RADIANS));
-            }
-            else if (gamepad1.dpadDownWasPressed())
-            {
-                goalPosition = new Pose2D(DistanceUnit.INCH, goalPosition.getX(DistanceUnit.INCH) + 1, goalPosition.getY(DistanceUnit.INCH), AngleUnit.RADIANS, goalPosition.getHeading(AngleUnit.RADIANS));
-            }
-            else if (gamepad1.dpadLeftWasPressed())
-            {
-                goalPosition = new Pose2D(DistanceUnit.INCH, goalPosition.getX(DistanceUnit.INCH), goalPosition.getY(DistanceUnit.INCH) - 1, AngleUnit.RADIANS, goalPosition.getHeading(AngleUnit.RADIANS));
-            }
-            else if (gamepad1.dpadRightWasPressed())
-            {
-                goalPosition = new Pose2D(DistanceUnit.INCH, goalPosition.getX(DistanceUnit.INCH), goalPosition.getY(DistanceUnit.INCH) + 1, AngleUnit.RADIANS, goalPosition.getHeading(AngleUnit.RADIANS));
-            }
+        // --- 12. Real-time goal adjustment (dpad) — Issue 5 fix -----------------
+        // Fixed: now uses startingSide (was checking null 'side' variable)
+        double goalX = goalPosition.getX(DistanceUnit.INCH);
+        double goalY = goalPosition.getY(DistanceUnit.INCH);
+        boolean goalChanged = false;
+
+        if (startingSide == Field.Side.BLUE) {
+            if      (gamepad1.dpadUpWasPressed())    { goalX -= 1; goalChanged = true; }
+            else if (gamepad1.dpadDownWasPressed())  { goalX += 1; goalChanged = true; }
+            else if (gamepad1.dpadLeftWasPressed())  { goalY -= 1; goalChanged = true; }
+            else if (gamepad1.dpadRightWasPressed()) { goalY += 1; goalChanged = true; }
+        } else {
+            if      (gamepad1.dpadUpWasPressed())    { goalX += 1; goalChanged = true; }
+            else if (gamepad1.dpadDownWasPressed())  { goalX -= 1; goalChanged = true; }
+            else if (gamepad1.dpadLeftWasPressed())  { goalY += 1; goalChanged = true; }
+            else if (gamepad1.dpadRightWasPressed()) { goalY -= 1; goalChanged = true; }
         }
-        else if (side == Field.Side.RED)
-        {
-            if (gamepad1.dpadUpWasPressed())
-            {
-                goalPosition = new Pose2D(DistanceUnit.INCH, goalPosition.getX(DistanceUnit.INCH) + 1, goalPosition.getY(DistanceUnit.INCH), AngleUnit.RADIANS, goalPosition.getHeading(AngleUnit.RADIANS));
-            }
-            else if (gamepad1.dpadDownWasPressed())
-            {
-                goalPosition = new Pose2D(DistanceUnit.INCH, goalPosition.getX(DistanceUnit.INCH) - 1, goalPosition.getY(DistanceUnit.INCH), AngleUnit.RADIANS, goalPosition.getHeading(AngleUnit.RADIANS));
-            }
-            else if (gamepad1.dpadLeftWasPressed())
-            {
-                goalPosition = new Pose2D(DistanceUnit.INCH, goalPosition.getX(DistanceUnit.INCH), goalPosition.getY(DistanceUnit.INCH) + 1, AngleUnit.RADIANS, goalPosition.getHeading(AngleUnit.RADIANS));
-            }
-            else if (gamepad1.dpadRightWasPressed())
-            {
-                goalPosition = new Pose2D(DistanceUnit.INCH, goalPosition.getX(DistanceUnit.INCH), goalPosition.getY(DistanceUnit.INCH) - 1, AngleUnit.RADIANS, goalPosition.getHeading(AngleUnit.RADIANS));
-            }
+
+        if (goalChanged) {
+            goalPosition = new Pose2D(DistanceUnit.INCH, goalX, goalY,
+                    AngleUnit.RADIANS, goalPosition.getHeading(AngleUnit.RADIANS));
         }
 
         if (gamepad1.optionsWasPressed())

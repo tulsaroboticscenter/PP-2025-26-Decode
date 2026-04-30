@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
 import org.firstinspires.ftc.teamcode.Robot.HardwareManager;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Blue Far Leviathan CTS", group = "Autonomous", preselectTeleOp = "TeleOp")
+@Autonomous(name = "Blue Far Leviathan CTS", group = "Autonomous", preselectTeleOp = "tele")
 public class BlueFarCTS extends OpMode {
 
     private Follower follower;
@@ -120,6 +120,7 @@ public class BlueFarCTS extends OpMode {
             case 0:
                 hw.turret.spinUpFlywheel();
                 hw.intake.openGate();
+                hw.turret.setTarget(follower.getPose(), goalPosition);
                 shooterTimer.resetTimer();
                 setPathState(1);
                 break;
@@ -241,7 +242,7 @@ public class BlueFarCTS extends OpMode {
         hw.turret.update();
         hw.intake.update();
 
-        hw.turret.setTarget(follower.getPose(), goalPosition);
+        //hw.turret.setTarget(follower.getPose(), goalPosition);
         hw.turret.updateFlywheelAndHood(follower.getPose(), goalPosition);
 
         Field.lastKnownPosition = new Pose2D(
