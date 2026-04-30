@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
 import org.firstinspires.ftc.teamcode.Robot.HardwareManager;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Red Far Leviathan CTS", group = "Autonomous", preselectTeleOp = "TeleOp")
+@Autonomous(name = "Red Far Leviathan CTS", group = "Autonomous", preselectTeleOp = "tele")
 public class RedFarLeviathanCTS extends OpMode {
 
     private Follower follower;

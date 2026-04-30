@@ -188,7 +188,7 @@ public class TeleOp extends OpMode
         hw.turret.updateFlywheelAndHood(pos, goalPosition);
         hw.drivetrain.fieldOrientedDrive(this, pos, goalPosition, storedLocation.getHeading(AngleUnit.RADIANS), startingSide);
 
-        hw.drivetrain.isTargeting = gamepad1.square;
+        //hw.drivetrain.isTargeting = gamepad1.square;
 
         // Switch Light Mode from solid to flashing, or from flashing to solid
         if (gamepad1.triangleWasPressed())

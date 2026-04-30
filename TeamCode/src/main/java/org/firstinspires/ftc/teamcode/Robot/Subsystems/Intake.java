@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
@@ -25,10 +26,16 @@ public class Intake
     // Switches
     public boolean isIntaking = false;
     public boolean isForceIntaking = false;
+    public boolean lastIsForceIntaking = false;
+    public boolean backdriving = false;
 
     // Amperage Limits
     double innerAmperageLimit = 4.5;
     double outerAmperageLimit = 12.0;
+
+    // Timer for intake backdrive
+
+    ElapsedTime backdriveTimer = new ElapsedTime();
 
     // --------------
     // INITIALIZATION
@@ -64,6 +71,7 @@ public class Intake
             throw new IllegalStateException("gate servo not found in hardware map. Check robot configuration.");
         }
 
+        backdriveTimer.reset();
 
         gate.setPosition(0.6);
     }
@@ -121,9 +129,16 @@ public class Intake
     }
 
     public void update() {
+
         if (isForceIntaking) {
             innerIntakeMotor.setPower(0.9);
             outerIntakeMotor.setPower(1);
+        } else if (backdriving) {
+            innerIntakeMotor.setPower(-1);
+            if (backdriveTimer.seconds() > 0.15) backdriving = false;
+        } else if (lastIsForceIntaking) {
+            backdriving = true;
+            backdriveTimer.reset();
         } else if (isIntaking) {
             // Set power first
             innerIntakeMotor.setPower(0.9);
@@ -145,5 +160,7 @@ public class Intake
             innerIntakeMotor.setPower(0);
             outerIntakeMotor.setPower(0);
         }
+
+        lastIsForceIntaking = isForceIntaking;
     }
 }

@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.Robot.HardwareManager;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Disabled
-@Autonomous(name = "Red Far Leviathan", group = "Autonomous", preselectTeleOp = "TeleOp")
+@Autonomous(name = "Red Far Leviathan", group = "Autonomous", preselectTeleOp = "tele")
 public class redFarLeviathan extends OpMode {
 
     private Follower follower;

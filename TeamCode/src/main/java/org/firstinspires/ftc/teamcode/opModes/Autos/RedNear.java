@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
 import org.firstinspires.ftc.teamcode.Robot.HardwareManager;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Red Near", group = "Autonomous", preselectTeleOp = "TeleOp")
+@Autonomous(name = "Red Near", group = "Autonomous", preselectTeleOp = "tele")
 public class RedNear extends OpMode {
 
     private Follower follower;
