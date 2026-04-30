@@ -146,7 +146,7 @@ public class BlueNearGateCTS extends OpMode {
 
                     if (shooterTimer.getElapsedTime() > 10)
                     {
-                        hw.intake.intake();
+                        hw.intake.forceIntake();
                     }
                     if (shooterTimer.getElapsedTime() > 2000)
                     {
@@ -191,7 +191,7 @@ public class BlueNearGateCTS extends OpMode {
 
                     if (shooterTimer.getElapsedTime() > 500)
                     {
-                        hw.intake.intake();
+                        hw.intake.forceIntake();
                     }
                     if (shooterTimer.getElapsedTime() > 2000)
                     {
@@ -246,7 +246,7 @@ public class BlueNearGateCTS extends OpMode {
                     hw.intake.openGate();
                     if (shooterTimer.getElapsedTime() > 500)
                     {
-                        hw.intake.intake();
+                        hw.intake.forceIntake();
                     }
                     if (shooterTimer.getElapsedTime() > 2000)
                     {
@@ -293,7 +293,7 @@ public class BlueNearGateCTS extends OpMode {
                     hw.intake.openGate();
                     if (shooterTimer.getElapsedTime() > 500)
                     {
-                        hw.intake.intake();
+                        hw.intake.forceIntake();
                     }
                     if (shooterTimer.getElapsedTime() > 2000)
                     {
