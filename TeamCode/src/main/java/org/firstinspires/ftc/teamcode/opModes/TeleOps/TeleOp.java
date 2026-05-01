@@ -235,25 +235,36 @@ public class TeleOp extends OpMode
             hw.intake.toggle();
         }
 
+        if (hw.drivetrain.isBraking) {
+            hw.lights.setLightColor(RGBLightController.ORANGE);
+        } else {
+            hw.lights.setLightColor(side == Field.Side.BLUE ? RGBLightController.BLUE : RGBLightController.RED);
+        }
+
+//        if (gamepad1.rightBumperWasPressed())
+//        {
+//            if (ParkStatus == parkStatus.NOT_PARKED)
+//            {
+//                isParking = true;
+//                hw.drivetrain.mobilePark();
+//                ParkStatus = parkStatus.MOBILE_PARKED;
+//            }
+//            else if (ParkStatus == parkStatus.MOBILE_PARKED)
+//            {
+//                hw.drivetrain.park();
+//                ParkStatus = parkStatus.FULL_PARKED;
+//            }
+//            else
+//            {
+//                isParking = false;
+//                hw.drivetrain.unpark();
+//                ParkStatus = parkStatus.NOT_PARKED;
+//            }
+//        }
+
         if (gamepad1.rightBumperWasPressed())
         {
-            if (ParkStatus == parkStatus.NOT_PARKED)
-            {
-                isParking = true;
-                hw.drivetrain.mobilePark();
-                ParkStatus = parkStatus.MOBILE_PARKED;
-            }
-            else if (ParkStatus == parkStatus.MOBILE_PARKED)
-            {
-                hw.drivetrain.park();
-                ParkStatus = parkStatus.FULL_PARKED;
-            }
-            else
-            {
-                isParking = false;
-                hw.drivetrain.unpark();
-                ParkStatus = parkStatus.NOT_PARKED;
-            }
+            hw.drivetrain.isBraking = !hw.drivetrain.isBraking;
         }
 
         if (gamepad1.left_bumper)
@@ -265,6 +276,12 @@ public class TeleOp extends OpMode
             hw.drivetrain.speedUp();
         }
 
+        if (gamepad2.dpadUpWasPressed()) {
+            hw.drivetrain.incrementPark(0.01);
+        } else if (gamepad2.dpadDownWasPressed()) {
+            hw.drivetrain.incrementPark(-0.01);
+        }
+
 
         // --- 12. Real-time goal adjustment (dpad) — Issue 5 fix -----------------
         // Fixed: now uses startingSide (was checking null 'side' variable)
@@ -272,21 +289,24 @@ public class TeleOp extends OpMode
         double goalY = goalPosition.getY(DistanceUnit.INCH);
         boolean goalChanged = false;
 
+        double incrementValue = 2.5;
+
         if (startingSide == Field.Side.BLUE) {
-            if      (gamepad1.dpadUpWasPressed())    { goalX -= 1; goalChanged = true; }
-            else if (gamepad1.dpadDownWasPressed())  { goalX += 1; goalChanged = true; }
-            else if (gamepad1.dpadLeftWasPressed())  { goalY -= 1; goalChanged = true; }
-            else if (gamepad1.dpadRightWasPressed()) { goalY += 1; goalChanged = true; }
+            if      (gamepad1.dpadUpWasPressed())    { goalX -= incrementValue; goalChanged = true; }
+            else if (gamepad1.dpadDownWasPressed())  { goalX += incrementValue; goalChanged = true; }
+            else if (gamepad1.dpadLeftWasPressed())  { goalY -= incrementValue; goalChanged = true; }
+            else if (gamepad1.dpadRightWasPressed()) { goalY += incrementValue; goalChanged = true; }
         } else {
-            if      (gamepad1.dpadUpWasPressed())    { goalX += 1; goalChanged = true; }
-            else if (gamepad1.dpadDownWasPressed())  { goalX -= 1; goalChanged = true; }
-            else if (gamepad1.dpadLeftWasPressed())  { goalY += 1; goalChanged = true; }
-            else if (gamepad1.dpadRightWasPressed()) { goalY -= 1; goalChanged = true; }
+            if      (gamepad1.dpadUpWasPressed())    { goalX += incrementValue; goalChanged = true; }
+            else if (gamepad1.dpadDownWasPressed())  { goalX -= incrementValue; goalChanged = true; }
+            else if (gamepad1.dpadLeftWasPressed())  { goalY += incrementValue; goalChanged = true; }
+            else if (gamepad1.dpadRightWasPressed()) { goalY -= incrementValue; goalChanged = true; }
         }
 
         if (goalChanged) {
             goalPosition = new Pose2D(DistanceUnit.INCH, goalX, goalY,
                     AngleUnit.RADIANS, goalPosition.getHeading(AngleUnit.RADIANS));
+            goalChanged = false;
         }
 
         if (gamepad1.optionsWasPressed())
@@ -369,6 +389,8 @@ public class TeleOp extends OpMode
         telemetry.addLine("Continuous Heading: " + hw.turret.continuousHeading);
         telemetry.addLine("Targeting: " + isTargeting);
         telemetry.addLine("Parked: " + hw.drivetrain.isParked);
+        telemetry.addLine("Park Position: " + hw.drivetrain.park1.getPosition());
+        telemetry.addLine("Goal Position: " + PoseUtils.poseToString(goalPosition, DistanceUnit.INCH, AngleUnit.DEGREES));
 //        telemetry.addLine("Hood Target Position: " + String.format(Locale.US, "%.2f", hw.turret.getHoodTarget()));
 //        telemetry.addLine("Flywheel Target Velocity: " + String.format(Locale.US, "%.2f", hw.turret.getCurrentVelocity()));
         telemetry.addLine("Position: " + PoseUtils.poseToString(pos, DistanceUnit.INCH, AngleUnit.DEGREES));

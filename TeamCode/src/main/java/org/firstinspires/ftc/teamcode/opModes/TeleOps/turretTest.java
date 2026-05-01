@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.Classes.Field;
 import org.firstinspires.ftc.teamcode.Classes.PoseUtils;
 import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
 import org.firstinspires.ftc.teamcode.Robot.HardwareManager;
+import org.firstinspires.ftc.teamcode.Robot.Subsystems.Turret;
 
 import java.util.Locale;
 
@@ -100,6 +101,8 @@ public class turretTest extends OpMode
         hw.pinpoint.setPosition(storedLocation);
 
         hw.lights.setLightMode(RGBLightController.LEDMode.WAKE);
+
+        hw.turret.isManuallySetting = true;
 
         totalRuntime.reset();
         targetingDelayRuntime.reset();

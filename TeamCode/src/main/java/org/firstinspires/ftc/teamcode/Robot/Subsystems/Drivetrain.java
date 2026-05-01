@@ -50,7 +50,7 @@ public class Drivetrain
     // Switches
     public boolean isParked    = false;
     public boolean isTargeting = false;
-
+    public boolean isBraking = true;
 
     // Field-Centric
     double offset = 0;
@@ -124,8 +124,7 @@ public class Drivetrain
         if (park2 == null)
             throw new IllegalStateException("park2 servo not found. Check robot configuration.");
 
-        park1.setPosition(0 + startingParkPosition);
-        park2.setPosition(1 - startingParkPosition);
+        setPark(0.49);
 
         rotationPID.setTarget(0);
         rotationPID.setTolerance(Math.toRadians(1.0));
@@ -205,6 +204,12 @@ public class Drivetrain
 
         rotationPID.setPIDFCoefficients(KpVal, KiVal, KdVal, KfVal);
 
+        if (opmode.gamepad1.right_trigger > 0.05 && isBraking){
+            setPark(0.59);
+        } else {
+            setPark(0.49);
+        }
+
         // --- Rotation axis priority ---
         double finalRotate;
         if (externalRotation != null) {
@@ -277,8 +282,18 @@ public class Drivetrain
     public void unpark()
     {
         isParked = false;
-        park1.setPosition(0 + startingParkPosition);
-        park2.setPosition(1 - startingParkPosition);
+        setPark(startingParkPosition);
+    }
+
+    public void incrementPark(double value)
+    {
+        setPark(park1.getPosition() + value);
+    }
+
+    public void setPark(double position)
+    {
+        park1.setPosition(position);
+        park2.setPosition(1 - position);
     }
 
     public void slowDown() { drivePower = SLOW_DRIVING_SPEED; }

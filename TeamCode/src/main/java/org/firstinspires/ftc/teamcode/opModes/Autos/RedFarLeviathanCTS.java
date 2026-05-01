@@ -117,6 +117,7 @@ public class RedFarLeviathanCTS extends OpMode {
             case 0:
                 hw.turret.spinUpFlywheel();
                 shooterTimer.resetTimer();
+                hw.turret.setTarget(follower.getPose(), goalPosition);
                 setPathState(1);
                 break;
 
@@ -241,7 +242,6 @@ public class RedFarLeviathanCTS extends OpMode {
         hw.turret.update();
         hw.intake.update();
 
-        hw.turret.setTarget(follower.getPose(), goalPosition);
         hw.turret.updateFlywheelAndHood(follower.getPose(), goalPosition);
 
         Field.lastKnownPosition = new Pose2D(

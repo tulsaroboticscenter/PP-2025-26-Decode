@@ -36,7 +36,7 @@ public class Turret
     public boolean isTargeting = false;
     // Turret facing backwards initially instead of forwards?
     public static boolean reversePolarity = true;
-    public static boolean isManuallySetting = false;
+    public boolean isManuallySetting = false;
     public boolean isLeading = false;
 
     public double targetVelocity = 2400; // Refactored from velocity to targetVelocity for clarity
