@@ -34,7 +34,7 @@ public class Field {
 
     // Points of Interest
     public static final Pose2D blueGoal = new Pose2D(DistanceUnit.INCH, 5, 129, AngleUnit.DEGREES, 0);
-    public static final Pose2D redGoal = new Pose2D(DistanceUnit.INCH, 139, 137, AngleUnit.DEGREES, 0);
+    public static final Pose2D redGoal = new Pose2D(DistanceUnit.INCH, 139, 139, AngleUnit.DEGREES, 0);
     public static final Pose2D blueGoalLocal = new Pose2D(DistanceUnit.INCH, 100, -100, AngleUnit.DEGREES, 0);
     public static final Pose2D redGoalLocal = new Pose2D(DistanceUnit.INCH, -46, -70, AngleUnit.DEGREES, 0);
 
