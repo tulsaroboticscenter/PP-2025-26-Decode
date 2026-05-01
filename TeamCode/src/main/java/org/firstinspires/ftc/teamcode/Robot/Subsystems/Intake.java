@@ -73,7 +73,7 @@ public class Intake
 
         backdriveTimer.reset();
 
-        gate.setPosition(0.6);
+        closeGate();
     }
 
     // -------
@@ -120,12 +120,12 @@ public class Intake
 
     public void openGate()
     {
-        gate.setPosition(0.28);
+        gate.setPosition(0.24);
     }
 
     public void closeGate()
     {
-        gate.setPosition(0.6);
+        gate.setPosition(0.5);
     }
 
     public void update() {
