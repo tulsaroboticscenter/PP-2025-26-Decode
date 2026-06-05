@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.Classes.RGBLightController;
 import org.firstinspires.ftc.teamcode.Robot.HardwareManager;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Red Near Gate", group = "Autonomous", preselectTeleOp = "TeleOp")
+@Autonomous(name = "Red Near Gate change", group = "Autonomous", preselectTeleOp = "TeleOp")
 public class RedNearGate extends OpMode {
 
     private Follower follower;
@@ -35,9 +35,9 @@ public class RedNearGate extends OpMode {
     public Pose2D goalPosition = null;
 
     private final Pose startPose = new Pose(117.18446601941747, 133.11650485436894, Math.toRadians(-53.322));
-    private final Pose scorePose = new Pose(74, 77, Math.toRadians(0));
+    private final Pose scorePose = new Pose(85, 80, Math.toRadians(0));
     private final Pose intake1 = new Pose(120.7, 84.1, Math.toRadians(0));
-    private final Pose clearGate = new Pose(127, 77.2, Math.toRadians(90));
+    private final Pose clearGate = new Pose(126, 77.2, Math.toRadians(90));
     private final Pose gateControlPoint = new Pose(110, 69.1);
     private final Pose prepIntake2 = new Pose(95.2, 63, Math.toRadians(0));
     private final Pose intake2 = new Pose(125.4, 59.5, Math.toRadians(0));
