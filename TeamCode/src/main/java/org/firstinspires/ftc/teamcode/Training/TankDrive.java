@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Training.Hardware.HardwareManager;
 
 /*
-    test opmode to simulate tank drive but with meacanum wheels
+    test opmode to simulate tank drive but with mecanum wheels
 
  */
 @TeleOp(name="Tank Drive",group="Test")
