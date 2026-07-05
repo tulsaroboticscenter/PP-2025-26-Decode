@@ -4,6 +4,11 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+/*
+    demonstration of the ue of an enum data type for cleaner state machine
+    code. The enum data types are more flexible and user friendly than integers or
+    strings
+ */
 @Autonomous(name="ENUM State",group="Test")
 public class enumSwitchOpMode extends OpMode {
     enum OpModeState {
@@ -25,25 +30,25 @@ public class enumSwitchOpMode extends OpMode {
     public void loop() {
         telemetry.addData("Cur State",opModeState);
         switch (opModeState) {
-            case WAIT_FOR_A:
+            case WAIT_FOR_A:  // initial state waiting for driver to press A
                 telemetry.addLine("Press A to exit state");
                 if (gamepad1.a){
                     opModeState = OpModeState.WAIT_FOR_B;
                 }
                 break;
-            case WAIT_FOR_B:
+            case WAIT_FOR_B: // state after A pressed, waiting for press of B
                 telemetry.addLine("Press B to exit state");
                 if (gamepad1.b){
                     opModeState = OpModeState.WAIT_FOR_X;
                 }
                 break;
-            case WAIT_FOR_X:
+            case WAIT_FOR_X:  // third state waiting to press of X
                 telemetry.addLine("Press x to end");
                 if (gamepad1.x) {
                     opModeState = OpModeState.FINISHED;
                 }
                 break;
-            default:
+            default: // final state
                 telemetry.addLine("state finished");
         }
     }

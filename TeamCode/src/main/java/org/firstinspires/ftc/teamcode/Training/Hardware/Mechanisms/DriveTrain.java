@@ -6,6 +6,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+/*
+    class containing the drive train data types and movement methods
+ */
 public class DriveTrain {
     public DcMotorEx leftFront = null;
     public DcMotorEx rightFront = null;

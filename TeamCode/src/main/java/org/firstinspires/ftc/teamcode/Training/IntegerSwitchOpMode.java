@@ -4,6 +4,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+/*
+    demonstration opmode for state machine using the switch statement
+    a little cleaner but still difficult to know what each state represents
+ */
 @Autonomous(name="Integer Switch",group="Test")
 public class IntegerSwitchOpMode extends OpMode {
     int opModeState;
@@ -23,7 +27,7 @@ public class IntegerSwitchOpMode extends OpMode {
                     opModeState=1;
                 }
                 break;
-            case 1:
+            case 1: // hard to know what this state is supposed to do
                 telemetry.addLine("Press B to exit state");
                 if (gamepad1.b){
                     opModeState=2;

@@ -1,7 +1,11 @@
 package org.firstinspires.ftc.teamcode.Training;
 
 import org.jetbrains.annotations.NotNull;
-
+/*
+    demonstration of a java class to contain reusable methods
+    Note: this is NOT an opmode but a collection of methods
+    related to robot headings
+ */
 
 public class RobotLocation {
     double angleRadians;

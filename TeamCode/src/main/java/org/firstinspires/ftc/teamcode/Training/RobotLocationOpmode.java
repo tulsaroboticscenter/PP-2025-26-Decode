@@ -3,6 +3,9 @@ package org.firstinspires.ftc.teamcode.Training;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+/*
+    opmode to demonstrate the use of the class containing heading methods
+ */
 @TeleOp(name="Robot Location",group="Test")
 public class RobotLocationOpmode extends OpMode {
     RobotLocation robotLocation = new RobotLocation(0);

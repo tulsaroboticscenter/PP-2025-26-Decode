@@ -4,6 +4,11 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+/*
+    example of a state machine using multiple 'if' statements
+    difficult to read, difficult to debug but can be done
+
+ */
 @Autonomous(name="Integer State",group="Test")
 public class IntegerStateOpMode extends OpMode {
     int opModeState;
