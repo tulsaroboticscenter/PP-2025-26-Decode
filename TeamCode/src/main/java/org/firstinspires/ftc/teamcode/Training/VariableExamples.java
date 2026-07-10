@@ -19,6 +19,7 @@ public class VariableExamples  extends OpMode {
     private boolean clawOpened, motorsStopped, autoDone; // multiple variables on a line
 
     private String teamName = "Project Peacock"; // NOT a data type actually. strings are classes so they are capitalized
+private int teamNumber;
 
     @Override
     public void init() {
@@ -28,7 +29,7 @@ public class VariableExamples  extends OpMode {
         intakeDown = false;
         totalScore = 0;
 
-        int teamNumber = 10355; // only visible in the init method
+        teamNumber = 10355; // only visible in the init method
         telemetry.addData("Team",teamNumber);
         telemetry.addData("Team Name",teamName);
        }
