@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.GateServo;
  */
 public class HardwareManager {
     public HardwareMap hwMap = null;
-    public DriveTrain driveTrain = new DriveTrain();
+  //  public DriveTrain driveTrain = new DriveTrain();
  //   public ShooterHood shooterHood = new ShooterHood();
     public HoodServo hoodServo = new HoodServo();
     public GateServo gateServo = new GateServo();
@@ -23,7 +23,7 @@ public class HardwareManager {
 
     public void init(){
 
-        driveTrain.init(hwMap);
+ //       driveTrain.init(hwMap);
 //        shooterHood.init(hwMap);
         hoodServo.init(hwMap);
         gateServo.init(hwMap);
