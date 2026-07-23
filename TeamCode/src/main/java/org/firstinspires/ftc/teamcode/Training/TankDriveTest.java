@@ -11,10 +11,11 @@ import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.HoodServo;
     test opmode to simulate tank drive but with mecanum wheels
 
  */
-@TeleOp(name="Tank Drive",group="Test")
+@TeleOp(name = "Tank Drive", group = "Test")
 public class TankDriveTest extends OpMode {
 
     public HardwareManager hwMgr = new HardwareManager(hardwareMap);
+
     @Override
     public void init() {
 
@@ -23,19 +24,17 @@ public class TankDriveTest extends OpMode {
 
     @Override
     public void loop() {
-        hwMgr.driveTrain.driveRobot(-gamepad1.left_stick_y, gamepad1.left_stick_x);
+        hwMgr.driveTrain.driveRobotTank(-gamepad1.left_stick_y, gamepad1.left_stick_x);
 
-        if (gamepad1.dpad_up){
+        if (gamepad1.dpad_up) {
             hwMgr.hoodServo.moveHood(HoodServo.HoodDirection.UP);
-        }
-        else  if (gamepad1.dpad_down) {
+        } else if (gamepad1.dpad_down) {
             hwMgr.hoodServo.moveHood(HoodServo.HoodDirection.DOWN);
-        } else if (gamepad1.dpad_right){
-          hwMgr.gateServo.moveGate(GateServo.GateDirection.OPEN);
+        } else if (gamepad1.dpad_right) {
+            hwMgr.gateServo.moveGate(GateServo.GateDirection.OPEN);
+        } else if (gamepad1.dpad_left) {
+            hwMgr.gateServo.moveGate(GateServo.GateDirection.CLOSED);
         }
-        else if (gamepad1.dpad_left) {
-          hwMgr.gateServo.moveGate(GateServo.GateDirection.CLOSED);
-    }
 
 
     }

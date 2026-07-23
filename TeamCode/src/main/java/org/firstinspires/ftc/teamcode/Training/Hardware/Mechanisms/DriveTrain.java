@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
     class containing the drive train data types and movement methods
  */
 public class DriveTrain {
+    double maxPower = 1.0;
     public DcMotorEx leftFront = null;
     public DcMotorEx rightFront = null;
     public DcMotorEx leftBack = null;
@@ -38,8 +39,9 @@ public class DriveTrain {
         rightBack.setZeroPowerBehavior(BRAKE);
 
     }
-    public void driveRobot(double fwdPower, double rotate) {
-        double maxPower = 1.0;
+
+    // tank drive method
+    public void driveRobotTank(double fwdPower, double rotate) {
 
         double frontLeftPower = fwdPower + rotate;
         double backLeftPower = fwdPower + rotate;
@@ -57,5 +59,28 @@ public class DriveTrain {
         rightBack.setPower(backRightPower / maxPower);
     }
 
+    // mechanum drive base - robot centric
+    public void driveRobotMecanum(double fwdPower, double strafe, double rotate){
+
+
+        double frontLeftPower = fwdPower + strafe + rotate;
+        double backLeftPower = fwdPower - strafe + rotate;
+        double frontRightPower = fwdPower - strafe - rotate;
+        double backRightPower = fwdPower + strafe - rotate;
+
+        maxPower = Math.max(maxPower, Math.abs(frontLeftPower));
+        maxPower = Math.max(maxPower, Math.abs(backLeftPower));
+        maxPower = Math.max(maxPower, Math.abs(frontRightPower));
+        maxPower = Math.max(maxPower, Math.abs(backRightPower));
+
+        leftFront.setPower(frontLeftPower / maxPower);
+        leftBack.setPower(backLeftPower / maxPower);
+        rightFront.setPower(frontRightPower / maxPower);
+        rightBack.setPower(backRightPower / maxPower);
+    }
+
+    public void driveRobotField(double fwdPower, double strafe, double rotate) {
 
     }
+
+}
