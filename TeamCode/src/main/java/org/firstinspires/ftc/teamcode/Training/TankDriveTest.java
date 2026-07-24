@@ -2,25 +2,35 @@ package org.firstinspires.ftc.teamcode.Training;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.Training.Hardware.HardwareManager;
-import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.HoodServo;
 import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.GateServo;
+import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.HoodServo;
 
-@TeleOp(name="Shooter Test",group="Test")
-public class ShooterHoodTest extends OpMode {
+/*
+    test opmode to simulate tank drive but with mecanum wheels
 
-    private HardwareManager hwMgr = new HardwareManager(hardwareMap);
+ */
+@TeleOp(name = "Tank Drive", group = "Test")
+public class TankDriveTest extends OpMode {
+
+    public HardwareManager hwMgr = new HardwareManager(hardwareMap);
+
     @Override
     public void init() {
+<<<<<<< HEAD:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Training/ShooterHoodTest.java
        hwMgr.init(hardwareMap);
 
+=======
+>>>>>>> 37c8a629381ad7fc7ec1e233f04c1073247ec1e1:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Training/TankDriveTest.java
 
+        hwMgr.init(hardwareMap);
     }
 
     @Override
     public void loop() {
+        hwMgr.driveTrain.driveRobotTank(-gamepad1.left_stick_y, gamepad1.left_stick_x);
+
         if (gamepad1.dpad_up) {
             hwMgr.hoodServo.moveHood(HoodServo.HoodDirection.UP);
         } else if (gamepad1.dpad_down) {
@@ -30,5 +40,7 @@ public class ShooterHoodTest extends OpMode {
         } else if (gamepad1.dpad_left) {
             hwMgr.gateServo.moveGate(GateServo.GateDirection.CLOSED);
         }
+
+
     }
 }
