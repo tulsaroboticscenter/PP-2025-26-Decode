@@ -21,7 +21,7 @@ public class HardwareManager {
         this.hwMap = hwMap;
     }
 
-    public void init(){
+    public void init(HardwareMap hwMap){
 
         driveTrain.init(hwMap);
 //        shooterHood.init(hwMap);

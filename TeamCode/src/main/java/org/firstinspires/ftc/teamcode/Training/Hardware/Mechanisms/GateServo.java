@@ -18,7 +18,7 @@ public class GateServo {
     GateDirection gateDirection = GateDirection.CLOSED;
 
     public void init(HardwareMap hwMap){
-        gateServo = hwMap.get(Servo.class,"hoodServoR");
+        gateServo = hwMap.get(Servo.class,"gate");
 
         gateServo.setDirection(Servo.Direction.REVERSE);
 

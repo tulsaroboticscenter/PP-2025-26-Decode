@@ -15,7 +15,7 @@ public class TankDrive extends OpMode {
     private HardwareManager hwMgr = new HardwareManager(hardwareMap);
     @Override
     public void init() {
-        hwMgr.init();
+        hwMgr.init(hardwareMap);
     }
 
     @Override

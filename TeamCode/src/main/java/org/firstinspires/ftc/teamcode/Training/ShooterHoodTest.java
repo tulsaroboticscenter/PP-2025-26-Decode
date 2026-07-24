@@ -14,7 +14,7 @@ public class ShooterHoodTest extends OpMode {
     private HardwareManager hwMgr = new HardwareManager(hardwareMap);
     @Override
     public void init() {
-       hwMgr.init();
+       hwMgr.init(hardwareMap);
 
 
     }
