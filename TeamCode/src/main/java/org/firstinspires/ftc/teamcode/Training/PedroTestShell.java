@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.pedropathing.util.Timer;
 
+import org.firstinspires.ftc.teamcode.Training.Hardware.HardwareManager;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Autonomous
@@ -15,6 +16,8 @@ public class PedroTestShell extends OpMode {
 
     private Follower follower;
     private Timer pathTimer, opModeTimer;
+    public HardwareManager hwMgr = new HardwareManager(hardwareMap);
+
 
     public enum PathState {
          DRIVE_START_TO_FIRSTPOSITION,
@@ -87,6 +90,7 @@ public class PedroTestShell extends OpMode {
         pathTimer = new Timer();
         opModeTimer = new Timer();
 
+        hwMgr.init(hardwareMap);
         follower = Constants.createFollower(hardwareMap);
 
         buildPaths();

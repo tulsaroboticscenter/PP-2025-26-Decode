@@ -18,13 +18,7 @@ public class TankDriveTest extends OpMode {
 
     @Override
     public void init() {
-<<<<<<< HEAD:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Training/ShooterHoodTest.java
        hwMgr.init(hardwareMap);
-
-=======
->>>>>>> 37c8a629381ad7fc7ec1e233f04c1073247ec1e1:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Training/TankDriveTest.java
-
-        hwMgr.init(hardwareMap);
     }
 
     @Override
