@@ -6,6 +6,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+
 /*
     class containing the drive train data types and movement methods
  */
@@ -79,8 +82,22 @@ public class DriveTrain {
         rightBack.setPower(backRightPower / maxPower);
     }
 
-    public void driveRobotField(double fwdPower, double strafe, double rotate) {
+    public void driveRobotField(double fwdPower, double strafe, double rotate, Pose2D currentPosition) {
+        // First, convert direction being asked to drive to polar coordinates
+        double currentHeadingRadians = currentPosition.getHeading(AngleUnit.RADIANS);
+        double theta = Math.atan2(fwdPower, strafe);
+        double r = Math.hypot(strafe, fwdPower);
 
+        // Second, rotate angle by the angle the robot is pointing
+
+        theta = AngleUnit.normalizeRadians(theta - currentHeadingRadians);
+
+        // Third, convert back to cartesian
+        double newForward = r * Math.sin(theta);
+        double newRight = r * Math.cos(theta);
+
+        // Finally, call the drive method with robot relative forward and right amounts
+        driveRobotMecanum(newForward, newRight, rotate);
     }
 
 }
