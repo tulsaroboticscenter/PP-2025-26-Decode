@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.Training;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 /* demonstration of a method within a class
     'squareInputWithSign'
  */
+@Disabled
 @TeleOp(name="Squared")
 public class ClassMethodOpMode extends OpMode {
     @Override

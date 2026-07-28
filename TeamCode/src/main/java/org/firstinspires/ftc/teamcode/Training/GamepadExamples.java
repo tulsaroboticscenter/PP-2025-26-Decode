@@ -1,8 +1,9 @@
 package org.firstinspires.ftc.teamcode.Training;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
+@Disabled
 @TeleOp(name="test gamepad program")
 public class GamepadExamples extends OpMode {
    private boolean initDone;

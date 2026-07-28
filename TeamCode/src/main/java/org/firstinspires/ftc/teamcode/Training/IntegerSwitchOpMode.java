@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Training;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -8,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
     demonstration opmode for state machine using the switch statement
     a little cleaner but still difficult to know what each state represents
  */
+@Disabled
 @Autonomous(name="Integer Switch",group="Test")
 public class IntegerSwitchOpMode extends OpMode {
     int opModeState;

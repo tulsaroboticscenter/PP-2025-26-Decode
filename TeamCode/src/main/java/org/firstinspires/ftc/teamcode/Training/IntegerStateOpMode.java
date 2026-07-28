@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Training;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -9,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
     difficult to read, difficult to debug but can be done
 
  */
+@Disabled
 @Autonomous(name="Integer State",group="Test")
 public class IntegerStateOpMode extends OpMode {
     int opModeState;
