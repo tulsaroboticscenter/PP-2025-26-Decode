@@ -82,15 +82,15 @@ public class DriveTrain {
         rightBack.setPower(backRightPower / maxPower);
     }
 
-    public void driveRobotField(double fwdPower, double strafe, double rotate, Pose2D currentPosition) {
+    public void driveRobotField(double fwdPower, double strafe, double rotate, double curPosRadians ) {
         // First, convert direction being asked to drive to polar coordinates
-        double currentHeadingRadians = currentPosition.getHeading(AngleUnit.RADIANS);
+
         double theta = Math.atan2(fwdPower, strafe);
         double r = Math.hypot(strafe, fwdPower);
 
         // Second, rotate angle by the angle the robot is pointing
 
-        theta = AngleUnit.normalizeRadians(theta - currentHeadingRadians);
+        theta = AngleUnit.normalizeRadians(theta - curPosRadians);
 
         // Third, convert back to cartesian
         double newForward = r * Math.sin(theta);
