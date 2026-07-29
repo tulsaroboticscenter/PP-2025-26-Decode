@@ -1,9 +1,8 @@
-package org.firstinspires.ftc.teamcode.Training;
+package org.firstinspires.ftc.teamcode.Training.OpModes.Auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 /*
     example of a state machine using multiple 'if' statements

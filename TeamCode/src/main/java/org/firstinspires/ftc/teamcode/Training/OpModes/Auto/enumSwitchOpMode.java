@@ -1,14 +1,15 @@
-package org.firstinspires.ftc.teamcode.Training;
+package org.firstinspires.ftc.teamcode.Training.OpModes.Auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 /*
     demonstration of the ue of an enum data type for cleaner state machine
     code. The enum data types are more flexible and user friendly than integers or
     strings
  */
+@Disabled
 @Autonomous(name="ENUM State",group="Test")
 public class enumSwitchOpMode extends OpMode {
     enum OpModeState {

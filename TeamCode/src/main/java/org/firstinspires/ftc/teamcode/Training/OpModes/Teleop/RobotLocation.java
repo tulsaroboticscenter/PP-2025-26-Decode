@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Training;
+package org.firstinspires.ftc.teamcode.Training.OpModes.Teleop;
 
 import org.jetbrains.annotations.NotNull;
 /*
