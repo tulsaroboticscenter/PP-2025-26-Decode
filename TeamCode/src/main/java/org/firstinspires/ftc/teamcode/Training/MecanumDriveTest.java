@@ -26,7 +26,7 @@ public class MecanumDriveTest extends OpMode {
 
         imu = hardwareMap.get(IMU.class,"imu");
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection =
-                RevHubOrientationOnRobot.LogoFacingDirection.UP;
+                RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
         RevHubOrientationOnRobot.UsbFacingDirection usbDirection =
                 RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
         RevHubOrientationOnRobot orientationOnRobot = new
@@ -62,6 +62,7 @@ public class MecanumDriveTest extends OpMode {
             // robot centric
             hwMgr.driveTrain.driveRobotMecanum(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
         }
+        telemetry.addData("Field centric =",fieldCentric);
 
 
 
