@@ -1,18 +1,18 @@
-package org.firstinspires.ftc.teamcode.Training.OpModes.Auto;
+package org.firstinspires.ftc.teamcode.Training.OpModes.Eli;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
+import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.pedropathing.util.Timer;
 
 import org.firstinspires.ftc.teamcode.Training.Hardware.HardwareManager;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous
-public class PedroTestShell extends OpMode {
+@Autonomous(name="ELI PEDRO PATH")
+public class ELIPedroTestShell extends OpMode {
 // declare follower & path timer
     private Follower follower;
     private Timer pathTimer, opModeTimer;
@@ -31,9 +31,9 @@ public class PedroTestShell extends OpMode {
 
     // declare poses for each path position
     private final Pose startPosition = new Pose(94.50173310225304,8.490467937608313,Math.toRadians(90));
-    private final Pose firstPosition = new Pose(94.50173310225304,46.83968804159445,Math.toRadians(90));
-    private final Pose secondPosition = new Pose(70.51707362133854,70.40775472944924);
-    private final Pose endPosition = new Pose(94.75800391781453,93.79117400061122);
+    private final Pose firstPosition = new Pose(94.50173310225304,118.20277296360484,Math.toRadians(90));
+    private final Pose secondPosition = new Pose(46.82365670568016,117.9596904090719,Math.toRadians(90));
+    private final Pose endPosition = new Pose(49.469645916229155,18.71164494020364,Math.toRadians(90));
 
     // declare pathchains for each path
     private PathChain driveStartToFirst, driveFirstToSecond,driveSecondToEnd;
@@ -47,11 +47,11 @@ public class PedroTestShell extends OpMode {
 
         driveFirstToSecond = follower.pathBuilder()
                 .addPath(new BezierLine(firstPosition,secondPosition))
-                .setTangentHeadingInterpolation()
+                .setLinearHeadingInterpolation(firstPosition.getHeading(),secondPosition.getHeading())
                 .build();
         driveSecondToEnd = follower.pathBuilder()
                 .addPath(new BezierLine(secondPosition,endPosition))
-                .setTangentHeadingInterpolation()
+                .setLinearHeadingInterpolation(secondPosition.getHeading(),endPosition.getHeading())
                 .build();
     }
 
