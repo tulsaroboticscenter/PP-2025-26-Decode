@@ -11,7 +11,7 @@ import com.pedropathing.util.Timer;
 import org.firstinspires.ftc.teamcode.Training.Hardware.HardwareManager;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous
+@Autonomous(name="pedroTest2")
 public class PedroTestShell extends OpMode {
 // declare follower & path timer
     private Follower follower;
@@ -20,23 +20,25 @@ public class PedroTestShell extends OpMode {
 
 // create states by paths & actions
     public enum PathState {
-         DRIVE_START_TO_FIRSTPOSITION,
-        DRIVE_TO_SECONDPOSITION,
+         DRIVE_START_TO_FIRST_POSITION,
+        DRIVE_TO_SECOND_POSITION,
         ACTION_FIRST_POSITION,
-        DRIVE_TO_ENDPOSITION,
+        DRIVE_TO_END_POSITION,
+    DRIVE_TO_THIRD_POSITION,
         PARK
     }
 
     private PathState pathState;
 
     // declare poses for each path position
-    private final Pose startPosition = new Pose(94.50173310225304,8.490467937608313,Math.toRadians(90));
-    private final Pose firstPosition = new Pose(94.50173310225304,46.83968804159445,Math.toRadians(90));
-    private final Pose secondPosition = new Pose(70.51707362133854,70.40775472944924);
-    private final Pose endPosition = new Pose(94.75800391781453,93.79117400061122);
+    private final Pose startPosition = new Pose(56,8,Math.toRadians(90));
+    private final Pose firstPosition = new Pose(56,36,Math.toRadians(90));
+    private final Pose secondPosition = new Pose(23.51864030784161,47.06881842120114);
+    private final Pose thirdPosition = new Pose(24.1251741235423,71.46995843021472);
+    private final Pose endPosition = new Pose (54.61318226639513, 100.49472548616492);
 
     // declare pathchains for each path
-    private PathChain driveStartToFirst, driveFirstToSecond,driveSecondToEnd;
+    private PathChain driveStartToFirst, driveFirstToSecond,driveSecondToThird, driveThirdToEnd;
 
     // build paths for each path chain
     public void buildPaths(){
@@ -49,15 +51,19 @@ public class PedroTestShell extends OpMode {
                 .addPath(new BezierLine(firstPosition,secondPosition))
                 .setTangentHeadingInterpolation()
                 .build();
-        driveSecondToEnd = follower.pathBuilder()
-                .addPath(new BezierLine(secondPosition,endPosition))
+        driveSecondToThird = follower.pathBuilder()
+                .addPath(new BezierLine(secondPosition,thirdPosition))
+                .setTangentHeadingInterpolation()
+                .build();
+        driveThirdToEnd = follower.pathBuilder()
+                .addPath((new BezierLine(thirdPosition,endPosition)))
                 .setTangentHeadingInterpolation()
                 .build();
     }
 
     public void statePathUpdate(){
         switch(pathState){
-            case DRIVE_START_TO_FIRSTPOSITION:
+            case DRIVE_START_TO_FIRST_POSITION:
                 follower.followPath(driveStartToFirst,true);
                 setPathState(PathState.ACTION_FIRST_POSITION);
 
@@ -65,21 +71,27 @@ public class PedroTestShell extends OpMode {
             case ACTION_FIRST_POSITION:
                 if (!follower.isBusy()  && pathTimer.getElapsedTimeSeconds() > 5){
                     telemetry.addLine("first action");
-                    setPathState(PathState.DRIVE_TO_SECONDPOSITION);
+                    setPathState(PathState.DRIVE_TO_SECOND_POSITION);
                                     }
                 break;
-            case DRIVE_TO_SECONDPOSITION:
+            case DRIVE_TO_SECOND_POSITION:
                 if (!follower.isBusy()){
                     follower.followPath(driveFirstToSecond,true);
-                    setPathState(PathState.DRIVE_TO_ENDPOSITION);
+                    setPathState(PathState.DRIVE_TO_THIRD_POSITION);
                 }
                 break;
-            case DRIVE_TO_ENDPOSITION:
+            case DRIVE_TO_THIRD_POSITION:
                 if (!follower.isBusy()){
-                    follower.followPath(driveSecondToEnd);
+                    follower.followPath(driveSecondToThird);
+                    setPathState(PathState.DRIVE_TO_END_POSITION);
+                }
+                break;
+                
+            case DRIVE_TO_END_POSITION:
+                if (!follower.isBusy()){
+                    follower.followPath(driveThirdToEnd);
                     setPathState(PathState.PARK);
                 }
-                break;
             case PARK:
                 if (!follower.isBusy()){
                     stop();
@@ -97,7 +109,7 @@ public class PedroTestShell extends OpMode {
 
     @Override
     public void init() {
-        pathState = PathState.DRIVE_START_TO_FIRSTPOSITION;
+        pathState = PathState.DRIVE_START_TO_FIRST_POSITION;
         pathTimer = new Timer();
         opModeTimer = new Timer();
 
