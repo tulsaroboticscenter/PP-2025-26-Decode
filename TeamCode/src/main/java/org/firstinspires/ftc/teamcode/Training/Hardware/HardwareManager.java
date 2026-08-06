@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.DriveTrain;
 import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.HoodServo;
 import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.GateServo;
+import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.PinPoint;
 
 
 /*
@@ -12,15 +13,18 @@ import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.GateServo;
  */
 public class HardwareManager {
     public HardwareMap hwMap = null;
-    public DriveTrain driveTrain = new DriveTrain();
-    public HoodServo hoodServo = new HoodServo();
-    public GateServo gateServo = new GateServo();
-
-
     public HardwareManager(HardwareMap hwMap) {
 
         this.hwMap = hwMap;
     }
+
+    public DriveTrain driveTrain = new DriveTrain();
+    public HoodServo hoodServo = new HoodServo();
+    public GateServo gateServo = new GateServo();
+    public PinPoint pinPoint = new PinPoint();
+
+
+
 
 
     public void init(HardwareMap hwMap) {
@@ -29,6 +33,8 @@ public class HardwareManager {
         driveTrain.init(hwMap);
         hoodServo.init(hwMap);
         gateServo.init(hwMap);
+        pinPoint.init(hwMap);
+
 
     }
 }
