@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.Training.OpModes.Auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -11,12 +10,20 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Training.Hardware.HardwareManager;
 
 
-@TeleOp(name = "Pinpoint Example 1")
-public class PinPointExample1 extends OpMode {
+@TeleOp(name = "Pinpoint PID Example")
+public class PinPointPIDExample extends OpMode {
   private HardwareManager hwMgr = new HardwareManager(hardwareMap);
   Double PosX;
   Double PosY;
   Double CurHeading;
+
+  static final double kP = 0.001;
+  static final double kI = 0.01;
+  static final double kD = 0.001;
+
+    double lastError = 0.0;
+    ElapsedTime PIDTimer;
+
 
   public enum PathState {
       DRIVE_START_TO_FIRST_POSITION,
@@ -52,6 +59,7 @@ public class PinPointExample1 extends OpMode {
         PosX = pose2D.getX(DistanceUnit.INCH);
         PosY = pose2D.getY(DistanceUnit.INCH);
         CurHeading = pose2D.getHeading(AngleUnit.DEGREES);
+        PIDTimer.reset();
 
         statePathUpdate();
 
@@ -64,7 +72,8 @@ public class PinPointExample1 extends OpMode {
                     hwMgr.driveTrain.driveRobotMecanum(0,0,0); // stop
                     setPathState(PathState.ROTATE_RIGHT);
                 } else {
-                    hwMgr.driveTrain.driveRobotField(.5,0,0,Math.toRadians(90));
+                    double power = setDistancePower(24,PosY);
+                    hwMgr.driveTrain.driveRobotField(power,0,0,Math.toRadians(90));
                 }
 
                 break;
@@ -80,6 +89,7 @@ public class PinPointExample1 extends OpMode {
             case DRIVE_TO_SECOND_POSITION:
                 hwMgr.driveTrain.driveRobotMecanum(.5,0,0);
                 if (PosX > 12 || pathTimer.seconds() > 2) {
+                    double power = setDistancePower(12,PosX);
                     setPathState(PathState.PARK);
                  }
                 break;
@@ -97,4 +107,15 @@ public class PinPointExample1 extends OpMode {
         pathTimer.reset();
     }
 
+    public double setDistancePower(double desiredDistance, double currentDistance){
+        double error = desiredDistance - currentDistance;
+        double derivative = (error - lastError) / pathTimer.seconds();
+        double power = (kP * error) + kI + (kD * derivative);
+
+        PIDTimer.reset();
+        lastError = error;
+
+        return power;
+
+    }
 }

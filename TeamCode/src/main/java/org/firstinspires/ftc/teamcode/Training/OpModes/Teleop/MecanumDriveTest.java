@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Training.Hardware.HardwareManager;
  */
 @TeleOp(name="Mecanum Drive",group="Test")
 public class MecanumDriveTest extends OpMode {
-    IMU imu;
+
     double curPosRadians;
     boolean fieldCentric = false;
     private HardwareManager hwMgr = new HardwareManager(hardwareMap);
@@ -24,39 +24,28 @@ public class MecanumDriveTest extends OpMode {
 
         hwMgr.init(hardwareMap);
 
-        imu = hardwareMap.get(IMU.class,"imu");
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection =
-                RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
-        RevHubOrientationOnRobot.UsbFacingDirection usbDirection =
-                RevHubOrientationOnRobot.UsbFacingDirection.DOWN;
-        RevHubOrientationOnRobot orientationOnRobot = new
-                RevHubOrientationOnRobot(logoDirection,usbDirection);
-        imu.initialize(new IMU.Parameters(orientationOnRobot));
-
-        imu.resetYaw();
-
         fieldCentric = false;
 
         telemetry.addLine("Press A to reset IMU");
         telemetry.addLine("Press X to toggle robot or field centric");
-       telemetry.addData("Field centric =",fieldCentric);
+        telemetry.addData("Field centric =",fieldCentric);
     }
 
     @Override
     public void loop() {
         // reset imu if button A pressed
         if (gamepad1.a){
-            imu.resetYaw();
+            hwMgr.imu.resetYaw();
+
         }
 
         // if button X, toggle field centric
         if (gamepad1.x){
             fieldCentric = !fieldCentric;
         }
-
         if (fieldCentric){
             // field centric
-            curPosRadians = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            curPosRadians = hwMgr.imu.getRobotYawPitchRollAnglesRadians();
             hwMgr.driveTrain.driveRobotField(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, curPosRadians);
         } else {
             // robot centric
