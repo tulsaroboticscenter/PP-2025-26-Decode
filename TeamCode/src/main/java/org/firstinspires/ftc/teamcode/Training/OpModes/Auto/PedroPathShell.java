@@ -4,15 +4,15 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
+import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.pedropathing.util.Timer;
 
 import org.firstinspires.ftc.teamcode.Training.Hardware.HardwareManager;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Autonomous(name="pedroTest2")
-public class PedroTestShell extends OpMode {
+public class PedroPathShell extends OpMode {
 // declare follower & path timer
     private Follower follower;
     private Timer pathTimer, opModeTimer;
@@ -24,8 +24,7 @@ public class PedroTestShell extends OpMode {
         DRIVE_TO_SECOND_POSITION,
         ACTION_FIRST_POSITION,
         DRIVE_TO_END_POSITION,
-    DRIVE_TO_THIRD_POSITION,
-        PARK
+            PARK
     }
 
     private PathState pathState;
@@ -34,11 +33,11 @@ public class PedroTestShell extends OpMode {
     private final Pose startPosition = new Pose(56,8,Math.toRadians(90));
     private final Pose firstPosition = new Pose(56,36,Math.toRadians(90));
     private final Pose secondPosition = new Pose(23.51864030784161,47.06881842120114);
-    private final Pose thirdPosition = new Pose(24.1251741235423,71.46995843021472);
+
     private final Pose endPosition = new Pose (54.61318226639513, 100.49472548616492);
 
     // declare pathchains for each path
-    private PathChain driveStartToFirst, driveFirstToSecond,driveSecondToThird, driveThirdToEnd;
+    private PathChain driveStartToFirst, driveFirstToSecond,driveSecondToEnd;
 
     // build paths for each path chain
     public void buildPaths(){
@@ -51,14 +50,11 @@ public class PedroTestShell extends OpMode {
                 .addPath(new BezierLine(firstPosition,secondPosition))
                 .setTangentHeadingInterpolation()
                 .build();
-        driveSecondToThird = follower.pathBuilder()
-                .addPath(new BezierLine(secondPosition,thirdPosition))
+        driveSecondToEnd = follower.pathBuilder()
+                .addPath(new BezierLine(secondPosition,endPosition))
                 .setTangentHeadingInterpolation()
                 .build();
-        driveThirdToEnd = follower.pathBuilder()
-                .addPath((new BezierLine(thirdPosition,endPosition)))
-                .setTangentHeadingInterpolation()
-                .build();
+
     }
 
     public void statePathUpdate(){
@@ -77,19 +73,14 @@ public class PedroTestShell extends OpMode {
             case DRIVE_TO_SECOND_POSITION:
                 if (!follower.isBusy()){
                     follower.followPath(driveFirstToSecond,true);
-                    setPathState(PathState.DRIVE_TO_THIRD_POSITION);
-                }
-                break;
-            case DRIVE_TO_THIRD_POSITION:
-                if (!follower.isBusy()){
-                    follower.followPath(driveSecondToThird);
                     setPathState(PathState.DRIVE_TO_END_POSITION);
                 }
                 break;
+
                 
             case DRIVE_TO_END_POSITION:
                 if (!follower.isBusy()){
-                    follower.followPath(driveThirdToEnd);
+                    follower.followPath(driveSecondToEnd);
                     setPathState(PathState.PARK);
                 }
             case PARK:
