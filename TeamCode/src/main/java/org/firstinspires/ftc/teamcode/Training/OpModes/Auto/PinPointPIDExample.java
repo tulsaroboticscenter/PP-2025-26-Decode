@@ -55,6 +55,7 @@ public class PinPointPIDExample extends OpMode {
     public void loop() {
 
         hwMgr.pinPoint.pinPoint.update();
+
         Pose2D pose2D = hwMgr.pinPoint.pinPoint.getPosition();
         PosX = pose2D.getX(DistanceUnit.INCH);
         PosY = pose2D.getY(DistanceUnit.INCH);
@@ -109,6 +110,18 @@ public class PinPointPIDExample extends OpMode {
 
     public double setDistancePower(double desiredDistance, double currentDistance){
         double error = desiredDistance - currentDistance;
+        double derivative = (error - lastError) / pathTimer.seconds();
+        double power = (kP * error) + kI + (kD * derivative);
+
+        PIDTimer.reset();
+        lastError = error;
+
+        return power;
+
+    }
+
+    public double setRotatePower(double desiredAngle, double currentAngle){
+        double error = desiredAngle  - currentAngle;
         double derivative = (error - lastError) / pathTimer.seconds();
         double power = (kP * error) + kI + (kD * derivative);
 
