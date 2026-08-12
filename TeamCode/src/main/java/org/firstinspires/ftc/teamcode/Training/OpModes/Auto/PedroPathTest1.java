@@ -136,7 +136,7 @@ public class PedroPathTest1 extends OpMode {
         pathTimer = new Timer();
         opModeTimer = new Timer();
 
-        hwMgr.init(hardwareMap);
+        hwMgr.init_auto(hardwareMap);
         follower = Constants.createFollower(hardwareMap);
 
         buildPaths();

@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Training.Hardware;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.DriveTrain;
 import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.HoodServo;
@@ -28,8 +27,15 @@ public class HardwareManager {
 
 
 
-    public void init(HardwareMap hwMap) {
+    public void init_auto(HardwareMap hwMap) {
 
+        hoodServo.init(hwMap);
+        gateServo.init(hwMap);
+        pinPoint.init(hwMap);
+        imu.init(hwMap);
+
+    }
+    public void init_teleop(HardwareMap hwMap) {
 
         driveTrain.init(hwMap);
         hoodServo.init(hwMap);

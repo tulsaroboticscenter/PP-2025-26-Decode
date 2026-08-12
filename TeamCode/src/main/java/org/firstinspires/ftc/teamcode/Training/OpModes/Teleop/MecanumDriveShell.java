@@ -19,7 +19,7 @@ public class MecanumDriveShell extends OpMode {
     @Override
     public void init() {
 
-        hwMgr.init(hardwareMap);
+        hwMgr.init_teleop(hardwareMap);
 
         fieldCentric = false;
 
