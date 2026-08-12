@@ -11,7 +11,7 @@ import com.pedropathing.util.Timer;
 import org.firstinspires.ftc.teamcode.Training.Hardware.HardwareManager;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name="pedroTest2")
+@Autonomous(name="pedroTest")
 public class PedroPathTest1 extends OpMode {
 // declare follower & path timer
     private Follower follower;
@@ -22,9 +22,11 @@ public class PedroPathTest1 extends OpMode {
     public enum PathState {
          DRIVE_START_TO_FIRST_POSITION,
         DRIVE_TO_SECOND_POSITION,
-        ACTION_FIRST_POSITION,
+        REAR_SHOOT_ACTION,
         DRIVE_TO_END_POSITION,
-    DRIVE_TO_THIRD_POSITION,
+    DRIVE_TO_SHOOT_POSITION_1,
+    DRIVE_TO_SHOOT_POSITION_2,
+    DRIVE_TO_INTAKE2,
         PARK
     }
 
@@ -32,13 +34,14 @@ public class PedroPathTest1 extends OpMode {
 
     // declare poses for each path position
     private final Pose startPosition = new Pose(56,8,Math.toRadians(90));
-    private final Pose firstPosition = new Pose(56,36,Math.toRadians(90));
-    private final Pose secondPosition = new Pose(23.51864030784161,47.06881842120114);
-    private final Pose thirdPosition = new Pose(24.1251741235423,71.46995843021472);
-    private final Pose endPosition = new Pose (54.61318226639513, 100.49472548616492);
+    private final Pose firstPosition = new Pose(47.47394136807817,35.259771986970684,Math.toRadians(180));
+    private final Pose secondPosition = new Pose(14.564609069440053,35.45605250635125);
+    private final Pose shootPosition = new Pose(69.59771986970684,23.967426710097715);
+    private final Pose intake2Position = new Pose (47.115782785471026, 58.891609084666584);
+    private final Pose endPosition = new Pose (105.65161340436354, 30.315061853396223);
 
     // declare pathchains for each path
-    private PathChain driveStartToFirst, driveFirstToSecond,driveSecondToThird, driveThirdToEnd;
+    private PathChain driveStartToFirst, driveFirstToSecond,driveSecondToShoot, driveShootToIntake2, driveIntake2ToShoot, driveShootToEnd;
 
     // build paths for each path chain
     public void buildPaths(){
@@ -49,14 +52,22 @@ public class PedroPathTest1 extends OpMode {
 
         driveFirstToSecond = follower.pathBuilder()
                 .addPath(new BezierLine(firstPosition,secondPosition))
+                .setLinearHeadingInterpolation(Math.toRadians(180),Math.toRadians(180))
+                .build();
+        driveSecondToShoot = follower.pathBuilder()
+                .addPath(new BezierLine(secondPosition,shootPosition))
+                .setLinearHeadingInterpolation(Math.toRadians(180),Math.toRadians(90))
+                .build();
+        driveShootToIntake2 = follower.pathBuilder()
+                .addPath((new BezierLine(shootPosition,intake2Position)))
                 .setTangentHeadingInterpolation()
                 .build();
-        driveSecondToThird = follower.pathBuilder()
-                .addPath(new BezierLine(secondPosition,thirdPosition))
-                .setTangentHeadingInterpolation()
+        driveIntake2ToShoot = follower.pathBuilder()
+                .addPath(new BezierLine(intake2Position, shootPosition))
+                .setLinearHeadingInterpolation(Math.toRadians(180),Math.toRadians(90))
                 .build();
-        driveThirdToEnd = follower.pathBuilder()
-                .addPath((new BezierLine(thirdPosition,endPosition)))
+        driveShootToEnd = follower.pathBuilder()
+                .addPath((new BezierLine(shootPosition, endPosition)))
                 .setTangentHeadingInterpolation()
                 .build();
     }
@@ -65,31 +76,43 @@ public class PedroPathTest1 extends OpMode {
         switch(pathState){
             case DRIVE_START_TO_FIRST_POSITION:
                 follower.followPath(driveStartToFirst,true);
-                setPathState(PathState.ACTION_FIRST_POSITION);
+                setPathState(PathState.DRIVE_TO_SECOND_POSITION);
 
                break;
-            case ACTION_FIRST_POSITION:
+            case REAR_SHOOT_ACTION:
                 if (!follower.isBusy()  && pathTimer.getElapsedTimeSeconds() > 5){
                     telemetry.addLine("first action");
-                    setPathState(PathState.DRIVE_TO_SECOND_POSITION);
+                    setPathState(PathState.DRIVE_TO_INTAKE2);
                                     }
                 break;
-            case DRIVE_TO_SECOND_POSITION:
-                if (!follower.isBusy()){
-                    follower.followPath(driveFirstToSecond,true);
-                    setPathState(PathState.DRIVE_TO_THIRD_POSITION);
+            case DRIVE_TO_INTAKE2:
+                if (!follower.isBusy()&& pathTimer.getElapsedTimeSeconds() > 3){
+                    follower.followPath(driveShootToIntake2,true);
+                    setPathState(PathState.DRIVE_TO_SHOOT_POSITION_2);
                 }
                 break;
-            case DRIVE_TO_THIRD_POSITION:
-                if (!follower.isBusy()){
-                    follower.followPath(driveSecondToThird);
+            case DRIVE_TO_SECOND_POSITION:
+                if (!follower.isBusy()&& pathTimer.getElapsedTimeSeconds() > 3){
+                    follower.followPath(driveFirstToSecond,true);
+                    setPathState(PathState.DRIVE_TO_SHOOT_POSITION_1);
+                }
+                break;
+            case DRIVE_TO_SHOOT_POSITION_1:
+                if (!follower.isBusy()&& pathTimer.getElapsedTimeSeconds() > 3){
+                    follower.followPath(driveSecondToShoot);
+                    setPathState(PathState.REAR_SHOOT_ACTION);
+                }
+                break;
+            case DRIVE_TO_SHOOT_POSITION_2:
+                if (!follower.isBusy()&& pathTimer.getElapsedTimeSeconds() > 3){
+                    follower.followPath(driveIntake2ToShoot);
                     setPathState(PathState.DRIVE_TO_END_POSITION);
                 }
                 break;
                 
             case DRIVE_TO_END_POSITION:
-                if (!follower.isBusy()){
-                    follower.followPath(driveThirdToEnd);
+                if (!follower.isBusy()&& pathTimer.getElapsedTimeSeconds() > 3){
+                    follower.followPath(driveShootToEnd);
                     setPathState(PathState.PARK);
                 }
             case PARK:
