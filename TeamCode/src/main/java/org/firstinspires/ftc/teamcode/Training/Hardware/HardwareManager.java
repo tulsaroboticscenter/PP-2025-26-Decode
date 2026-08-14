@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.DriveTrain;
 import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.HoodServo;
 import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.GateServo;
+import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.PinPoint;
 import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.Imu;
 
@@ -24,6 +25,8 @@ public class HardwareManager {
     public GateServo gateServo = new GateServo();
     public PinPoint pinPoint = new PinPoint();
     public Imu imu = new Imu();
+    public Intake intakeMotor = new Intake();
+
 
 
 
@@ -33,6 +36,7 @@ public class HardwareManager {
         gateServo.init(hwMap);
         pinPoint.init(hwMap);
         imu.init(hwMap);
+        intakeMotor.init(hwMap);
 
     }
     public void init_teleop(HardwareMap hwMap) {
@@ -42,6 +46,7 @@ public class HardwareManager {
         gateServo.init(hwMap);
         pinPoint.init(hwMap);
         imu.init(hwMap);
+        intakeMotor.init(hwMap);
 
     }
 }
