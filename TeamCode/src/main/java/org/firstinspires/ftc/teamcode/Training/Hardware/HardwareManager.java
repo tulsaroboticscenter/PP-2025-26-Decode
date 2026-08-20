@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.DriveTrain;
 import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.HoodServo;
 import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.GateServo;
 import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.Intake;
+import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.Limelight;
 import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.PinPoint;
 import org.firstinspires.ftc.teamcode.Training.Hardware.Mechanisms.Imu;
 
@@ -26,8 +27,7 @@ public class HardwareManager {
     public PinPoint pinPoint = new PinPoint();
     public Imu imu = new Imu();
     public Intake intakeMotor = new Intake();
-
-
+    public Limelight limelight = new Limelight();
 
 
     public void init_auto(HardwareMap hwMap) {
@@ -37,6 +37,7 @@ public class HardwareManager {
         pinPoint.init(hwMap);
         imu.init(hwMap);
         intakeMotor.init(hwMap);
+        limelight.init(hwMap);
 
     }
     public void init_teleop(HardwareMap hwMap) {
@@ -47,6 +48,7 @@ public class HardwareManager {
         pinPoint.init(hwMap);
         imu.init(hwMap);
         intakeMotor.init(hwMap);
+        limelight.init(hwMap);
 
     }
 }
