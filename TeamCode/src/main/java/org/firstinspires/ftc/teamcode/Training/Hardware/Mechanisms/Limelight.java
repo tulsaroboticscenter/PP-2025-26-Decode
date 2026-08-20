@@ -9,7 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 public class Limelight {
     Limelight3A limelight = null;
-    LLResult latestResult = null;
+    public LLResult latestResult = null;
     LLStatus latestStatus = null;
 
     Pose3D botPose = null;
@@ -24,9 +24,11 @@ public class Limelight {
         limelight.start();
     }
 
-    public void setPieLine(int index){
+    public void setPipeLine(int index){
         limelight.pipelineSwitch(index);
     }
+
+
     public LLResult getLatestResult(){
         latestResult = limelight.getLatestResult();
         return latestResult;
