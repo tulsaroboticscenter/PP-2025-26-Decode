@@ -30,6 +30,9 @@ public class HardwareManager {
     public Limelight limelight = new Limelight();
 
 
+    /* auto initialize - uses pedro pathing to initialize drivetrain so
+    we do not intialize the drivetrain in auto
+    */
     public void init_auto(HardwareMap hwMap) {
 
         hoodServo.init(hwMap);
