@@ -9,14 +9,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 public class Limelight {
     Limelight3A limelight = null;
-    public LLResult latestResult = null;
+    LLResult latestResult = null;
     LLStatus latestStatus = null;
 
     Pose3D botPose = null;
 
     public void init(HardwareMap hwMap){
         limelight = hwMap.get(Limelight3A.class, "limelight");
-        limelight.setPollRateHz(12);
+        limelight.setPollRateHz(11);
         limelight.pipelineSwitch(0);
     }
 

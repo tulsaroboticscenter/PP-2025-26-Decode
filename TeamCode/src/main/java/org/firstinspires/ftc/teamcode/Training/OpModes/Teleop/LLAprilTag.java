@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Training.OpModes.Teleop;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -67,22 +68,27 @@ public class LLAprilTag extends OpMode {
             if (pipelineIndex > 1) {
                 pipelineIndex = 1;
             }
+            hwMgr.limelight.setPipeLine(pipelineArray[pipelineIndex]);
         } else if (gamepad1.dpad_down) {
             pipelineIndex--;
             if (pipelineIndex < 0) {
                 pipelineIndex = 0;
             }
+            hwMgr.limelight.setPipeLine(pipelineArray[pipelineIndex]);
         }
-        hwMgr.limelight.setPipeLine(pipelineArray[pipelineIndex]);
+
+        telemetry.addData("pipeline ", pipelineArray[pipelineIndex]);
 
         if (llResult.isValid() && llResult != null) {
             Pose3D pose3D = llResult.getBotpose();
             telemetry.addData("botpose ", pose3D);
+            telemetry.addData("tx ", llResult.getTx());
+            telemetry.addData("ty ", llResult.getTy());
+            telemetry.addData("ta ", llResult.getTa());
         } else {
             telemetry.addLine("target not found");
         }
     } // loop end
 
-
-    }
+}
 
