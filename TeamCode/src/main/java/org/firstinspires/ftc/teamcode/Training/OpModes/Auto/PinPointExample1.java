@@ -30,7 +30,7 @@ public class PinPointExample1 extends OpMode {
 
     @Override
     public void init() {
-        hwMgr.init_auto(hardwareMap);
+        hwMgr.init_pedro(hardwareMap);
         hwMgr.pinPoint.pinPoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
 
         pathTimer = new ElapsedTime();

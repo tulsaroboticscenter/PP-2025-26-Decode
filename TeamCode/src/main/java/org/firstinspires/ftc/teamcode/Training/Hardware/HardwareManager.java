@@ -33,7 +33,7 @@ public class HardwareManager {
     /* auto initialize - uses pedro pathing to initialize drivetrain so
     we do not intialize the drivetrain in auto
     */
-    public void init_auto(HardwareMap hwMap) {
+    public void init_pedro(HardwareMap hwMap) {
 
         hoodServo.init(hwMap);
         gateServo.init(hwMap);
@@ -43,7 +43,7 @@ public class HardwareManager {
         limelight.init(hwMap);
 
     }
-    public void init_teleop(HardwareMap hwMap) {
+    public void init_drivetrain(HardwareMap hwMap) {
 
         driveTrain.init(hwMap);
         hoodServo.init(hwMap);

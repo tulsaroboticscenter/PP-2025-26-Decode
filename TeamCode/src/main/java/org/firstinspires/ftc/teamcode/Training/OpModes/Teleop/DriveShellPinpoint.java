@@ -21,7 +21,7 @@ public class DriveShellPinpoint extends OpMode {
     @Override
     public void init() {
 
-        hwMgr.init_teleop(hardwareMap);
+        hwMgr.init_drivetrain(hardwareMap);
 
         fieldCentric = false;
 

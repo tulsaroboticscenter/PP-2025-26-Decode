@@ -101,7 +101,7 @@ public class ELIPedroTestShell extends OpMode {
         pathTimer = new Timer();
         opModeTimer = new Timer();
 
-        hwMgr.init_auto(hardwareMap);
+        hwMgr.init_pedro(hardwareMap);
         follower = Constants.createFollower(hardwareMap);
 
         buildPaths();
