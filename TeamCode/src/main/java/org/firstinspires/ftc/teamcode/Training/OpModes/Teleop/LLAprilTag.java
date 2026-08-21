@@ -18,7 +18,7 @@ public class LLAprilTag extends OpMode {
     double curPosRadians;
     boolean fieldCentric = false;
 
-    int[] pipelineArray = {0,1};
+    int[] pipelineArray = {1,2};
     int pipelineIndex = 0;
 
     LLResult llResult = null;
@@ -78,6 +78,8 @@ public class LLAprilTag extends OpMode {
         }
 
         telemetry.addData("pipeline ", pipelineArray[pipelineIndex]);
+
+        llResult = hwMgr.limelight.getLatestResult();
 
         if (llResult.isValid() && llResult != null) {
             Pose3D pose3D = llResult.getBotpose();
