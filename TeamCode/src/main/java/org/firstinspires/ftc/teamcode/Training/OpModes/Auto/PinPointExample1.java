@@ -30,7 +30,7 @@ public class PinPointExample1 extends OpMode {
 
     @Override
     public void init() {
-        hwMgr.init_pedro(hardwareMap);
+        hwMgr.init_drivetrain(hardwareMap);
         hwMgr.pinPoint.pinPoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
 
         pathTimer = new ElapsedTime();
@@ -64,7 +64,7 @@ public class PinPointExample1 extends OpMode {
                     hwMgr.driveTrain.driveRobotMecanum(0,0,0); // stop
                     setPathState(PathState.ROTATE_RIGHT);
                 } else {
-                    hwMgr.driveTrain.driveRobotField(.5,0,0,Math.toRadians(90));
+                    hwMgr.driveTrain.driveRobotField(.5,0,0,Math.toRadians(0));
                 }
 
                 break;
