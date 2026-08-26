@@ -11,7 +11,7 @@ import com.pedropathing.util.Timer;
 import org.firstinspires.ftc.teamcode.Training.Hardware.HardwareManager;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name="pedroTest")
+@Autonomous(name="pedro Test")
 public class PedroPathTest1 extends OpMode {
 // declare follower & path timer
     private Follower follower;

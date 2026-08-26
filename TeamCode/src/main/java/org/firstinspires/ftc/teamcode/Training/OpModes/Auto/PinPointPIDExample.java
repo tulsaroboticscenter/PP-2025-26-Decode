@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Training.OpModes.Auto;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -10,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Training.Hardware.HardwareManager;
 
 
-@TeleOp(name = "Pinpoint PID Example")
+@Autonomous(name = "Pinpoint PID Example")
 public class PinPointPIDExample extends OpMode {
   private HardwareManager hwMgr = new HardwareManager(hardwareMap);
   Double PosX;

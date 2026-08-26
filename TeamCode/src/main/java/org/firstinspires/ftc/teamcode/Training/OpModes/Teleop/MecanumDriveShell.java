@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Training.OpModes.Teleop;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -9,6 +10,7 @@ import org.firstinspires.ftc.teamcode.Training.Hardware.HardwareManager;
     test opmode for mecanum wheels
 
  */
+@Disabled
 @TeleOp(name="Mecanum Drive",group="Test")
 public class MecanumDriveShell extends OpMode {
 

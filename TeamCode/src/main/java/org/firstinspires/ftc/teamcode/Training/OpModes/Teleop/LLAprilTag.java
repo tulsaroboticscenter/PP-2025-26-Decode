@@ -85,6 +85,8 @@ public class LLAprilTag extends OpMode {
             telemetry.addData("botpose ", pose3D);
             telemetry.addData("tx ", llResult.getTx());
             telemetry.addData("ty ", llResult.getTy());
+            telemetry.addData("txNC ", llResult.getTxNC());
+            telemetry.addData("tyNC ", llResult.getTyNC());
             telemetry.addData("ta ", llResult.getTa());
         } else {
             telemetry.addLine("target not found");
