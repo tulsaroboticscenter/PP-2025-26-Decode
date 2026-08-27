@@ -34,6 +34,7 @@ public class PinPointExample1 extends OpMode {
         hwMgr.init_drivetrain(hardwareMap);
         hwMgr.pinPoint.pinPoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
 
+        getPinpointData();
         pathTimer = new ElapsedTime();
         pathState = PathState.DRIVE_START_TO_FIRST_POSITION;
 
@@ -41,13 +42,20 @@ public class PinPointExample1 extends OpMode {
 
     @Override
     public void start() {
-        super.start();
+
 
     }
 
     @Override
     public void loop() {
 
+        getPinpointData();
+
+        statePathUpdate();
+
+    }
+
+    private void getPinpointData(){
         hwMgr.pinPoint.pinPoint.update();
         Pose2D pose2D = hwMgr.pinPoint.pinPoint.getPosition();
         posX = pose2D.getX(DistanceUnit.INCH);
@@ -57,15 +65,11 @@ public class PinPointExample1 extends OpMode {
         telemetry.addData("posX ",posX);
         telemetry.addData("posY ",posY);
         telemetry.addData("Heading ", curHeading);
-
-        statePathUpdate();
-
     }
-
     private void statePathUpdate(){
         switch(pathState) {
             case DRIVE_START_TO_FIRST_POSITION:
-                if (posY > 24) {
+                if (posX > 24) {
                     hwMgr.driveTrain.driveRobotMecanum(0,0,0); // stop
                 //    setPathState(PathState.ROTATE_RIGHT);
                     setPathState(PathState.PARK);
