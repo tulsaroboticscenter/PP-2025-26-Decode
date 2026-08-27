@@ -15,9 +15,9 @@ import org.firstinspires.ftc.teamcode.Training.Hardware.HardwareManager;
 @Autonomous(name = "Pinpoint Example 1")
 public class PinPointExample1 extends OpMode {
   private HardwareManager hwMgr = new HardwareManager(hardwareMap);
-  Double PosX;
-  Double PosY;
-  Double CurHeading;
+  Double posX;
+  Double posY;
+  Double curHeading;
 
   public enum PathState {
       DRIVE_START_TO_FIRST_POSITION,
@@ -50,9 +50,13 @@ public class PinPointExample1 extends OpMode {
 
         hwMgr.pinPoint.pinPoint.update();
         Pose2D pose2D = hwMgr.pinPoint.pinPoint.getPosition();
-        PosX = pose2D.getX(DistanceUnit.INCH);
-        PosY = pose2D.getY(DistanceUnit.INCH);
-        CurHeading = pose2D.getHeading(AngleUnit.DEGREES);
+        posX = pose2D.getX(DistanceUnit.INCH);
+        posY = pose2D.getY(DistanceUnit.INCH);
+        curHeading = pose2D.getHeading(AngleUnit.DEGREES);
+
+        telemetry.addData("posX ",posX);
+        telemetry.addData("posY ",posY);
+        telemetry.addData("Heading ", curHeading);
 
         statePathUpdate();
 
@@ -61,16 +65,17 @@ public class PinPointExample1 extends OpMode {
     private void statePathUpdate(){
         switch(pathState) {
             case DRIVE_START_TO_FIRST_POSITION:
-                if (PosY > 24) {
+                if (posY > 24) {
                     hwMgr.driveTrain.driveRobotMecanum(0,0,0); // stop
-                    setPathState(PathState.ROTATE_RIGHT);
+                //    setPathState(PathState.ROTATE_RIGHT);
+                    setPathState(PathState.PARK);
                 } else {
                     hwMgr.driveTrain.driveRobotField(.5,0,0,Math.toRadians(0));
                 }
 
                 break;
             case ROTATE_RIGHT:
-                if (CurHeading < 180 ){
+                if (curHeading < 180 ){
                     hwMgr.driveTrain.driveRobotMecanum(0,0,.5); // rotate right
                 } else {
                     hwMgr.driveTrain.driveRobotMecanum(0,0,0); // stop
@@ -80,7 +85,7 @@ public class PinPointExample1 extends OpMode {
                 break;
             case DRIVE_TO_SECOND_POSITION:
                 hwMgr.driveTrain.driveRobotMecanum(.5,0,0);
-                if (PosX > 12 || pathTimer.seconds() > 2) {
+                if (posX > 12 || pathTimer.seconds() > 2) {
                     setPathState(PathState.PARK);
                  }
                 break;
