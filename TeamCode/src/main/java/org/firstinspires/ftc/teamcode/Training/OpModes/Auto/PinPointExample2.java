@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.Training.OpModes.Auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -12,12 +10,17 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Training.Hardware.HardwareManager;
 
 
-@Autonomous(name = "Pinpoint Example 1")
-public class PinPointExample1 extends OpMode {
+@Autonomous(name = "Pinpoint Example 2")
+public class PinPointExample2 extends OpMode {
   private HardwareManager hwMgr = new HardwareManager(hardwareMap);
   Double posX;
   Double posY;
   Double curHeading;
+
+  double[] speedArray = {.1,.25,.40,.55};
+  int[] distanceArray = {12,24,36,48};
+  int speedIndex = 0;
+  int distanceIndex = 0;
 
 
   public enum PathState {
@@ -42,13 +45,44 @@ public class PinPointExample1 extends OpMode {
      }
 
     @Override
-    public void start() {
+    public void init_loop() {
+        telemetry.addLine("dpad up / down to change distance");
+        telemetry.addLine("dpad left / right to change speed");
 
-
+        if (gamepad1.dpad_up) {
+            distanceIndex++;
+            if (distanceIndex > 3) {
+                distanceIndex = 3;
+            }
+        } else{
+            if (gamepad1.dpad_down){
+                distanceIndex--;
+                if (distanceIndex < 0){
+                    distanceIndex = 0;
+                }
+            }
+        }
+        if (gamepad1.dpad_right) {
+            speedIndex++;
+            if (speedIndex > 3) {
+                speedIndex = 3;
+            }
+        } else{
+            if (gamepad1.dpad_left){
+                speedIndex--;
+                if (speedIndex < 0){
+                    speedIndex = 0;
+                }
+            }
+        }
+        telemetry.addData("Speed ", speedArray[speedIndex]);
+        telemetry.addData("Distance ", distanceArray[distanceIndex]);
     }
 
     @Override
     public void loop() {
+        telemetry.addData("Speed ", speedArray[speedIndex]);
+        telemetry.addData("Distance ", distanceArray[distanceIndex]);
 
         getPinpointData();
 
@@ -70,30 +104,15 @@ public class PinPointExample1 extends OpMode {
     private void statePathUpdate(){
         switch(pathState) {
             case DRIVE_START_TO_FIRST_POSITION:
-                if (posX > 24) {
+                if (posX > distanceArray[distanceIndex]) {
                     hwMgr.driveTrain.driveRobotMecanum(0,0,0); // stop
-                //    setPathState(PathState.ROTATE_RIGHT);
                     setPathState(PathState.PARK);
                 } else {
-                    hwMgr.driveTrain.driveRobotField(.5,0,0,Math.toRadians(0));
+                    hwMgr.driveTrain.driveRobotField(speedArray[speedIndex],0,0,Math.toRadians(0));
                 }
 
                 break;
-            case ROTATE_RIGHT:
-                if (curHeading < 180 ){
-                    hwMgr.driveTrain.driveRobotMecanum(0,0,.5); // rotate right
-                } else {
-                    hwMgr.driveTrain.driveRobotMecanum(0,0,0); // stop
-                    setPathState(PathState.DRIVE_TO_SECOND_POSITION);
-                }
 
-                break;
-            case DRIVE_TO_SECOND_POSITION:
-                hwMgr.driveTrain.driveRobotMecanum(.5,0,0);
-                if (posX > 12 || pathTimer.seconds() > 2) {
-                    setPathState(PathState.PARK);
-                 }
-                break;
             case PARK:
                 stop();
                 break;

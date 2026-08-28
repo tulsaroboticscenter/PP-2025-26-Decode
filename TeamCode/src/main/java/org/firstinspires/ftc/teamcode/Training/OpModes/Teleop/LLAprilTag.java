@@ -28,6 +28,7 @@ public class LLAprilTag extends OpMode {
     public void init() {
 
         hwMgr.init_drivetrain(hardwareMap);
+        hwMgr.limelight.setPipeLine(pipelineArray[pipelineIndex]);
 
         fieldCentric = false;
 
