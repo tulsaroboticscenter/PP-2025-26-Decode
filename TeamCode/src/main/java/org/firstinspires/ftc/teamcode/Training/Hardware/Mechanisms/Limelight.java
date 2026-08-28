@@ -34,4 +34,7 @@ public class Limelight {
         return latestResult;
     }
 
+    public void updateRobotOrientation( double yaw){
+        limelight.updateRobotOrientation(yaw);
+    }
 }

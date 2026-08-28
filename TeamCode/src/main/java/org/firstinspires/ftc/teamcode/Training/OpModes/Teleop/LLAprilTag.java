@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Training.Hardware.HardwareManager;
 
 /*
@@ -79,11 +80,13 @@ public class LLAprilTag extends OpMode {
 
         telemetry.addData("pipeline ", pipelineArray[pipelineIndex]);
 
+        YawPitchRollAngles orientation = hwMgr.imu.getRobotYawPitchRollAngles();
+        hwMgr.limelight.updateRobotOrientation(orientation.getYaw());
         llResult = hwMgr.limelight.getLatestResult();
 
         if (llResult.isValid() && llResult != null) {
-            Pose3D pose3D = llResult.getBotpose();
-            telemetry.addData("botpose ", pose3D);
+            Pose3D pose3D = llResult.getBotpose_MT2();
+            telemetry.addData("botpose ", pose3D.toString());
             telemetry.addData("tx ", llResult.getTx());
             telemetry.addData("ty ", llResult.getTy());
             telemetry.addData("txNC ", llResult.getTxNC());
