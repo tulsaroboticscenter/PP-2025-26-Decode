@@ -31,9 +31,10 @@ public class LLAprilTag extends OpMode {
         hwMgr.init_drivetrain(hardwareMap);
         hwMgr.limelight.setPipeLine(pipelineArray[pipelineIndex]);
 
-        fieldCentric = false;
+        fieldCentric = true;
 
         telemetry.addLine("Press A to reset IMU");
+        telemetry.addLine("Press B to switch pipeline");
         telemetry.addLine("Press X to toggle robot or field centric");
         telemetry.addData("Field centric =",fieldCentric);
     }
@@ -44,13 +45,13 @@ public class LLAprilTag extends OpMode {
     @Override
     public void loop() {
         // reset imu if button A pressed
-        if (gamepad1.a) {
+        if (gamepad1.aWasPressed()) {
             hwMgr.imu.resetYaw();
 
         }
 
         // if button X, toggle field centric
-        if (gamepad1.x) {
+        if (gamepad1.xWasPressed()) {
             fieldCentric = !fieldCentric;
         }
         if (fieldCentric) {
@@ -64,17 +65,8 @@ public class LLAprilTag extends OpMode {
 
         telemetry.addData("Field centric =", fieldCentric);
 
-        if (gamepad1.dpad_up) {
-            pipelineIndex++;
-            if (pipelineIndex > 1) {
-                pipelineIndex = 1;
-            }
-            hwMgr.limelight.setPipeLine(pipelineArray[pipelineIndex]);
-        } else if (gamepad1.dpad_down) {
-            pipelineIndex--;
-            if (pipelineIndex < 0) {
-                pipelineIndex = 0;
-            }
+        if (gamepad1.bWasPressed()) {
+            pipelineIndex = pipelineIndex++ % pipelineArray.length;
             hwMgr.limelight.setPipeLine(pipelineArray[pipelineIndex]);
         }
 

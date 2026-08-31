@@ -37,8 +37,8 @@ public class HardwareManager {
 
         hoodServo.init(hwMap);
         gateServo.init(hwMap);
-        pinPoint.init(hwMap);
-        imu.init(hwMap);
+ //       pinPoint.init(hwMap);
+ //       imu.init(hwMap);
         intakeMotor.init(hwMap);
         limelight.init(hwMap);
 

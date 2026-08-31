@@ -10,8 +10,8 @@ import org.firstinspires.ftc.teamcode.Training.Hardware.HardwareManager;
     test opmode for mecanum wheels
 
  */
-@Disabled
-@TeleOp(name="Mecanum Drive",group="Test")
+
+@TeleOp(name="Mecanum Drive Shell",group="Test")
 public class MecanumDriveShell extends OpMode {
 
     double curPosRadians;
@@ -23,7 +23,7 @@ public class MecanumDriveShell extends OpMode {
 
         hwMgr.init_drivetrain(hardwareMap);
 
-        fieldCentric = false;
+        fieldCentric = true;
 
         telemetry.addLine("Press A to reset IMU");
         telemetry.addLine("Press X to toggle robot or field centric");
@@ -33,13 +33,13 @@ public class MecanumDriveShell extends OpMode {
     @Override
     public void loop() {
         // reset imu if button A pressed
-        if (gamepad1.a){
+        if (gamepad1.aWasPressed()){
             hwMgr.imu.resetYaw();
 
         }
 
         // if button X, toggle field centric
-        if (gamepad1.x){
+        if (gamepad1.xWasPressed()){
             fieldCentric = !fieldCentric;
         }
         if (fieldCentric){

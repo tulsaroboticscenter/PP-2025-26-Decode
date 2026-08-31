@@ -19,8 +19,10 @@ public class Pinpoint_IMU_Compare extends OpMode {
     double curIMUHeading;
 
     public void init(){
+
         hwMgr.init_drivetrain(hardwareMap);
     }
+
     public void loop(){
 
         hwMgr.pinPoint.pinPoint.update();

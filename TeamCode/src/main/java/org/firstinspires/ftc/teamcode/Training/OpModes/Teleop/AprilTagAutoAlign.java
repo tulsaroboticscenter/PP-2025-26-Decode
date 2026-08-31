@@ -1,14 +1,15 @@
-package org.firstinspires.ftc.teamcode.Training.OpModes.Auto;
+package org.firstinspires.ftc.teamcode.Training.OpModes.Teleop;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Training.Hardware.HardwareManager;
 
-@Autonomous(name = "April Tag Auto Align")
+@TeleOp(name = "April Tag Auto Align")
 
 public class AprilTagAutoAlign extends OpMode {
 
@@ -81,7 +82,7 @@ public class AprilTagAutoAlign extends OpMode {
         curPositionRadians = hwMgr.imu.getRobotYawPitchRollAnglesRadians();
         hwMgr.driveTrain.driveRobotField(forward, strafe, rotate, curPositionRadians);
 
-        if (gamepad1.bWasReleased()) {
+        if (gamepad1.bWasPressed()) {
             stepIndex = (stepIndex + 1) % stepSizes.length;
         }
 
@@ -102,7 +103,7 @@ public class AprilTagAutoAlign extends OpMode {
         }
 
         if (llResult != null && llResult.isValid()) {
-            telemetry.addData("AT ", llResult.getTx());
+            telemetry.addData("Tx ", llResult.getTx());
         } else {
             telemetry.addLine("Manual mode");
         }

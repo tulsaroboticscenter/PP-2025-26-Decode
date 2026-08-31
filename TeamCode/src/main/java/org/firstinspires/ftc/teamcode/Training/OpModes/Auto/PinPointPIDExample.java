@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -17,14 +18,28 @@ public class PinPointPIDExample extends OpMode {
   Double PosX;
   Double PosY;
   Double CurHeading;
-
-  static final double kP = 0.001;
-  static final double kI = 0.01;
-  static final double kD = 0.001;
-
+    double power = 0.0;
+    double kP = 0.002;
+   double kD = 0.0001;
+    double error = 0.0;
     double lastError = 0.0;
-    ElapsedTime PIDTimer;
-
+    double pTerm;
+    double dTerm;
+    double goalX = 0; // offest?
+    double distanceTolerance = 0.25;
+    double curTime = 0.0;
+    double lastTime = 0.0;
+    double difTime;
+    double forward;
+    double strafe;
+    double rotate;
+    double curPositionRadians = 0;
+    double[] speedArray = {.1,.25,.40,.55};
+    int[] distanceArray = {12,24,36,48};
+    int speedIndex = 0;
+    int distanceIndex = 0;
+    double[] stepSizes = {.01, 0.01, .001, .0001};
+    int stepIndex = 2;
 
   public enum PathState {
       DRIVE_START_TO_FIRST_POSITION,
@@ -38,7 +53,7 @@ public class PinPointPIDExample extends OpMode {
 
     @Override
     public void init() {
-        hwMgr.init_pedro(hardwareMap);
+        hwMgr.init_drivetrain(hardwareMap);
         hwMgr.pinPoint.pinPoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
 
         pathTimer = new ElapsedTime();
@@ -46,9 +61,53 @@ public class PinPointPIDExample extends OpMode {
 
      }
 
+     @Override
+    public void init_loop() {
+        telemetry.addLine("Press A to change distance");
+        telemetry.addLine("Press B to change speed");
+        telemetry.addLine("Press X to change step size");
+        telemetry.addLine("Use dpad left/right to change kP");
+        telemetry.addLine("Use dpad up/down to change kD");
+         telemetry.addData("Distance ", distanceArray[distanceIndex]);
+         telemetry.addData("Speed ", speedArray[speedIndex]);
+         telemetry.addData("Step ", stepSizes[stepIndex]);
+         telemetry.addData("kP ", kP);
+         telemetry.addData("kD ", kD);
+
+        if (gamepad1.aWasPressed()) {
+            distanceIndex = distanceIndex++ % distanceArray.length;
+        }
+
+        if (gamepad1.bWasPressed()) {
+            speedIndex = speedIndex++ % speedArray.length;
+        }
+
+         if (gamepad1.xWasPressed()) {
+             stepIndex = (stepIndex + 1) % stepSizes.length;
+         }
+
+         if (gamepad1.dpadLeftWasPressed()) {
+             kP -= stepSizes[stepIndex];
+         }
+
+         if (gamepad1.dpadRightWasPressed()) {
+             kP += stepSizes[stepIndex];
+         }
+
+         if (gamepad1.dpadUpWasPressed()) {
+             kD -= stepSizes[stepIndex];
+         }
+
+         if (gamepad1.dpadDownWasPressed()) {
+             kD -= stepSizes[stepIndex];
+         }
+
+    }
+
     @Override
     public void start() {
-        super.start();
+        resetRuntime();
+        curTime = getRuntime();
 
     }
 
@@ -61,7 +120,6 @@ public class PinPointPIDExample extends OpMode {
         PosX = pose2D.getX(DistanceUnit.INCH);
         PosY = pose2D.getY(DistanceUnit.INCH);
         CurHeading = pose2D.getHeading(AngleUnit.DEGREES);
-        PIDTimer.reset();
 
         statePathUpdate();
 
@@ -70,30 +128,14 @@ public class PinPointPIDExample extends OpMode {
     private void statePathUpdate(){
         switch(pathState) {
             case DRIVE_START_TO_FIRST_POSITION:
-                if (PosY > 24) {
+                power = setDistancePower(distanceArray[distanceIndex],PosX);
+                if (power != 0){
+                    hwMgr.driveTrain.driveRobotField(power,0,0,Math.toRadians(0));
+                }  else {
                     hwMgr.driveTrain.driveRobotMecanum(0,0,0); // stop
-                    setPathState(PathState.ROTATE_RIGHT);
-                } else {
-                    double power = setDistancePower(24,PosY);
-                    hwMgr.driveTrain.driveRobotField(power,0,0,Math.toRadians(90));
-                }
-
-                break;
-            case ROTATE_RIGHT:
-                if (CurHeading < 180 ){
-                    hwMgr.driveTrain.driveRobotMecanum(0,0,.5); // rotate right
-                } else {
-                    hwMgr.driveTrain.driveRobotMecanum(0,0,0); // stop
-                    setPathState(PathState.DRIVE_TO_SECOND_POSITION);
-                }
-
-                break;
-            case DRIVE_TO_SECOND_POSITION:
-                hwMgr.driveTrain.driveRobotMecanum(.5,0,0);
-                if (PosX > 12 || pathTimer.seconds() > 2) {
-                    double power = setDistancePower(12,PosX);
                     setPathState(PathState.PARK);
-                 }
+                }
+
                 break;
             case PARK:
                 stop();
@@ -110,26 +152,22 @@ public class PinPointPIDExample extends OpMode {
     }
 
     public double setDistancePower(double desiredDistance, double currentDistance){
-        double error = desiredDistance - currentDistance;
-        double derivative = (error - lastError) / pathTimer.seconds();
-        double power = (kP * error) + kI + (kD * derivative);
-
-        PIDTimer.reset();
-        lastError = error;
-
-        return power;
-
-    }
-
-    public double setRotatePower(double desiredAngle, double currentAngle){
-        double error = desiredAngle  - currentAngle;
-        double derivative = (error - lastError) / pathTimer.seconds();
-        double power = (kP * error) + kI + (kD * derivative);
-
-        PIDTimer.reset();
-        lastError = error;
+        error = desiredDistance - currentDistance;
+        if (Math.abs(error) < distanceTolerance){
+            power = 0;
+        } else {
+            pTerm = error * kP;
+            curTime = getRuntime();
+            difTime = curTime - lastTime;
+            dTerm = ((error - lastError) / difTime) * kD;
+            power = Range.clip(pTerm + dTerm, -1.0, 1.0);
+            lastError = error;
+            lastTime = curTime;
+        }
 
         return power;
 
     }
+
+
 }
