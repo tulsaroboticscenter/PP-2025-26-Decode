@@ -129,13 +129,10 @@ public class PinPointPIDExample extends OpMode {
         switch(pathState) {
             case DRIVE_START_TO_FIRST_POSITION:
                 power = setDistancePower(distanceArray[distanceIndex],PosX);
-                if (power != 0){
-                    hwMgr.driveTrain.driveRobotField(power,0,0,Math.toRadians(0));
-                }  else {
-                    hwMgr.driveTrain.driveRobotMecanum(0,0,0); // stop
+                hwMgr.driveTrain.driveRobotField(power,0,0,Math.toRadians(0));
+                if (power == 0){
                     setPathState(PathState.PARK);
                 }
-
                 break;
             case PARK:
                 stop();
