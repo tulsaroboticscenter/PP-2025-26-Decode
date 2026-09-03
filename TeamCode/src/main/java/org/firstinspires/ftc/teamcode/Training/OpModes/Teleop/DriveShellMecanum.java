@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Training.OpModes.Teleop;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -12,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Training.Hardware.HardwareManager;
  */
 
 @TeleOp(name="Mecanum Drive Shell",group="Test")
-public class MecanumDriveShell extends OpMode {
+public class DriveShellMecanum extends OpMode {
 
     double curPosRadians;
     boolean fieldCentric = false;
