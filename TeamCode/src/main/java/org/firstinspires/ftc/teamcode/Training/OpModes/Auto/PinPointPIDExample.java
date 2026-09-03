@@ -38,7 +38,7 @@ public class PinPointPIDExample extends OpMode {
     int[] distanceArray = {12,24,36,48};
     int speedIndex = 0;
     int distanceIndex = 0;
-    double[] stepSizes = {.01, 0.01, .001, .0001};
+    double[] stepSizes = {0.01, .001, .0001};
     int stepIndex = 2;
 
   public enum PathState {
