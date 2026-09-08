@@ -10,8 +10,8 @@ import org.firstinspires.ftc.teamcode.Training.Hardware.HardwareManager;
 
  */
 
-@TeleOp(name="Mecanum Drive Shell",group="Test")
-public class DriveShellMecanum extends OpMode {
+@TeleOp(name="IMU Drive Shell",group="Test")
+public class DriveShellIMU extends OpMode {
 
     double curPosRadians;
     boolean fieldCentric = false;
