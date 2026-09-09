@@ -74,15 +74,15 @@ public class PinPointPIDExample extends OpMode {
          telemetry.addData("kD ", kD);
 
         if (gamepad1.aWasPressed()) {
-            distanceIndex = distanceIndex++ % distanceArray.length;
+            distanceIndex = ++distanceIndex % distanceArray.length;
         }
 
         if (gamepad1.bWasPressed()) {
-            speedIndex = speedIndex++ % speedArray.length;
+            speedIndex = ++speedIndex % speedArray.length;
         }
 
          if (gamepad1.xWasPressed()) {
-             stepIndex = (stepIndex + 1) % stepSizes.length;
+             stepIndex = ++stepIndex % stepSizes.length;
          }
 
          if (gamepad1.dpadLeftWasPressed()) {

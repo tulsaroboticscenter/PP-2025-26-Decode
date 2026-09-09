@@ -18,7 +18,9 @@ public class PinPointExample1 extends OpMode {
   Double posX;
   Double posY;
   Double curHeading;
-
+  int[] distanceArray = {12, 24, 36, 48};
+  int speedIndex = 0;
+  int distanceIndex = 2;
 
   public enum PathState {
       DRIVE_START_TO_FIRST_POSITION,
@@ -40,9 +42,18 @@ public class PinPointExample1 extends OpMode {
 
      }
 
+
+    @Override
+    public void init_loop() {
+        telemetry.addLine("Press A to change distance");
+        if (gamepad1.aWasPressed()) {
+            distanceIndex = ++distanceIndex % distanceArray.length;
+        }
+        telemetry.addData("Distance ", distanceArray[distanceIndex]);
+    }
+
     @Override
     public void start() {
-
 
     }
 
@@ -69,7 +80,7 @@ public class PinPointExample1 extends OpMode {
     private void statePathUpdate(){
         switch(pathState) {
             case DRIVE_START_TO_FIRST_POSITION:
-                if (posX > 24) {
+                if (posX > distanceArray[distanceIndex]) {
                     hwMgr.driveTrain.driveRobotMecanum(0,0,0); // stop
                 //    setPathState(PathState.ROTATE_RIGHT);
                     setPathState(PathState.PARK);

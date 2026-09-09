@@ -37,16 +37,17 @@ public class PinPointExample2 extends OpMode {
     public void init_loop() {
         telemetry.addLine("Press A to change distance");
         telemetry.addLine("Press B to change speed");
-        telemetry.addData("Distance ", distanceArray[distanceIndex]);
-        telemetry.addData("Speed ", speedArray[speedIndex]);
 
         if (gamepad1.aWasPressed()) {
-            distanceIndex = distanceIndex++ % distanceArray.length;
+            distanceIndex = ++distanceIndex % distanceArray.length;
         }
 
         if (gamepad1.bWasPressed()) {
-            speedIndex = speedIndex++ % speedArray.length;
+            speedIndex = ++speedIndex % speedArray.length;
         }
+
+        telemetry.addData("Distance ", distanceArray[distanceIndex]);
+        telemetry.addData("Speed ", speedArray[speedIndex]);
 
     }
 

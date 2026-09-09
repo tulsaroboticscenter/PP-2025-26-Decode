@@ -49,6 +49,10 @@ public class LLAprilTag extends OpMode {
             hwMgr.imu.resetYaw();
 
         }
+        if (gamepad1.bWasPressed()) {
+            pipelineIndex = ++pipelineIndex % pipelineArray.length;
+            hwMgr.limelight.setPipeLine(pipelineArray[pipelineIndex]);
+        }
 
         // if button X, toggle field centric
         if (gamepad1.xWasPressed()) {
@@ -64,12 +68,6 @@ public class LLAprilTag extends OpMode {
         }
 
         telemetry.addData("Field centric =", fieldCentric);
-
-        if (gamepad1.bWasPressed()) {
-            pipelineIndex = (pipelineIndex+1) % pipelineArray.length;
-            hwMgr.limelight.setPipeLine(pipelineArray[pipelineIndex]);
-        }
-
         telemetry.addData("pipeline ", pipelineArray[pipelineIndex]);
 
         YawPitchRollAngles orientation = hwMgr.imu.getRobotYawPitchRollAngles();
