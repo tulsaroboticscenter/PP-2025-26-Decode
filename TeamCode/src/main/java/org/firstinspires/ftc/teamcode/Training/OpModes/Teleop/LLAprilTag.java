@@ -66,7 +66,7 @@ public class LLAprilTag extends OpMode {
         telemetry.addData("Field centric =", fieldCentric);
 
         if (gamepad1.bWasPressed()) {
-            pipelineIndex = pipelineIndex++ % pipelineArray.length;
+            pipelineIndex = (pipelineIndex+1) % pipelineArray.length;
             hwMgr.limelight.setPipeLine(pipelineArray[pipelineIndex]);
         }
 

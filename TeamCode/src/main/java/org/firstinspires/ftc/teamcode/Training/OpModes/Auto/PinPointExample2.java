@@ -18,7 +18,7 @@ public class PinPointExample2 extends OpMode {
     double[] speedArray = {.1, .25, .40, .55};
     int[] distanceArray = {12, 24, 36, 48};
     int speedIndex = 0;
-    int distanceIndex = 0;
+    int distanceIndex = 2;
     private HardwareManager hwMgr = new HardwareManager(hardwareMap);
     private PathState pathState;
     private ElapsedTime pathTimer;

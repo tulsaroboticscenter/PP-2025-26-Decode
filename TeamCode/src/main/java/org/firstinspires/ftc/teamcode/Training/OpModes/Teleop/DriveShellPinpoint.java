@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Training.Hardware.HardwareManager;
     test drive opmode for mecanum wheels using pinpoint instead of IMU
 
  */
+@Disabled
 
 @TeleOp(name="Pinpoint Drive Shell",group="Test")
 public class DriveShellPinpoint extends OpMode {
