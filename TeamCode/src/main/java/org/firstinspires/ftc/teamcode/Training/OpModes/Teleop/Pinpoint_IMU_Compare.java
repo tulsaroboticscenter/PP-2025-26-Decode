@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Training.OpModes.Teleop;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -8,7 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Training.Hardware.HardwareManager;
-
+@Disabled
 @TeleOp(name="Pinpoint IMU Compare", group =  "test")
 public class Pinpoint_IMU_Compare extends OpMode {
     private HardwareManager hwMgr = new HardwareManager(hardwareMap);
